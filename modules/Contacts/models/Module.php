@@ -332,6 +332,17 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 			} else {
 				$overRideQuery = $listQuery. ' WHERE ' . $condition;
 			}
+			
+			// Viet Add
+			// Use regex to extract the number inside the single quotes after "potentialid ="
+			if ($sourceModule === 'Potentials' && preg_match("/potentialid\s*=\s*'(\d+)'/", $condition, $matches)) {
+				if (isset($matches[1])) {
+					$potentialId = $matches[1];
+					$overRideQuery .= " AND EXISTS (SELECT 1 FROM vtiger_potential p WHERE p.potentialid = '" . $potentialId . "' AND vtiger_contactdetails.accountid = p.related_to)";
+				}
+			}
+			// End of Viet Add
+
 			return $overRideQuery;
 		}
 	}
