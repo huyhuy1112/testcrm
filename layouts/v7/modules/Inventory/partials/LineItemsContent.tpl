@@ -134,7 +134,7 @@
 
 	<td>
 		<input id="{$qty}" name="{$qty}" type="text" class="qty smallInputBox inputElement"
-			   data-rule-required=true data-rule-positive=true data-rule-greater_than_zero=true value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"
+			   data-rule-required=true value="{if !empty($data.$qty)}{$data.$qty}{else}1{/if}"
 			   {if $QUANTITY_EDITABLE eq false} disabled=disabled {/if} />
 
 		{if isset($PURCHASE_COST_EDITABLE) && $PURCHASE_COST_EDITABLE eq false and $MODULE neq 'PurchaseOrder'}
@@ -145,14 +145,6 @@
 		{if isset($MARGIN_EDITABLE) && $MARGIN_EDITABLE eq false}
 			<input type="hidden" name="{$margin}" value="{if $data.$margin}{$data.$margin}{else}0{/if}"></span>
 			<span class="margin pull-right" style="display:none">{if $data.$margin}{$data.$margin}{else}0{/if}</span>
-		{/if}
-		{if $MODULE neq 'PurchaseOrder'}
-			<br>
-			<span class="stockAlert redColor {if isset($data.$qty) && $data.$qty <= $data.$qtyInStock}hide{/if}" >
-				{vtranslate('LBL_STOCK_NOT_ENOUGH',$MODULE)}
-				<br>
-				{vtranslate('LBL_MAX_QTY_SELECT',$MODULE)}&nbsp;<span class="maxQuantity">{(isset($data.$qtyInStock)) ? $data.$qtyInStock:""}</span>
-			</span>
 		{/if}
 	</td>
 

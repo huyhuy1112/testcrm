@@ -1249,14 +1249,6 @@ Vtiger_Edit_Js("Inventory_Edit_Js",{
 		lineItemTable.on('focusout','.qty',function(e){
 			var element = jQuery(e.currentTarget);
 			var lineItemRow = element.closest('tr.'+thisInstance.rowClass);
-			var quantityInStock = lineItemRow.data('quantityInStock');
-			if(typeof quantityInStock  != 'undefined') {
-				if(parseFloat(element.val()) > parseFloat(quantityInStock)) {
-					lineItemRow.find('.stockAlert').removeClass('hide').find('.maxQuantity').text(quantityInStock);
-				}else{
-					lineItemRow.find('.stockAlert').addClass('hide');
-				}
-			}
 			thisInstance.quantityChangeActions(lineItemRow);
 		});
 	 },
