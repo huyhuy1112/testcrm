@@ -403,6 +403,11 @@ jQuery.Class("Vtiger_Popup_Js",{
         // we should hide all existing popup's
         app.helper.hidePopup();
         app.helper.showProgress();
+		// Viet Task PT12 - Add
+		if(params['src_module'] === 'Potentials' && params['src_field'] === 'contact_id' && window.potential_account_id !== undefined){
+			params['src_record'] = window.potential_account_id;
+		}
+		// End Viet
         app.request.post({"data":params}).then(function(err,data) {
             app.helper.hideProgress();
             if(err === null) {
@@ -446,6 +451,11 @@ jQuery.Class("Vtiger_Popup_Js",{
 			var referenceModule = jQuery('#popupPageContainer').find('#module').val();
 		    var response ={};
 		    response[id] = {'name' : recordName,'info' : recordInfo, 'module' : referenceModule};
+			// Viet Task PT12 - Add
+			if(app.getModuleName() === 'Potentials' && app.getViewName() === 'Edit' && referenceModule === 'Accounts' && recordInfo.accountid !== undefined){
+				window.potential_account_id = recordInfo.accountid;
+			}
+			// End Viet
             thisInstance.done(response,thisInstance.getEventName());
             e.preventDefault();
 		}

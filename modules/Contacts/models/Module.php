@@ -310,6 +310,12 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 				case 'Vendors'		: $tableName = 'vtiger_vendorcontactrel';	$fieldName = 'contactid';	$relatedFieldName ='vendorid';		break;
 				case 'Products'		: $tableName = 'vtiger_seproductsrel';		$fieldName = 'crmid';		$relatedFieldName ='productid';		break;
 			}
+			// Viet Task PT12 - Add
+			if ($sourceModule === 'Potentials' && $field === 'contact_id' && $record && strlen($record) > 0) {
+				$accountId = $record;
+				$record = '';
+			}
+			// End Viet
 
             		$db = PearDatabase::getInstance();
 		    	$params = array($record);
@@ -333,15 +339,21 @@ class Contacts_Module_Model extends Vtiger_Module_Model {
 				$overRideQuery = $listQuery. ' WHERE ' . $condition;
 			}
 			
-			// Viet Add
-			// Use regex to extract the number inside the single quotes after "potentialid ="
-			if ($sourceModule === 'Potentials' && preg_match("/potentialid\s*=\s*'(\d+)'/", $condition, $matches)) {
-				if (isset($matches[1])) {
-					$potentialId = $matches[1];
-					$overRideQuery .= " AND EXISTS (SELECT 1 FROM vtiger_potential p WHERE p.potentialid = '" . $potentialId . "' AND vtiger_contactdetails.accountid = p.related_to)";
+			// Viet Task PT12 - Add
+			if ($sourceModule === 'Potentials') {
+				// Use regex to extract the number inside the single quotes after "potentialid ="
+				if (preg_match("/potentialid\s*=\s*'(\d+)'/", $condition, $matches)) {
+					if (isset($matches[1])) {
+						$potentialId = $matches[1];
+						$overRideQuery .= " AND EXISTS (SELECT 1 FROM vtiger_potential p WHERE p.potentialid = '" . $potentialId . "' AND vtiger_contactdetails.accountid = p.related_to)";
+					}
+				} else {
+					if($accountId && $accountId !== '') {
+						$overRideQuery .= " AND vtiger_contactdetails.accountid = " . $accountId;
+					}
 				}
 			}
-			// End of Viet Add
+			// End Viet
 
 			return $overRideQuery;
 		}

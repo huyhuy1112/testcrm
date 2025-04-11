@@ -113,4 +113,14 @@
 			{/if}
 		{/foreach}
 	</div>
+{* Viet Task PT12 - Add *}
+{if isset($RECORD) && $MODULE eq 'Potentials' && $RECORD->get('related_to') neq ''}
+    {assign var="related_to" value=$RECORD->get('related_to')}
+    {literal}
+    <script>
+        window.potential_account_id = "{/literal}{$related_to|escape:'html'}{literal}";
+    </script>
+    {/literal}
+{/if}
+{* End Viet *}
 {/strip}
