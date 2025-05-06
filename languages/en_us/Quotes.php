@@ -12,6 +12,9 @@ $languageStrings = array(
 	//DetailView Actions
 	'SINGLE_Quotes' => 'Quote',
 	'LBL_EXPORT_TO_PDF' => 'Export to PDF',
+	'LBL_EXPORT_TO_EXCEL' => 'Export to Excel',
+	'LBL_EXPORT_TO_EXCEL_FOR_SALE' => 'Export to Excel for Sale',
+	'LBL_EXPORT_TO_EXCEL_FOR_PROJECT' => 'Export to Excel for Project',
 	'LBL_SEND_MAIL_PDF' => 'Send Email with PDF',
 
 	//Basic strings

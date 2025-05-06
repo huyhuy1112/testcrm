@@ -283,6 +283,18 @@ class Inventory_Record_Model extends Vtiger_Record_Model {
 	}
 
 	/**
+	 * Function to get URL for Export the record as Excel
+	 * @return <type>
+	 */
+	public function getExportExcelForSaleUrl() {
+		return "index.php?module=".$this->getModuleName()."&action=ExportExcelForSale&record=".$this->getId();
+	}
+
+	public function getExportExcelForProjectUrl() {
+		return "index.php?module=".$this->getModuleName()."&action=ExportExcelForProject&record=".$this->getId();
+	}
+
+	/**
 	  * Function to get the send email pdf url
 	  * @return <string>
 	  */
