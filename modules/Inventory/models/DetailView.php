@@ -22,12 +22,28 @@ class Inventory_DetailView_Model extends Vtiger_DetailView_Model {
 		$moduleName = $recordModel->getmoduleName();
 
 		if(Users_Privileges_Model::isPermitted($moduleName, 'DetailView', $recordModel->getId())) {
-			$detailViewLinks = array(
-					'linklabel' => vtranslate('LBL_EXPORT_TO_PDF', $moduleName),
-					'linkurl' => $recordModel->getExportPDFURL(),
-					'linkicon' => ''
-						);
-			$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLinks);
+			if($moduleName == 'Quotes') {
+				$detailViewLinks = array(
+						'linklabel' => vtranslate('LBL_EXPORT_TO_EXCEL_FOR_SALE', $moduleName),
+						'linkurl' => $recordModel->getExportExcelForSaleURL(),
+						'linkicon' => ''
+							);
+				$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLinks);
+
+				$detailViewLinks2 = array(
+						'linklabel' => vtranslate('LBL_EXPORT_TO_EXCEL_FOR_PROJECT', $moduleName),
+						'linkurl' => $recordModel->getExportExcelForProjectURL(),
+						'linkicon' => ''
+							);
+				$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLinks2);
+			} else {
+				$detailViewLinks = array(
+						'linklabel' => vtranslate('LBL_EXPORT_TO_PDF', $moduleName),
+						'linkurl' => $recordModel->getExportPDFURL(),
+						'linkicon' => ''
+							);
+				$linkModelList['DETAILVIEW'][] = Vtiger_Link_Model::getInstanceFromValues($detailViewLinks);
+			}
 
 			$sendEmailLink = array(
                 'linklabel' => vtranslate('LBL_SEND_MAIL_PDF', $moduleName),
