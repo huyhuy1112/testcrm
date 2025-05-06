@@ -189,6 +189,89 @@ Vtiger.Class("Vtiger_List_Js", {
 		var listInstance = window.app.controller();
 		listInstance.performMergeRecords();
 	},
+	// Viet Task PT5 - Add
+    triggerExportExcelForSale: function() {
+        var module = app.getModuleName();
+        if(module !== 'Quotes') return;
+
+        var listInstance = window.app.controller();
+        var selectedIds = listInstance.readSelectedIds(true);
+        var arrIds = JSON.parse(selectedIds);
+        if(arrIds.length > 0) {
+            var url = location.href;
+            url = url.split('&app=')[0];
+            url = url.replace('view=List', 'view=List&action=ExportExcelForSale');
+            arrIds.forEach(function(recordId, index) {
+                setTimeout(function() {
+                    var recordUrl = url + '&record=' + recordId;
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = recordUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        document.body.removeChild(iframe);
+                    }, 10000);
+                }, index * 3000);
+            });
+        } else {
+            app.helper.showAlertBox({message: app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD')});
+        }
+    },
+    triggerExportExcelForProject: function() {
+        var module = app.getModuleName();
+        if(module !== 'Quotes') return;
+
+        var listInstance = window.app.controller();
+        var selectedIds = listInstance.readSelectedIds(true);
+        var arrIds = JSON.parse(selectedIds);
+        if(arrIds.length > 0) {
+            var url = location.href;
+            url = url.split('&app=')[0];
+            url = url.replace('view=List', 'view=List&action=ExportExcelForProject');
+            arrIds.forEach(function(recordId, index) {
+                setTimeout(function() {
+                    var recordUrl = url + '&record=' + recordId;
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = recordUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        document.body.removeChild(iframe);
+                    }, 10000);
+                }, index * 3000);
+            });
+        } else {
+            app.helper.showAlertBox({message: app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD')});
+        }
+    },
+    triggerExportPDF: function() {
+        var module = app.getModuleName();
+        if(module !== 'Quotes') return;
+
+        var listInstance = window.app.controller();
+        var selectedIds = listInstance.readSelectedIds(true);
+        var arrIds = JSON.parse(selectedIds);
+        if(arrIds.length > 0) {
+            var url = location.href;
+            url = url.split('&app=')[0];
+            url = url.replace('view=List', 'view=List&action=ExportPDF');
+            arrIds.forEach(function(recordId, index) {
+                setTimeout(function() {
+                    var recordUrl = url + '&record=' + recordId;
+                    var iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = recordUrl;
+                    document.body.appendChild(iframe);
+                    setTimeout(function() {
+                        document.body.removeChild(iframe);
+                    }, 10000);
+                }, index * 3000);
+            });
+        } else {
+            app.helper.showAlertBox({message: app.vtranslate('JS_PLEASE_SELECT_ONE_RECORD')});
+        }
+    },
+	// End Viet
 	triggerAddStar: function () {
 		var listInstance = app.controller();
 		var listSelectParams = listInstance.getListSelectAllParams(true)

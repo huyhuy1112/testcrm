@@ -112,6 +112,12 @@
                                     {/if}
                                     {if $LISTVIEW_ADVANCEDACTIONS->getLabel() != 'Print'}
                                         <li class="selectFreeRecords"><a id="{$MODULE}_listView_advancedAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($LISTVIEW_ADVANCEDACTIONS->getLabel())}" {if stripos($LISTVIEW_ADVANCEDACTIONS->getUrl(), 'javascript:')===0} href="javascript:void(0);" onclick='{$LISTVIEW_ADVANCEDACTIONS->getUrl()|substr:strlen("javascript:")};'{else} href='{$LISTVIEW_ADVANCEDACTIONS->getUrl()}' {/if}>{vtranslate($LISTVIEW_ADVANCEDACTIONS->getLabel(), $MODULE)}</a></li>
+                                        {* Viet Task PT5 - Add *}
+                                        {if $MODULE == 'Quotes' && $LISTVIEW_ADVANCEDACTIONS->getLabel() == 'LBL_EXPORT'}
+                                            <li class="selectFreeRecords"><a id="{$MODULE}_listView_advancedAction_ExportExcelForSale" href="javascript:void(0);" onclick='Vtiger_List_Js.triggerExportExcelForSale()'>{vtranslate('LBL_EXPORT_TO_EXCEL_FOR_SALE', $MODULE)}</a></li>
+                                            <li class="selectFreeRecords"><a id="{$MODULE}_listView_advancedAction_ExportExcelForProject" href="javascript:void(0);" onclick='Vtiger_List_Js.triggerExportExcelForProject()'>{vtranslate('LBL_EXPORT_TO_EXCEL_FOR_PROJECT', $MODULE)}</a></li>
+                                        {/if}
+                                        {* End Viet *}
                                     {/if}  
                                 {/if}
                             {/foreach}
