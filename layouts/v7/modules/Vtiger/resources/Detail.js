@@ -1322,6 +1322,12 @@ Vtiger.Class("Vtiger_Detail_Js",{
 								jQuery(currentTdElement).find('.input-group-addon').removeClass('disabled');
 								return true;
 							}
+							// Viet Add - Task 3
+							if(app.getModuleName() === 'Products' && (fieldNameValueMap['field'] === 'commissionrate' || fieldNameValueMap['field'] === 'purchase_cost')) {
+								window.location.reload();
+								return true;
+							}
+							// End Viet Add
 							jQuery('.vt-notification').remove();
 							var postSaveRecordDetails = response;
 							if(fieldBasicData.data('type') == 'picklist' && app.getModuleName() != 'Users') {
