@@ -103,6 +103,11 @@ class Products extends CRMEntity {
 		if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'SaveAjax') && isset($_REQUEST['base_currency']) && isset($_REQUEST['unit_price'])){
 			$this->insertPriceInformation('vtiger_productcurrencyrel', 'Products');
 		}
+
+		// Viet Add - Task 3
+		$this->updateUnitPriceFromCostAndCommission();
+		// End Viet Add
+
 		// Update unit price value in vtiger_productcurrencyrel
 		$this->updateUnitPrice();
 		//Inserting into attachments, handle image save in crmentity uitype 69
@@ -1364,6 +1369,22 @@ class Products extends CRMEntity {
 			}
 		}
 	}
+
+	// Viet Add - Task TP3
+	function updateUnitPriceFromCostAndCommission() {
+		global $adb;
+		$purchase_cost = $this->column_fields['purchase_cost'];
+		$commissionrate = $this->column_fields['commissionrate'];
+		
+		if (isset($purchase_cost) && isset($commissionrate)) {
+			$unit_price = $purchase_cost * (100 + $commissionrate) / 100;
+			$this->column_fields['unit_price'] = $unit_price;
+			
+			$query = "UPDATE vtiger_products SET unit_price = ? WHERE productid = ?";
+			$adb->pquery($query, array($unit_price, $this->id));
+		}
+	}
+	// End Viet Add
 
 }
 ?>
