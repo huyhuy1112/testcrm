@@ -42,6 +42,8 @@ class Quotes_ExportExcelForProject_Action extends Vtiger_Action_Controller {
             $templatePath = 'templates/TDB-Quote-Project.xlsx';
             $objReader = PHPExcel_IOFactory::createReader('Excel2007');
             $objPHPExcel = $objReader->load($templatePath);
+            // Set default font to a Unicode-safe font to avoid Vietnamese font issues
+            $objPHPExcel->getDefaultStyle()->getFont()->setName('Arial Unicode MS')->setSize(10);
             $sheet = $objPHPExcel->getActiveSheet(0);
 
             $accountId = $focus->column_fields['account_id'];
