@@ -942,6 +942,9 @@ class Install_InitSchema_Model {
 
 		// Registering event for Potentials - To create notifications on assignment
 		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Potentials/PotentialsHandler.php', 'PotentialsHandler');
+
+		// Registering event for Calendar (Tasks) - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Calendar/CalendarHandler.php', 'CalendarHandler');
 	}
 
 	/**
