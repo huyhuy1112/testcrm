@@ -933,6 +933,15 @@ class Install_InitSchema_Model {
 
 		// Registering event for HelpDesk - To reset from_portal value
 		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/HelpDesk/HelpDeskHandler.php', 'HelpDeskHandler');
+
+		// Registering event for Project - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Project/ProjectHandler.php', 'ProjectHandler');
+
+		// Registering event for ProjectTask - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/ProjectTask/ProjectTaskHandler.php', 'ProjectTaskHandler');
+
+		// Registering event for Potentials - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Potentials/PotentialsHandler.php', 'PotentialsHandler');
 	}
 
 	/**

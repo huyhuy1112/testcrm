@@ -1208,6 +1208,9 @@ class Vtiger_Module_Model extends Vtiger_Module {
 	 * @return <boolean>
 	 */
 	public function isPermitted($actionName) {
+		if ($actionName === 'Notifications' || $actionName === 'MarkNotificationRead') {
+			return true;
+		}
 		return ($this->isActive() && Users_Privileges_Model::isPermitted($this->getName(), $actionName));
 	}
 

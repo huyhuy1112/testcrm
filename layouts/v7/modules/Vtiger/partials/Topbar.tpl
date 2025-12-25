@@ -150,6 +150,40 @@
 						{if $USER_PRIVILEGES_MODEL->hasModulePermission($CALENDAR_MODULE_MODEL->getId())}
 							<li><div><a href="#" class="taskManagement vicon vicon-task" title="{vtranslate('Tasks','Vtiger')}" aria-hidden="true"></a></div></li>
 						{/if}
+						<li class="dropdown" id="modern-notifications-container">
+							<div>
+								<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" id="modern-notifications-bell" title="{vtranslate('LBL_NOTIFICATIONS','Vtiger')}">
+									<span class="fa fa-bell" aria-hidden="true"></span>
+									<span class="badge modern-notifications-badge" id="modern-notifications-count" style="display: none;">0</span>
+								</a>
+								<ul class="dropdown-menu modern-notifications-dropdown" role="menu" id="modern-notifications-list" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+									<li class="dropdown-header" style="padding: 10px 15px;">
+										<div style="margin-bottom: 10px;">
+											<strong>{vtranslate('LBL_NOTIFICATIONS','Vtiger')}</strong>
+											<button type="button" id="modern-notifications-mark-all-read" class="btn btn-xs btn-link pull-right" style="display: none; padding: 0 5px; color: #337ab7;">
+												Đã đọc hết
+											</button>
+										</div>
+										<ul class="nav nav-tabs" style="border-bottom: 1px solid #ddd; margin: 0 -15px 0 -15px; padding: 0 15px;">
+											<li role="presentation" class="active" id="modern-notifications-tab-unread">
+												<a href="#" id="modern-notifications-tab-unread-link" style="padding: 8px 12px; cursor: pointer;">Chưa đọc</a>
+											</li>
+											<li role="presentation" id="modern-notifications-tab-read">
+												<a href="#" id="modern-notifications-tab-read-link" style="padding: 8px 12px; cursor: pointer;">Đã đọc</a>
+											</li>
+										</ul>
+									</li>
+									<li role="separator" class="divider"></li>
+									<li id="modern-notifications-empty-unread" style="padding: 10px; text-align: center; color: #999;">
+										Không có thông báo chưa đọc
+									</li>
+									<li id="modern-notifications-empty-read" style="padding: 10px; text-align: center; color: #999; display: none;">
+										Không có thông báo đã đọc
+									</li>
+									<li id="modern-notifications-items" style="display: none;"></li>
+								</ul>
+							</div>
+						</li>
 						<li class="dropdown">
 							<div>
 								<a href="#" class="userName dropdown-toggle pull-right" data-toggle="dropdown" role="button">
