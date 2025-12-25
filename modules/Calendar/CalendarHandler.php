@@ -22,7 +22,8 @@ class CalendarHandler extends VTEventHandler {
 			}
 
 			$moduleName = $entityData->getModuleName();
-			if ($moduleName !== 'Calendar') {
+			// Handle both Calendar and Events modules
+			if ($moduleName !== 'Calendar' && $moduleName !== 'Events') {
 				return;
 			}
 
@@ -31,7 +32,7 @@ class CalendarHandler extends VTEventHandler {
 				return;
 			}
 
-			// Check if this is a Task (not Event)
+			// Get activity type (Task, Call, Meeting, etc.)
 			$activityType = $entityData->get('activitytype');
 			if (empty($activityType)) {
 				// Fallback: check from database
@@ -41,8 +42,9 @@ class CalendarHandler extends VTEventHandler {
 				}
 			}
 			
-			// Only handle Tasks, not Events
-			if ($activityType !== 'Task') {
+			// Only handle Tasks and Events (Call, Meeting), skip other types
+			// Task = 'Task', Events = 'Call', 'Meeting', or other non-Task types
+			if (empty($activityType)) {
 				return;
 			}
 
@@ -59,7 +61,7 @@ class CalendarHandler extends VTEventHandler {
 
 			// Check if owner changed using VTEntityDelta
 			$delta = new VTEntityDelta();
-			$changes = $delta->getEntityDelta('Calendar', $recordId);
+			$changes = $delta->getEntityDelta($moduleName, $recordId);
 
 			// If no change OR 'assigned_user_id' not in $changes, check if it's a new record
 			$isNew = $entityData->isNew();
@@ -96,21 +98,28 @@ class CalendarHandler extends VTEventHandler {
 				return;
 			}
 
-			// Get Task subject
-			$taskSubject = $entityData->get('subject');
-			if (empty($taskSubject)) {
+			// Get activity subject
+			$activitySubject = $entityData->get('subject');
+			if (empty($activitySubject)) {
 				// Fallback: get from database
 				$nameResult = $adb->pquery("SELECT subject FROM vtiger_activity WHERE activityid = ?", array($recordId));
 				if ($adb->num_rows($nameResult) > 0) {
-					$taskSubject = $adb->query_result($nameResult, 0, 'subject');
+					$activitySubject = $adb->query_result($nameResult, 0, 'subject');
 				}
 			}
-			if (empty($taskSubject)) {
-				$taskSubject = 'Task #' . $recordId;
+			if (empty($activitySubject)) {
+				$activitySubject = 'Activity #' . $recordId;
+			}
+
+			// Determine message based on activity type
+			if ($activityType === 'Task') {
+				$message = "Bạn được assign vào Task: " . $activitySubject;
+			} else {
+				// Event types: Call, Meeting, etc.
+				$message = "Bạn được assign vào Event: " . $activitySubject;
 			}
 
 			// Insert notification (after commit, so it won't be rolled back)
-			$message = "Bạn được assign vào Task: " . $taskSubject;
 			$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Calendar', ?, ?, NOW())";
 			$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 
