@@ -231,6 +231,30 @@
 			return textarea.value;
 		},
 
+		highlightKeywords: function(text) {
+			if (!text) return '';
+			
+			// Keywords to highlight with their colors
+			var keywords = [
+				{ pattern: /(Task:)/gi, color: '#3498db', fontWeight: 'bold' },
+				{ pattern: /(Event:)/gi, color: '#e74c3c', fontWeight: 'bold' },
+				{ pattern: /(Project:)/gi, color: '#9b59b6', fontWeight: 'bold' },
+				{ pattern: /(Project Task:)/gi, color: '#f39c12', fontWeight: 'bold' },
+				{ pattern: /(Opportunity:)/gi, color: '#1abc9c', fontWeight: 'bold' }
+			];
+
+			var result = text;
+			
+			// Apply highlights in order (longer patterns first to avoid conflicts)
+			keywords.forEach(function(keyword) {
+				result = result.replace(keyword.pattern, function(match) {
+					return '<span class="notification-keyword" style="color: ' + keyword.color + '; font-weight: ' + keyword.fontWeight + ';">' + match + '</span>';
+				});
+			});
+
+			return result;
+		},
+
 		renderNotificationItem: function(notif, container, isRead) {
 			var self = this;
 			var module = notif.module || 'Vtiger';
@@ -240,8 +264,9 @@
 			var notificationId = notif.id || '';
 			var detailUrl = '';
 
-			// Decode HTML entities in message
+			// Decode HTML entities in message and highlight keywords
 			message = this.decodeHtmlEntities(message);
+			var highlightedMessage = this.highlightKeywords(message);
 
 			if (recordId) {
 				detailUrl = 'index.php?module=' + module + '&view=Detail&record=' + recordId;
@@ -294,7 +319,7 @@
 
 				var messageDiv = document.createElement('div');
 				messageDiv.style.marginBottom = '5px';
-				messageDiv.textContent = message;
+				messageDiv.innerHTML = highlightedMessage;
 				if (!isRead) {
 					messageDiv.style.fontWeight = 'bold';
 				}
@@ -315,7 +340,7 @@
 			} else {
 				var messageDiv = document.createElement('div');
 				messageDiv.style.marginBottom = '5px';
-				messageDiv.textContent = message;
+				messageDiv.innerHTML = highlightedMessage;
 				if (!isRead) {
 					messageDiv.style.fontWeight = 'bold';
 				}

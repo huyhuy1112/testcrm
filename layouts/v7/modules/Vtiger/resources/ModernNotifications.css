@@ -34,3 +34,18 @@
     text-rendering: optimizeLegibility;
 }
 
+/* Highlight keywords in notifications */
+.modern-notification-item .notification-keyword {
+    display: inline-block;
+    padding: 2px 4px;
+    border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.2);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+}
+
+.modern-notification-item .notification-keyword:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
