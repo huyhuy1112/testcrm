@@ -218,6 +218,13 @@
 			}
 		},
 
+		decodeHtmlEntities: function(text) {
+			if (!text) return '';
+			var textarea = document.createElement('textarea');
+			textarea.innerHTML = text;
+			return textarea.value;
+		},
+
 		renderNotificationItem: function(notif, container, isRead) {
 			var self = this;
 			var module = notif.module || 'Vtiger';
@@ -226,6 +233,9 @@
 			var createdAt = notif.created_at || '';
 			var notificationId = notif.id || '';
 			var detailUrl = '';
+
+			// Decode HTML entities in message
+			message = this.decodeHtmlEntities(message);
 
 			if (recordId) {
 				detailUrl = 'index.php?module=' + module + '&view=Detail&record=' + recordId;
