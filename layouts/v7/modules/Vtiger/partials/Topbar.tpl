@@ -160,9 +160,17 @@
 									<li class="dropdown-header" style="padding: 10px 15px;">
 										<div style="margin-bottom: 10px;">
 											<strong>{vtranslate('LBL_NOTIFICATIONS','Vtiger')}</strong>
-											<button type="button" id="modern-notifications-mark-all-read" class="btn btn-xs btn-link pull-right" style="display: none; padding: 0 5px; color: #337ab7;">
-												Đã đọc hết
-											</button>
+											<div class="pull-right" style="display: none;" id="modern-notifications-actions">
+												<button type="button" id="modern-notifications-mark-all-read" class="btn btn-xs btn-link" style="padding: 0 5px; color: #337ab7; margin-right: 5px;">
+													Đã đọc hết
+												</button>
+												<button type="button" id="modern-notifications-delete-selected" class="btn btn-xs btn-link" style="padding: 0 5px; color: #d9534f; margin-right: 5px; display: none;">
+													Xóa đã chọn
+												</button>
+												<button type="button" id="modern-notifications-delete-all" class="btn btn-xs btn-link" style="padding: 0 5px; color: #d9534f;">
+													Xóa hết
+												</button>
+											</div>
 										</div>
 										<ul class="nav nav-tabs" style="border-bottom: 1px solid #ddd; margin: 0 -15px 0 -15px; padding: 0 15px;">
 											<li role="presentation" class="active" id="modern-notifications-tab-unread">

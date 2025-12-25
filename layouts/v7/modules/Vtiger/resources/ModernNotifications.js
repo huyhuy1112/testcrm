@@ -140,18 +140,21 @@
 			var list = response.list || [];
 			var emptyMsg = jQuery('#modern-notifications-empty-unread');
 			var itemsContainer = jQuery('#modern-notifications-items');
+			var actionsContainer = jQuery('#modern-notifications-actions');
 
 			this.updateNotificationBadge(count);
 
 			if (list.length === 0) {
 				emptyMsg.show();
 				itemsContainer.hide();
+				actionsContainer.hide();
 				this.lastRenderedNotificationId = 0;
 				return;
 			}
 
 			emptyMsg.hide();
 			itemsContainer.show();
+			actionsContainer.show();
 
 			var newNotifications = [];
 			var maxId = this.lastRenderedNotificationId;
@@ -202,15 +205,18 @@
 			var list = response.list || [];
 			var emptyMsg = jQuery('#modern-notifications-empty-read');
 			var itemsContainer = jQuery('#modern-notifications-items');
+			var actionsContainer = jQuery('#modern-notifications-actions');
 
 			if (list.length === 0) {
 				emptyMsg.show();
 				itemsContainer.hide();
+				actionsContainer.hide();
 				return;
 			}
 
 			emptyMsg.hide();
 			itemsContainer.show();
+			actionsContainer.show();
 			itemsContainer.empty();
 
 			for (var i = 0; i < list.length; i++) {
@@ -245,7 +251,27 @@
 			li.className = 'modern-notification-item';
 			li.style.padding = '10px';
 			li.style.borderBottom = '1px solid #eee';
+			li.style.position = 'relative';
 			li.setAttribute('data-notification-id', notificationId);
+
+			// Add checkbox
+			var checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.className = 'modern-notification-checkbox';
+			checkbox.value = notificationId;
+			checkbox.style.position = 'absolute';
+			checkbox.style.left = '10px';
+			checkbox.style.top = '15px';
+			checkbox.style.cursor = 'pointer';
+			checkbox.addEventListener('click', function(e) {
+				e.stopPropagation();
+				self.updateDeleteButtonState();
+			});
+			li.appendChild(checkbox);
+
+			// Content wrapper with left margin for checkbox
+			var contentWrapper = document.createElement('div');
+			contentWrapper.style.marginLeft = '25px';
 
 			if (isRead) {
 				li.style.opacity = '0.6';
@@ -253,7 +279,7 @@
 			} else {
 				li.style.cursor = 'pointer';
 				li.addEventListener('click', function(e) {
-					if (e.target.tagName !== 'A' && e.target.closest('a') === null) {
+					if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'A' && e.target.closest('a') === null) {
 						self.markAsRead(notificationId, li);
 					}
 				});
@@ -281,10 +307,10 @@
 
 					link.appendChild(messageDiv);
 					link.appendChild(dateDiv);
-					li.appendChild(link);
+					contentWrapper.appendChild(link);
 				} else {
 					link.appendChild(messageDiv);
-					li.appendChild(link);
+					contentWrapper.appendChild(link);
 				}
 			} else {
 				var messageDiv = document.createElement('div');
@@ -300,13 +326,14 @@
 					dateDiv.style.color = '#999';
 					dateDiv.textContent = this.formatDate(createdAt);
 
-					li.appendChild(messageDiv);
-					li.appendChild(dateDiv);
+					contentWrapper.appendChild(messageDiv);
+					contentWrapper.appendChild(dateDiv);
 				} else {
-					li.appendChild(messageDiv);
+					contentWrapper.appendChild(messageDiv);
 				}
 			}
 
+			li.appendChild(contentWrapper);
 			container.appendChild(li);
 		},
 
@@ -447,6 +474,83 @@
 			}
 		},
 
+		updateDeleteButtonState: function() {
+			var checkedBoxes = jQuery('.modern-notification-checkbox:checked');
+			var deleteSelectedBtn = jQuery('#modern-notifications-delete-selected');
+			if (checkedBoxes.length > 0) {
+				deleteSelectedBtn.show();
+			} else {
+				deleteSelectedBtn.hide();
+			}
+		},
+
+		deleteSelectedNotifications: function() {
+			var self = this;
+			var checkedBoxes = jQuery('.modern-notification-checkbox:checked');
+			if (checkedBoxes.length === 0) {
+				return;
+			}
+
+			var notificationIds = [];
+			checkedBoxes.each(function() {
+				notificationIds.push(parseInt(this.value));
+			});
+
+			var url = 'index.php?module=Vtiger&action=DeleteNotification';
+			jQuery.ajax({
+				url: url,
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					mode: 'deleteSelected',
+					notification_ids: notificationIds
+				},
+				success: function(response) {
+					if (response && response.success) {
+						// Reload current tab
+						if (self.currentTab === 'unread') {
+							self.loadUnreadNotifications();
+						} else {
+							self.loadReadNotifications();
+						}
+						self.updateDeleteButtonState();
+					}
+				},
+				error: function(xhr, status, error) {
+				}
+			});
+		},
+
+		deleteAllNotifications: function() {
+			var self = this;
+			if (!confirm('Bạn có chắc chắn muốn xóa tất cả thông báo?')) {
+				return;
+			}
+
+			var url = 'index.php?module=Vtiger&action=DeleteNotification';
+			jQuery.ajax({
+				url: url,
+				type: 'POST',
+				dataType: 'json',
+				data: {
+					mode: 'deleteAll'
+				},
+				success: function(response) {
+					if (response && response.success) {
+						// Reload current tab
+						if (self.currentTab === 'unread') {
+							self.loadUnreadNotifications();
+						} else {
+							self.loadReadNotifications();
+						}
+						self.updateDeleteButtonState();
+					}
+				},
+				error: function(xhr, status, error) {
+				}
+			});
+		},
+
 		destroy: function() {
 			if (this.intervalId) {
 				clearInterval(this.intervalId);
@@ -466,6 +570,18 @@
 			e.preventDefault();
 			e.stopPropagation();
 			ModernNotifications.markAllAsRead();
+		});
+
+		jQuery(document).on('click', '#modern-notifications-delete-selected', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			ModernNotifications.deleteSelectedNotifications();
+		});
+
+		jQuery(document).on('click', '#modern-notifications-delete-all', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			ModernNotifications.deleteAllNotifications();
 		});
 	});
 
