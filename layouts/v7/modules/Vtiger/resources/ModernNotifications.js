@@ -14,11 +14,8 @@
 				return;
 			}
 
-			try {
-				this.sound = new Audio('layouts/v7/modules/Vtiger/resources/sounds/notification.mp3');
-				this.sound.volume = 0.5;
-			} catch (e) {
-			}
+			// Initialize sound with proper path
+			this.initSound();
 
 			this.loadUnreadNotifications();
 			this.intervalId = setInterval(function() {
@@ -30,6 +27,57 @@
 			this.setupTabHandlers();
 
 			this.initialized = true;
+		},
+
+		initSound: function() {
+			try {
+				// Get base URL - try multiple methods
+				var baseUrl = '';
+				if (typeof _META !== 'undefined' && _META.notifier) {
+					// Try to extract base URL from Vtiger's _META
+					var notifierUrl = _META.notifier;
+					baseUrl = notifierUrl.substring(0, notifierUrl.lastIndexOf('/'));
+				} else {
+					// Fallback: construct from current location
+					var pathParts = window.location.pathname.split('/');
+					pathParts = pathParts.filter(function(part) {
+						return part && part !== 'index.php';
+					});
+					baseUrl = window.location.origin;
+					if (pathParts.length > 0 && pathParts[0] !== '') {
+						baseUrl += '/' + pathParts[0];
+					}
+				}
+				
+				// Remove trailing slash
+				if (baseUrl.endsWith('/')) {
+					baseUrl = baseUrl.slice(0, -1);
+				}
+				
+				var soundPath = baseUrl + '/layouts/v7/modules/Vtiger/resources/sounds/notification.mp3';
+				
+				this.sound = new Audio(soundPath);
+				this.sound.volume = 0.7;
+				this.sound.preload = 'auto';
+				
+				// Preload sound on user interaction (required by browsers for autoplay)
+				var self = this;
+				var preloadSound = function() {
+					if (self.sound) {
+						self.sound.load().catch(function(e) {
+							console.warn('[ModernNotifications] Sound preload failed:', e);
+						});
+					}
+					document.removeEventListener('click', preloadSound);
+					document.removeEventListener('touchstart', preloadSound);
+					document.removeEventListener('keydown', preloadSound);
+				};
+				document.addEventListener('click', preloadSound, { once: true });
+				document.addEventListener('touchstart', preloadSound, { once: true });
+				document.addEventListener('keydown', preloadSound, { once: true });
+			} catch (e) {
+				console.warn('[ModernNotifications] Sound initialization failed:', e);
+			}
 		},
 
 		setupTabHandlers: function() {
@@ -469,12 +517,55 @@
 		},
 
 		playSound: function() {
-			if (this.sound) {
-				try {
-					this.sound.play().catch(function(e) {
+			if (!this.sound) {
+				return;
+			}
+
+			try {
+				// Reset sound to beginning
+				this.sound.currentTime = 0;
+				
+				// Play sound with promise handling
+				var playPromise = this.sound.play();
+				
+				if (playPromise !== undefined) {
+					playPromise.then(function() {
+						// Sound played successfully
+					}).catch(function(error) {
+						// Autoplay was prevented or sound failed
+						console.warn('[ModernNotifications] Sound play failed:', error);
+						// Try to create a new Audio instance as fallback
+						try {
+							var baseUrl = '';
+							if (typeof _META !== 'undefined' && _META.notifier) {
+								var notifierUrl = _META.notifier;
+								baseUrl = notifierUrl.substring(0, notifierUrl.lastIndexOf('/'));
+							} else {
+								var pathParts = window.location.pathname.split('/');
+								pathParts = pathParts.filter(function(part) {
+									return part && part !== 'index.php';
+								});
+								baseUrl = window.location.origin;
+								if (pathParts.length > 0 && pathParts[0] !== '') {
+									baseUrl += '/' + pathParts[0];
+								}
+							}
+							if (baseUrl.endsWith('/')) {
+								baseUrl = baseUrl.slice(0, -1);
+							}
+							var soundPath = baseUrl + '/layouts/v7/modules/Vtiger/resources/sounds/notification.mp3';
+							var fallbackSound = new Audio(soundPath);
+							fallbackSound.volume = 0.7;
+							fallbackSound.play().catch(function(e) {
+								console.warn('[ModernNotifications] Fallback sound also failed');
+							});
+						} catch (e) {
+							console.warn('[ModernNotifications] Fallback sound creation failed');
+						}
 					});
-				} catch (e) {
 				}
+			} catch (e) {
+				console.warn('[ModernNotifications] Sound play error:', e);
 			}
 		},
 
