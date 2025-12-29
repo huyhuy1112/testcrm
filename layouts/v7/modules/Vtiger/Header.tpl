@@ -40,10 +40,14 @@
             <link type="text/css" rel="stylesheet" href="{vresource_url($V7_THEME_PATH)}" media="screen" />
         {/if}
         
-        {foreach key=index item=cssModel from=$STYLES}
+		{foreach key=index item=cssModel from=$STYLES}
 			<link type="text/css" rel="{$cssModel->getRel()}" href="{vresource_url($cssModel->getHref())}" media="{$cssModel->getMedia()}" />
 		{/foreach}
 		<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/modules/Vtiger/resources/ModernNotifications.css')}" media="screen" />
+		<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/modules/Vtiger/resources/DashBoard.css')}" media="screen" />
+		{if $MODULE_NAME eq 'Products'}
+			<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/modules/Products/resources/Products.css')}" media="screen" />
+		{/if}
 
 		{* For making pages - print friendly *}
 		<style type="text/css">
