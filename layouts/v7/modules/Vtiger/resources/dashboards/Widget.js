@@ -138,6 +138,24 @@ Vtiger.Class('Vtiger_Widget_Js',{
 		this.restrictContentDrag();
         var widgetContent = jQuery('.dashboardWidgetContent', this.getContainer());
         widgetContent.css({height: widgetContent.height()-40});
+		
+		// Update font sizes after widget is loaded and chart is drawn (with multiple delays)
+		var self = this;
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 100);
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 500);
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 1000);
 	},
     
 	postResizeWidget : function() {
@@ -149,6 +167,24 @@ Vtiger.Class('Vtiger_Widget_Js',{
 		}
         var widgetContent = jQuery('.dashboardWidgetContent', this.getContainer());
         widgetContent.css({height: widgetContent.height()-40});
+		
+		// Update font sizes after resize and chart is rendered (with multiple delays)
+		var self = this;
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 100);
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 500);
+		setTimeout(function() {
+			if (Vtiger_DashBoard_Js && Vtiger_DashBoard_Js.currentInstance) {
+				Vtiger_DashBoard_Js.currentInstance.updateWidgetFontSizes(self.getContainer());
+			}
+		}, 1000);
 	},
 
 	postRefreshWidget : function() {

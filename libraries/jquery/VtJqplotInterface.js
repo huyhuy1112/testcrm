@@ -10,25 +10,54 @@
 var vtJqPlotInterface = function() {
 
     this.legendPlacement = 'outside'; /* refer: http://www.jqplot.com/docs/files/jqplot-core-js.html#Legend.placement */
+    
+    // Calculate font size based on widget size
+    this.getFontSize = function() {
+        var widget = this.element.closest('.dashboardWidget');
+        if (widget.length === 0) {
+            return 11; // Default font size
+        }
+        var widgetWidth = widget.width();
+        var widgetHeight = widget.height();
+        var baseWidth = 400;
+        var baseHeight = 250;
+        var widthScale = widgetWidth / baseWidth;
+        var heightScale = widgetHeight / baseHeight;
+        var scale = Math.max(widthScale, heightScale);
+        scale = Math.max(0.7, Math.min(5.0, scale));
+        var baseFontSize = 14;
+        return baseFontSize * scale;
+    };
 
     this.renderPie = function() {
+        var fontSize = this.getFontSize();
+        var dataLabelSize = fontSize * 1.4;
         this.element.jqplot([this.data['chartData']], {
             seriesDefaults:{
                 renderer:jQuery.jqplot.PieRenderer,
                 rendererOptions: {
                     showDataLabels: true,
                     dataLabels: 'value'
+                },
+                pointLabels: {
+                    show: true,
+                    fontSize: dataLabelSize + 'px',
+                    formatString: '%d'
                 }
             },
             legend: {
                 show: true,
-                location: 'e'
+                location: 'e',
+                fontSize: fontSize + 'px'
             },
             title : this.data['title']
         });
     }
 
     this.renderBar = function() {
+        var fontSize = this.getFontSize();
+        var dataLabelSize = fontSize * 1.4;
+        var axisLabelSize = fontSize * 1.1;
         this.element.jqplot(this.data['chartData'] , {
             title: this.data['title'],
             animate: !$.jqplot.use_excanvas,
@@ -39,7 +68,12 @@ var vtJqPlotInterface = function() {
                     dataLabels: 'value',
                     barDirection : 'vertical'
                 },
-                pointLabels: {show: true,edgeTolerance: -15}
+                pointLabels: {
+                    show: true,
+                    edgeTolerance: -15,
+                    fontSize: dataLabelSize + 'px',
+                    formatString: '%d'
+                }
             },
              axes: {
                 xaxis: {
@@ -47,14 +81,22 @@ var vtJqPlotInterface = function() {
                       renderer: jQuery.jqplot.CategoryAxisRenderer,
                       ticks: this.data['labels'],
                       tickOptions: {
-                        angle: -45
+                        angle: -45,
+                        fontSize: fontSize + 'px'
+                      },
+                      labelOptions: {
+                        fontSize: axisLabelSize + 'px'
                       }
                 },
                 yaxis: {
                     min:0,
                     max: this.data['yMaxValue'],
                     tickOptions: {
-                        formatString: '%d'
+                        formatString: '%d',
+                        fontSize: fontSize + 'px'
+                    },
+                    labelOptions: {
+                        fontSize: axisLabelSize + 'px'
                     },
                     pad : 1.2
                 }
@@ -65,7 +107,8 @@ var vtJqPlotInterface = function() {
                 placement	: this.legendPlacement,
                 showLabels	: (this.data['data_labels']) ? true:false,
                 showSwatch	: (this.data['data_labels']) ? true:false,
-                labels		: this.data['data_labels']
+                labels		: this.data['data_labels'],
+                fontSize: fontSize + 'px'
             }
         });
     }
@@ -111,6 +154,9 @@ var vtJqPlotInterface = function() {
         var chartData = this.data.data;
         var ticks = this.data.ticks;
         var labels = this.data.labels;
+        var fontSize = this.getFontSize();
+        var dataLabelSize = fontSize * 1.4;
+        var axisLabelSize = fontSize * 1.1;
         this.element.jqplot( chartData, {
             stackSeries: true,
             captureRightClick: true,
@@ -124,14 +170,23 @@ var vtJqPlotInterface = function() {
                     highlightMouseDown: true,
                     highlightMouseOver : true
             },
-                pointLabels: {show: true,hideZeros: true}
+                pointLabels: {
+                    show: true,
+                    hideZeros: true,
+                    fontSize: dataLabelSize + 'px',
+                    formatString: '%d'
+                }
             },
             axes: {
                 xaxis: {
                     renderer: $.jqplot.CategoryAxisRenderer,
                     tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                     tickOptions: {
-                        angle: -45
+                        angle: -45,
+                        fontSize: fontSize + 'px'
+                    },
+                    labelOptions: {
+                        fontSize: axisLabelSize + 'px'
                     },
                     ticks: ticks
                 },
@@ -141,14 +196,21 @@ var vtJqPlotInterface = function() {
                     // actual range to prevent data points right on grid boundaries.
                     // Don't want to do that here.
                     padMin: 0,
-                    min:0
+                    min:0,
+                    tickOptions: {
+                        fontSize: fontSize + 'px'
+                    },
+                    labelOptions: {
+                        fontSize: axisLabelSize + 'px'
+                    }
                 }
             },
             legend: {
                 show: true,
                 location: 'e',
                 placement: this.legendPlacement,
-                labels:labels
+                labels:labels,
+                fontSize: fontSize + 'px'
             }
         });
     }
