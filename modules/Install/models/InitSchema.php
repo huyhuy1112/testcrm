@@ -945,6 +945,12 @@ class Install_InitSchema_Model {
 
 		// Registering event for Calendar (Tasks) - To create notifications on assignment
 		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Calendar/CalendarHandler.php', 'CalendarHandler');
+
+		// Registering event for Contacts - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Contacts/ContactsHandler.php', 'ContactsHandler');
+
+		// Registering event for Accounts - To create notifications on assignment
+		$em->registerHandler('vtiger.entity.aftersave.final', 'modules/Accounts/AccountsHandler.php', 'AccountsHandler');
 	}
 
 	/**

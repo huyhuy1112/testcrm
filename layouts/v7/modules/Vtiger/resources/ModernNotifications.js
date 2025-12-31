@@ -283,20 +283,26 @@
 			if (!text) return '';
 			
 			// Keywords to highlight with their colors
+			// IMPORTANT: Longer patterns must come first to avoid partial matches
+			// Each keyword has a UNIQUE color for easy identification
 			var keywords = [
-				{ pattern: /(Task:)/gi, color: '#3498db', fontWeight: 'bold' },
-				{ pattern: /(Event:)/gi, color: '#e74c3c', fontWeight: 'bold' },
-				{ pattern: /(Project:)/gi, color: '#9b59b6', fontWeight: 'bold' },
-				{ pattern: /(Project Task:)/gi, color: '#f39c12', fontWeight: 'bold' },
-				{ pattern: /(Opportunity:)/gi, color: '#1abc9c', fontWeight: 'bold' }
+				{ pattern: /Project Task:/gi, color: '#f39c12', fontWeight: 'bold' },      // Vàng
+				{ pattern: /Organization:/gi, color: '#8e44ad', fontWeight: 'bold' },      // Tím
+				{ pattern: /Ticket:/gi, color: '#e67e22', fontWeight: 'bold' },             // Cam
+				{ pattern: /Contact:/gi, color: '#27ae60', fontWeight: 'bold' },            // Xanh lá đậm
+				{ pattern: /Opportunity:/gi, color: '#1abc9c', fontWeight: 'bold' },       // Xanh ngọc
+				{ pattern: /Task:/gi, color: '#3498db', fontWeight: 'bold' },               // Xanh dương
+				{ pattern: /Event:/gi, color: '#e74c3c', fontWeight: 'bold' },              // Đỏ
+				{ pattern: /Project:/gi, color: '#9b59b6', fontWeight: 'bold' }             // Tím đậm
 			];
 
 			var result = text;
 			
 			// Apply highlights in order (longer patterns first to avoid conflicts)
 			keywords.forEach(function(keyword) {
+				// Use a more robust replacement that preserves the matched text
 				result = result.replace(keyword.pattern, function(match) {
-					return '<span class="notification-keyword" style="color: ' + keyword.color + '; font-weight: ' + keyword.fontWeight + ';">' + match + '</span>';
+					return '<span class="notification-keyword" data-keyword="' + match.toLowerCase().replace(':', '') + '" style="color: ' + keyword.color + ' !important; font-weight: ' + keyword.fontWeight + ' !important; display: inline;">' + match + '</span>';
 				});
 			});
 

@@ -49,3 +49,35 @@
     transform: scale(1.05);
 }
 
+/* Force color for keywords even inside links */
+.modern-notification-item a .notification-keyword,
+.modern-notification-item .notification-keyword {
+    color: inherit !important;
+}
+
+/* Specific colors for each keyword type */
+.modern-notification-item .notification-keyword[style*="#e67e22"] {
+    color: #e67e22 !important;
+}
+.modern-notification-item .notification-keyword[style*="#3498db"] {
+    color: #3498db !important;
+}
+.modern-notification-item .notification-keyword[style*="#e74c3c"] {
+    color: #e74c3c !important;
+}
+.modern-notification-item .notification-keyword[style*="#9b59b6"] {
+    color: #9b59b6 !important;
+}
+.modern-notification-item .notification-keyword[style*="#f39c12"] {
+    color: #f39c12 !important;
+}
+.modern-notification-item .notification-keyword[style*="#1abc9c"] {
+    color: #1abc9c !important;
+}
+.modern-notification-item .notification-keyword[style*="#8e44ad"] {
+    color: #8e44ad !important;
+}
+.modern-notification-item .notification-keyword[style*="#27ae60"] {
+    color: #27ae60 !important;
+}
+
