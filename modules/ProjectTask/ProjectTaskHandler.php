@@ -42,6 +42,26 @@ class ProjectTaskHandler extends VTEventHandler {
 				return;
 			}
 
+			// Verify owner is USER (not GROUP)
+			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
+			if ($adb->num_rows($userCheck) == 0) {
+				// Owner is GROUP, not USER - exit
+				return;
+			}
+
+			// Get ProjectTask name
+			$taskName = $entityData->get('projecttaskname');
+			if (empty($taskName)) {
+				// Fallback: get from database
+				$nameResult = $adb->pquery("SELECT projecttaskname FROM vtiger_projecttask WHERE projecttaskid = ?", array($recordId));
+				if ($adb->num_rows($nameResult) > 0) {
+					$taskName = $adb->query_result($nameResult, 0, 'projecttaskname');
+				}
+			}
+			if (empty($taskName)) {
+				$taskName = 'Project Task #' . $recordId;
+			}
+
 			// Check if owner changed using VTEntityDelta
 			$delta = new VTEntityDelta();
 			$changes = $delta->getEntityDelta('ProjectTask', $recordId);
@@ -70,34 +90,52 @@ class ProjectTaskHandler extends VTEventHandler {
 				}
 			}
 
-			if (!$shouldNotify) {
-				return;
+			// Send assign notification if owner changed or new record
+			if ($shouldNotify) {
+				$message = "Bạn được assign vào Project Task: " . $taskName;
+				$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'ProjectTask', ?, ?, NOW())";
+				$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 			}
 
-			// Verify new owner is USER (not GROUP)
-			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
-			if ($adb->num_rows($userCheck) == 0) {
-				// Owner is GROUP, not USER - exit
-				return;
+			// ALWAYS check deadline reminder (regardless of assign notification)
+			// Query directly from database as entityData may not have the updated values
+			$dateResult = $adb->pquery("SELECT enddate FROM vtiger_projecttask WHERE projecttaskid = ?", array($recordId));
+			$endDate = null;
+			if ($adb->num_rows($dateResult) > 0) {
+				$endDate = $adb->query_result($dateResult, 0, 'enddate');
 			}
-
-			// Get ProjectTask name
-			$taskName = $entityData->get('projecttaskname');
-			if (empty($taskName)) {
-				// Fallback: get from database
-				$nameResult = $adb->pquery("SELECT projecttaskname FROM vtiger_projecttask WHERE projecttaskid = ?", array($recordId));
-				if ($adb->num_rows($nameResult) > 0) {
-					$taskName = $adb->query_result($nameResult, 0, 'projecttaskname');
+			
+			if (!empty($endDate)) {
+				$today = date('Y-m-d');
+				$sevenDaysLater = date('Y-m-d', strtotime('+7 days'));
+				
+				// Check if end date is within 7 days
+				if ($endDate >= $today && $endDate <= $sevenDaysLater) {
+					// Check if reminder already sent in the last 7 days
+					$reminderCheck = $adb->pquery(
+						"SELECT id FROM vtiger_notifications 
+						 WHERE userid = ? AND module = 'ProjectTask' AND recordid = ? 
+						 AND message LIKE '%sắp đến hạn%' 
+						 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+						array($newOwnerId, $recordId)
+					);
+					
+					if ($adb->num_rows($reminderCheck) == 0) {
+						// Calculate days until deadline
+						$daysUntilDeadline = (strtotime($endDate) - strtotime($today)) / 86400;
+						$daysUntilDeadline = ceil($daysUntilDeadline);
+						
+						// Send reminder notification
+						$reminderMessage = "Project Task \"$taskName\" sắp đến hạn trong $daysUntilDeadline ngày (Deadline: $endDate)";
+						$reminderSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'ProjectTask', ?, ?, NOW())";
+						$adb->pquery($reminderSql, array($newOwnerId, $recordId, $reminderMessage));
+						
+						if ($log) {
+							$log->debug("[ProjectTaskHandler] Deadline reminder sent for ProjectTask $recordId to user $newOwnerId");
+						}
+					}
 				}
 			}
-			if (empty($taskName)) {
-				$taskName = 'Project Task #' . $recordId;
-			}
-
-			// Insert notification (after commit, so it won't be rolled back)
-			$message = "Bạn được assign vào Project Task: " . $taskName;
-			$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'ProjectTask', ?, ?, NOW())";
-			$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 
 		} catch (Exception $e) {
 			if ($log) {

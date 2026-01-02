@@ -332,6 +332,12 @@
 			li.style.borderBottom = '1px solid #eee';
 			li.style.position = 'relative';
 			li.setAttribute('data-notification-id', notificationId);
+			
+			// Check if this is a deadline reminder notification
+			var isDeadlineReminder = message.indexOf('sắp đến hạn') !== -1 || message.indexOf('sắp hết hạn') !== -1;
+			if (isDeadlineReminder) {
+				li.classList.add('deadline-notification');
+			}
 
 			// Add checkbox
 			var checkbox = document.createElement('input');
@@ -339,7 +345,8 @@
 			checkbox.className = 'modern-notification-checkbox';
 			checkbox.value = notificationId;
 			checkbox.style.position = 'absolute';
-			checkbox.style.left = '10px';
+			// Move checkbox to the right if it's a deadline notification (to avoid warning icon)
+			checkbox.style.left = isDeadlineReminder ? '35px' : '10px';
 			checkbox.style.top = '15px';
 			checkbox.style.cursor = 'pointer';
 			checkbox.addEventListener('click', function(e) {
@@ -348,9 +355,10 @@
 			});
 			li.appendChild(checkbox);
 
-			// Content wrapper with left margin for checkbox
+			// Content wrapper with left margin for checkbox and warning icon
 			var contentWrapper = document.createElement('div');
-			contentWrapper.style.marginLeft = '25px';
+			// Adjust margin based on whether it's a deadline notification
+			contentWrapper.style.marginLeft = isDeadlineReminder ? '60px' : '25px';
 
 			if (isRead) {
 				li.style.opacity = '0.6';

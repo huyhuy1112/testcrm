@@ -59,6 +59,26 @@ class CalendarHandler extends VTEventHandler {
 				return;
 			}
 
+			// Verify owner is USER (not GROUP)
+			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
+			if ($adb->num_rows($userCheck) == 0) {
+				// Owner is GROUP, not USER - exit
+				return;
+			}
+
+			// Get activity subject
+			$activitySubject = $entityData->get('subject');
+			if (empty($activitySubject)) {
+				// Fallback: get from database
+				$nameResult = $adb->pquery("SELECT subject FROM vtiger_activity WHERE activityid = ?", array($recordId));
+				if ($adb->num_rows($nameResult) > 0) {
+					$activitySubject = $adb->query_result($nameResult, 0, 'subject');
+				}
+			}
+			if (empty($activitySubject)) {
+				$activitySubject = 'Activity #' . $recordId;
+			}
+
 			// Check if owner changed using VTEntityDelta
 			$delta = new VTEntityDelta();
 			$changes = $delta->getEntityDelta($moduleName, $recordId);
@@ -87,41 +107,67 @@ class CalendarHandler extends VTEventHandler {
 				}
 			}
 
-			if (!$shouldNotify) {
-				return;
+			// Send assign notification if owner changed or new record
+			if ($shouldNotify) {
+				// Determine message based on activity type
+				if ($activityType === 'Task') {
+					$message = "Bạn được assign vào Task: " . $activitySubject;
+				} else {
+					// Event types: Call, Meeting, etc.
+					$message = "Bạn được assign vào Event: " . $activitySubject;
+				}
+				$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Calendar', ?, ?, NOW())";
+				$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 			}
 
-			// Verify new owner is USER (not GROUP)
-			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
-			if ($adb->num_rows($userCheck) == 0) {
-				// Owner is GROUP, not USER - exit
-				return;
+			// ALWAYS check deadline reminder (regardless of assign notification)
+			// Query directly from database as entityData may not have the updated values
+			$dateResult = $adb->pquery("SELECT due_date FROM vtiger_activity WHERE activityid = ?", array($recordId));
+			$dueDate = null;
+			if ($adb->num_rows($dateResult) > 0) {
+				$dueDate = $adb->query_result($dateResult, 0, 'due_date');
 			}
-
-			// Get activity subject
-			$activitySubject = $entityData->get('subject');
-			if (empty($activitySubject)) {
-				// Fallback: get from database
-				$nameResult = $adb->pquery("SELECT subject FROM vtiger_activity WHERE activityid = ?", array($recordId));
-				if ($adb->num_rows($nameResult) > 0) {
-					$activitySubject = $adb->query_result($nameResult, 0, 'subject');
+			
+			if (!empty($dueDate)) {
+				// Extract date part if datetime format
+				if (strpos($dueDate, ' ') !== false) {
+					$dueDateParts = explode(' ', $dueDate);
+					$dueDate = $dueDateParts[0];
+				}
+				
+				$today = date('Y-m-d');
+				$sevenDaysLater = date('Y-m-d', strtotime('+7 days'));
+				
+				// Check if due date is within 7 days
+				if ($dueDate >= $today && $dueDate <= $sevenDaysLater) {
+					// Check if reminder already sent in the last 7 days
+					$reminderCheck = $adb->pquery(
+						"SELECT id FROM vtiger_notifications 
+						 WHERE userid = ? AND module = 'Calendar' AND recordid = ? 
+						 AND message LIKE '%sắp đến hạn%' 
+						 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+						array($newOwnerId, $recordId)
+					);
+					
+					if ($adb->num_rows($reminderCheck) == 0) {
+						// Calculate days until deadline
+						$daysUntilDeadline = (strtotime($dueDate) - strtotime($today)) / 86400;
+						$daysUntilDeadline = ceil($daysUntilDeadline);
+						
+						// Determine activity type label
+						$activityLabel = ($activityType === 'Task') ? 'Task' : 'Event';
+						
+						// Send reminder notification
+						$reminderMessage = "$activityLabel \"$activitySubject\" sắp đến hạn trong $daysUntilDeadline ngày (Deadline: $dueDate)";
+						$reminderSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Calendar', ?, ?, NOW())";
+						$adb->pquery($reminderSql, array($newOwnerId, $recordId, $reminderMessage));
+						
+						if ($log) {
+							$log->debug("[CalendarHandler] Deadline reminder sent for Calendar $recordId to user $newOwnerId");
+						}
+					}
 				}
 			}
-			if (empty($activitySubject)) {
-				$activitySubject = 'Activity #' . $recordId;
-			}
-
-			// Determine message based on activity type
-			if ($activityType === 'Task') {
-				$message = "Bạn được assign vào Task: " . $activitySubject;
-			} else {
-				// Event types: Call, Meeting, etc.
-				$message = "Bạn được assign vào Event: " . $activitySubject;
-			}
-
-			// Insert notification (after commit, so it won't be rolled back)
-			$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Calendar', ?, ?, NOW())";
-			$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 
 		} catch (Exception $e) {
 			if ($log) {

@@ -42,6 +42,26 @@ class PotentialsHandler extends VTEventHandler {
 				return;
 			}
 
+			// Verify owner is USER (not GROUP)
+			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
+			if ($adb->num_rows($userCheck) == 0) {
+				// Owner is GROUP, not USER - exit
+				return;
+			}
+
+			// Get Potential name
+			$potentialName = $entityData->get('potentialname');
+			if (empty($potentialName)) {
+				// Fallback: get from database
+				$nameResult = $adb->pquery("SELECT potentialname FROM vtiger_potential WHERE potentialid = ?", array($recordId));
+				if ($adb->num_rows($nameResult) > 0) {
+					$potentialName = $adb->query_result($nameResult, 0, 'potentialname');
+				}
+			}
+			if (empty($potentialName)) {
+				$potentialName = 'Opportunity #' . $recordId;
+			}
+
 			// Check if owner changed using VTEntityDelta
 			$delta = new VTEntityDelta();
 			$changes = $delta->getEntityDelta('Potentials', $recordId);
@@ -70,34 +90,58 @@ class PotentialsHandler extends VTEventHandler {
 				}
 			}
 
-			if (!$shouldNotify) {
-				return;
+			// Send assign notification if owner changed or new record
+			if ($shouldNotify) {
+				$message = "Bạn được assign vào Opportunity: " . $potentialName;
+				$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Potentials', ?, ?, NOW())";
+				$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 			}
 
-			// Verify new owner is USER (not GROUP)
-			$userCheck = $adb->pquery("SELECT id FROM vtiger_users WHERE id = ?", array($newOwnerId));
-			if ($adb->num_rows($userCheck) == 0) {
-				// Owner is GROUP, not USER - exit
-				return;
+			// ALWAYS check deadline reminder (regardless of assign notification)
+			// Query directly from database as entityData may not have the updated values
+			$dateResult = $adb->pquery("SELECT closingdate FROM vtiger_potential WHERE potentialid = ?", array($recordId));
+			$closingDate = null;
+			if ($adb->num_rows($dateResult) > 0) {
+				$closingDate = $adb->query_result($dateResult, 0, 'closingdate');
 			}
-
-			// Get Potential name
-			$potentialName = $entityData->get('potentialname');
-			if (empty($potentialName)) {
-				// Fallback: get from database
-				$nameResult = $adb->pquery("SELECT potentialname FROM vtiger_potential WHERE potentialid = ?", array($recordId));
-				if ($adb->num_rows($nameResult) > 0) {
-					$potentialName = $adb->query_result($nameResult, 0, 'potentialname');
+			
+			if (!empty($closingDate)) {
+				// Extract date part if datetime format
+				if (strpos($closingDate, ' ') !== false) {
+					$closingDateParts = explode(' ', $closingDate);
+					$closingDate = $closingDateParts[0];
+				}
+				
+				$today = date('Y-m-d');
+				$sevenDaysLater = date('Y-m-d', strtotime('+7 days'));
+				
+				// Check if closing date is within 7 days
+				if ($closingDate >= $today && $closingDate <= $sevenDaysLater) {
+					// Check if reminder already sent in the last 7 days
+					$reminderCheck = $adb->pquery(
+						"SELECT id FROM vtiger_notifications 
+						 WHERE userid = ? AND module = 'Potentials' AND recordid = ? 
+						 AND message LIKE '%sắp đến hạn%' 
+						 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)",
+						array($newOwnerId, $recordId)
+					);
+					
+					if ($adb->num_rows($reminderCheck) == 0) {
+						// Calculate days until deadline
+						$daysUntilDeadline = (strtotime($closingDate) - strtotime($today)) / 86400;
+						$daysUntilDeadline = ceil($daysUntilDeadline);
+						
+						// Send reminder notification
+						$reminderMessage = "Opportunity \"$potentialName\" sắp đến hạn trong $daysUntilDeadline ngày (Deadline: $closingDate)";
+						$reminderSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Potentials', ?, ?, NOW())";
+						$adb->pquery($reminderSql, array($newOwnerId, $recordId, $reminderMessage));
+						
+						if ($log) {
+							$log->debug("[PotentialsHandler] Deadline reminder sent for Potentials $recordId to user $newOwnerId");
+						}
+					}
 				}
 			}
-			if (empty($potentialName)) {
-				$potentialName = 'Opportunity #' . $recordId;
-			}
-
-			// Insert notification (after commit, so it won't be rolled back)
-			$message = "Bạn được assign vào Opportunity: " . $potentialName;
-			$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Potentials', ?, ?, NOW())";
-			$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
 
 		} catch (Exception $e) {
 			if ($log) {

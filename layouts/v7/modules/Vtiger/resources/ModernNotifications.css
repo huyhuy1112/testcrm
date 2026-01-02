@@ -81,3 +81,64 @@
     color: #27ae60 !important;
 }
 
+/* Deadline Reminder Notifications - Make them stand out */
+.modern-notification-item.deadline-notification {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%) !important;
+    border-left: 4px solid #e74c3c !important;
+    border-bottom: 2px solid #fadbd8 !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 4px rgba(231, 76, 60, 0.15) !important;
+    animation: deadlinePulse 2s ease-in-out infinite;
+    position: relative !important;
+}
+
+/* Warning icon for deadline notifications */
+.modern-notification-item.deadline-notification::before {
+    content: "⚠️";
+    position: absolute;
+    left: 10px;
+    top: 12px;
+    font-size: 18px;
+    z-index: 1;
+    line-height: 1;
+    pointer-events: none; /* Don't interfere with clicks */
+}
+
+/* Text styling for deadline notifications */
+.modern-notification-item.deadline-notification a {
+    color: #c0392b !important;
+    font-weight: bold !important;
+}
+
+.modern-notification-item.deadline-notification a:hover {
+    color: #a93226 !important;
+}
+
+.modern-notification-item.deadline-notification div {
+    font-weight: bold !important;
+    color: #c0392b !important;
+}
+
+/* Pulse animation for deadline notifications */
+@keyframes deadlinePulse {
+    0%, 100% {
+        box-shadow: 0 2px 4px rgba(231, 76, 60, 0.15);
+    }
+    50% {
+        box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+    }
+}
+
+/* Make deadline notification text even more prominent */
+.modern-notification-item.deadline-notification .notification-keyword {
+    background-color: rgba(231, 76, 60, 0.2) !important;
+    padding: 3px 6px !important;
+    border-radius: 4px !important;
+    font-weight: 900 !important;
+}
+
+/* Ensure "sắp đến hạn" text is extra bold */
+.modern-notification-item.deadline-notification {
+    font-weight: 700 !important;
+}
+
