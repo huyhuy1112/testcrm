@@ -97,7 +97,24 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 				$viewer->view('RedirectToEditView.tpl', 'Vtiger');
 			}
 		} catch (Exception $e) {
-			throw new Exception($e->getMessage());
+			// FIXED: Handle exception gracefully instead of re-throwing to prevent blank page
+			global $log;
+			if ($log) {
+				$log->error('Save action error: ' . $e->getMessage());
+			}
+			
+			if ($request->isAjax()) {
+				$response = new Vtiger_Response();
+				$response->setError('Error', $e->getMessage(), $e->getMessage());
+				$response->emit();
+				return;
+			} else {
+				// Show error page instead of blank page
+				$viewer = new Vtiger_Viewer();
+				$viewer->assign('ERROR_MESSAGE', $e->getMessage());
+				$viewer->view('OperationNotPermitted.tpl', 'Vtiger');
+				return;
+			}
 		}
 	}
 

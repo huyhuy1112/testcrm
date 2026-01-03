@@ -157,7 +157,13 @@
 								$uncompletedEvents[] = $eventInfo['handler_class'];
 							}
 						}
-						throw new Exception("Deadlock occured for events: ". implode(' , ', $uncompletedEvents));
+						// FIXED: Log deadlock instead of throwing exception to prevent blank page
+						global $log;
+						if ($log) {
+							$log->error('Deadlock detected for events: ' . implode(' , ', $uncompletedEvents) . ' - Skipping handlers to prevent blank page');
+						}
+						// Skip remaining handlers instead of throwing exception
+						break; // Exit while loop gracefully
 					}
 				}
 			}
