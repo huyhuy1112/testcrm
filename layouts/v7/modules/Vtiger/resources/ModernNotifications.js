@@ -47,7 +47,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         success: function (response) {
           if (response && response.success) {
@@ -61,7 +61,11 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error loading unread count:", status, error);
+          console.warn(
+            "[ModernNotifications] Error loading unread count:",
+            status,
+            error
+          );
         },
       });
     },
@@ -202,7 +206,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         success: function (response) {
           if (response && response.success) {
@@ -215,7 +219,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error loading unread notifications:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error loading unread notifications:",
+            status,
+            error,
+            xhr.status
+          );
         },
       });
     },
@@ -235,7 +244,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         success: function (response) {
           if (response && response.success) {
@@ -247,7 +256,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error loading read notifications:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error loading read notifications:",
+            status,
+            error,
+            xhr.status
+          );
         },
       });
     },
@@ -584,7 +598,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         data: {
           notification_id: notificationId,
@@ -625,7 +639,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error marking notification as read:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error marking notification as read:",
+            status,
+            error,
+            xhr.status
+          );
           if (element) {
             element.style.opacity = "1";
           }
@@ -647,7 +666,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         data: {
           mark_all: "true",
@@ -681,7 +700,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error marking all as read:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error marking all as read:",
+            status,
+            error,
+            xhr.status
+          );
           itemsContainer.css("opacity", "1");
         },
       });
@@ -840,7 +864,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         data: {
           mode: "deleteSelected",
@@ -859,7 +883,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error deleting selected notifications:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error deleting selected notifications:",
+            status,
+            error,
+            xhr.status
+          );
         },
       });
     },
@@ -877,7 +906,7 @@
         dataType: "json",
         cache: false, // Prevent Chrome cache issues
         xhrFields: {
-          withCredentials: true // Ensure cookies are sent (required for Chrome)
+          withCredentials: true, // Ensure cookies are sent (required for Chrome)
         },
         data: {
           mode: "deleteAll",
@@ -895,7 +924,12 @@
         },
         error: function (xhr, status, error) {
           // Log error for debugging
-          console.warn("[ModernNotifications] Error deleting all notifications:", status, error, xhr.status);
+          console.warn(
+            "[ModernNotifications] Error deleting all notifications:",
+            status,
+            error,
+            xhr.status
+          );
         },
       });
     },
