@@ -73,7 +73,14 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 			if(strlen($appName) > 0){
 				$loadUrl = $loadUrl.$appName;
 			}
+			
+			// CRITICAL: Clear output buffer before redirect to prevent blank page
+			if (ob_get_level() > 0) {
+				ob_clean();
+			}
+			
 			header("Location: $loadUrl");
+			exit; // CRITICAL: Exit immediately after redirect
 		} catch (DuplicateException $e) {
 			$requestData = $request->getAll();
 			$moduleName = $request->getModule();

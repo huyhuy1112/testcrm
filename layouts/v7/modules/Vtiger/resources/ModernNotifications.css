@@ -142,3 +142,58 @@
     font-weight: 700 !important;
 }
 
+/* Read notifications - faded style */
+/* Only apply to items that are explicitly marked as read */
+.modern-notification-item.read-notification {
+    opacity: 0.5 !important;
+    background-color: #f9f9f9 !important;
+}
+
+.modern-notification-item.read-notification a {
+    color: #999 !important;
+}
+
+.modern-notification-item.read-notification div {
+    color: #999 !important;
+}
+
+/* Ensure unread notifications are NOT faded */
+.modern-notification-item:not(.read-notification) {
+    opacity: 1 !important;
+}
+
+/* Make checkboxes bolder and more visible */
+.modern-notification-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    border: 2px solid #333 !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    accent-color: #4CAF50 !important;
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    appearance: checkbox !important;
+}
+
+.modern-notification-checkbox:checked {
+    background-color: #4CAF50 !important;
+    border-color: #4CAF50 !important;
+}
+
+/* Bell shake animation when new notification arrives */
+.bell-shake {
+    animation: bellShake 0.5s ease-in-out;
+}
+
+@keyframes bellShake {
+    0%, 100% {
+        transform: translateX(0) rotate(0deg);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-3px) rotate(-5deg);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(3px) rotate(5deg);
+    }
+}
+

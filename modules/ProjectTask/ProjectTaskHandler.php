@@ -70,9 +70,17 @@ class ProjectTaskHandler extends VTEventHandler {
 			$isNew = $entityData->isNew();
 			$shouldNotify = false;
 
+			// DEBUG: Log for troubleshooting
+			if ($log) {
+				$log->debug("[ProjectTaskHandler] Record ID: $recordId, isNew: " . ($isNew ? 'true' : 'false') . ", newOwnerId: $newOwnerId, changes: " . (empty($changes) ? 'empty' : 'has changes'));
+			}
+
 			if ($isNew) {
 				// New record - always notify
 				$shouldNotify = true;
+				if ($log) {
+					$log->debug("[ProjectTaskHandler] New record detected - will notify user $newOwnerId");
+				}
 			} else if (!empty($changes) && isset($changes['assigned_user_id'])) {
 				// Existing record - check if assigned user changed
 				$oldOwnerId = isset($changes['assigned_user_id']['oldValue']) ? $changes['assigned_user_id']['oldValue'] : null;
@@ -94,7 +102,22 @@ class ProjectTaskHandler extends VTEventHandler {
 			if ($shouldNotify) {
 				$message = "Bạn được assign vào Project Task: " . $taskName;
 				$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'ProjectTask', ?, ?, NOW())";
-				$adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
+				$insertResult = $adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
+				
+				// DEBUG: Log insert result
+				if ($log) {
+					if ($insertResult) {
+						$insertId = $adb->getLastInsertID();
+						$log->debug("[ProjectTaskHandler] Notification inserted successfully. ID: $insertId, User: $newOwnerId, Record: $recordId");
+					} else {
+						$log->error("[ProjectTaskHandler] Failed to insert notification. User: $newOwnerId, Record: $recordId");
+					}
+				}
+			} else {
+				// DEBUG: Log why notification was not sent
+				if ($log) {
+					$log->debug("[ProjectTaskHandler] Notification NOT sent. isNew: " . ($isNew ? 'true' : 'false') . ", shouldNotify: false, changes: " . (empty($changes) ? 'empty' : json_encode($changes)));
+				}
 			}
 
 			// ALWAYS check deadline reminder (regardless of assign notification)
