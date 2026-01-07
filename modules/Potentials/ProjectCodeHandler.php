@@ -186,6 +186,60 @@ class ProjectCodeHandler extends VTEventHandler {
 				return;
 			}
 
+			// 2.5. SEQUENCE NUMBER: Calculate sequence per contact per year
+			// Format: Con{CONTACT_NO}{SEQ_IN_YEAR} (e.g., Con101 = Contact 1, sequence 01)
+			$sequenceInYear = '01'; // Default to 01 if calculation fails
+			try {
+				// Get year from createdtime
+				$createdYear = '';
+				if (!empty($createdTime)) {
+					$dateObj = new DateTime($createdTime);
+					$createdYear = $dateObj->format('Y');
+				} else {
+					$createdYear = date('Y');
+				}
+
+				// Count existing opportunities for the same contact in the same year
+				// Exclude current record (recordId) and deleted records
+				$sequenceQuery = $adb->pquery(
+					"SELECT COUNT(*) as seq_count
+					 FROM vtiger_potential p
+					 INNER JOIN vtiger_crmentity e ON e.crmid = p.potentialid
+					 WHERE p.contact_id = ?
+					 AND YEAR(e.createdtime) = ?
+					 AND e.deleted = 0
+					 AND p.potentialid != ?",
+					array($contactId, $createdYear, $recordId)
+				);
+
+				if ($adb->num_rows($sequenceQuery) > 0) {
+					$existingCount = $adb->query_result($sequenceQuery, 0, 'seq_count');
+					$sequenceNumber = intval($existingCount) + 1; // Add 1 for current record
+					$sequenceInYear = str_pad($sequenceNumber, 2, '0', STR_PAD_LEFT); // Pad to 2 digits
+				}
+
+				if ($log) {
+					$log->debug("[ProjectCodeHandler] Sequence calculated: $sequenceInYear for Contact ID: $contactId, Year: $createdYear (Opportunity ID: $recordId)");
+				}
+			} catch (Throwable $e) {
+				// If sequence calculation fails, use default '01'
+				if ($log) {
+					$log->error("[ProjectCodeHandler] Sequence calculation error (using default 01): " . $e->getMessage());
+				}
+			}
+
+			// Extract numeric part from contact_no (handle formats like "CON1", "Con1", "1", etc.)
+			// Format as "Con{number}{sequence}" (e.g., "Con101")
+			$contactNumber = preg_replace('/[^0-9]/', '', $contactNo); // Extract only digits
+			if (empty($contactNumber)) {
+				$contactNumber = $contactId; // Fallback to contact ID if no number found
+			}
+			$contactWithSequence = "Con{$contactNumber}{$sequenceInYear}";
+
+			if ($log) {
+				$log->debug("[ProjectCodeHandler] Contact with sequence: $contactWithSequence (from contact_no: $contactNo, sequence: $sequenceInYear)");
+			}
+
 			// 3. COMPANY_CODE: Get from Account's cf_855 (Organization level - single source of truth)
 			// CRITICAL: Company Code MUST come from Account, NOT from Opportunity
 			$companyCodeResult = $adb->pquery(
@@ -298,8 +352,10 @@ class ProjectCodeHandler extends VTEventHandler {
 				}
 			}
 
-			// Generate Project Code: {CREATE_DATE}-{CONTACT_ID}-{COMPANY_CODE}-{PROJECT_NAME}
-			$projectCode = "$createDate-$contactNo-$companyCode-$projectName";
+			// Generate Project Code: {CREATE_DATE}-Con{CONTACT_NO}{SEQ_IN_YEAR}-{COMPANY_CODE}-{PROJECT_NAME}
+			// Format: YYYYMMDD-Con{CONTACT_NO}{SEQ_IN_YEAR}-{COMPANY_CODE}-{PROJECT_NAME}
+			// Example: 20260107-Con101-z751-Bít cồ bôn
+			$projectCode = "$createDate-$contactWithSequence-$companyCode-$projectName";
 
 			// Update directly in database (no save() to avoid recursion)
 			// SAFETY: Wrap database operations in try/catch
