@@ -9,6 +9,11 @@
  * All Rights Reserved.
  * ********************************************************************************** */
 
+// Ensure composer autoload is loaded before using Monolog
+if (file_exists('vendor/autoload.php')) {
+    require_once 'vendor/autoload.php';
+}
+
 // Import necessary classes from Monolog
 use Monolog\Logger as MonologLogger;
 use Monolog\Handler\StreamHandler;

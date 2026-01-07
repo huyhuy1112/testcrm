@@ -15,6 +15,10 @@
 
 require_once 'include/logging.php';
 require_once 'libraries/adodb_vtigerfix/adodb.inc.php';
+// Ensure utils.php is loaded for to_html function
+if (!function_exists('to_html')) {
+    require_once 'include/utils/utils.php';
+}
 
 $log = Logger::getLogger('VT');
 $logsqltm = Logger::getLogger('SQLTIME');

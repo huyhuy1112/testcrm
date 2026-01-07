@@ -16,14 +16,29 @@ class ProjectHandler extends VTEventHandler {
 		global $log, $adb;
 
 		try {
+			// Enhanced logging for debugging
+			if ($log) {
+				$log->debug("[ProjectHandler] Event received: $eventName");
+			}
+			
 			// STRICT: Handle ONLY vtiger.entity.aftersave.final (after commit)
 			if ($eventName !== 'vtiger.entity.aftersave.final') {
+				if ($log) {
+					$log->debug("[ProjectHandler] Ignoring event: $eventName (expected vtiger.entity.aftersave.final)");
+				}
 				return;
 			}
 
 			$moduleName = $entityData->getModuleName();
 			if ($moduleName !== 'Project') {
+				if ($log) {
+					$log->debug("[ProjectHandler] Ignoring module: $moduleName (expected Project)");
+				}
 				return;
+			}
+			
+			if ($log) {
+				$log->debug("[ProjectHandler] Processing Project module event");
 			}
 
 			$recordId = $entityData->getId();
