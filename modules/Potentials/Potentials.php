@@ -77,7 +77,8 @@ class Potentials extends CRMEntity {
 
 	// Used when enabling/disabling the mandatory fields for the module.
 	// Refers to vtiger_field.fieldname values.
-	var $mandatory_fields = Array('assigned_user_id', 'createdtime', 'modifiedtime', 'potentialname');
+	// NOTE: potentialname removed from mandatory - it will be auto-synced with Project Code
+	var $mandatory_fields = Array('assigned_user_id', 'createdtime', 'modifiedtime');
 
 	//Added these variables which are used as default order by and sortorder in ListView
 	var $default_order_by = 'potentialname';
