@@ -1,0 +1,14 @@
+[2026-01-07 16:30:21] [INFO] ==========================================
+[2026-01-07 16:30:21] [INFO] Database Backup Started
+[2026-01-07 16:30:21] [INFO] ==========================================
+[2026-01-07 16:30:23] [INFO] Docker daemon is running
+[2026-01-07 16:30:24] [INFO] Container 'vtiger_db' is running
+[2026-01-07 16:30:24] [INFO] Database 'TDB1' exists
+[2026-01-07 16:30:24] [INFO] Starting backup of database 'TDB1'...
+[2026-01-07 16:30:24] [INFO] Backup file: backup/db/TDB1_backup_20260107_1630.sql
+[2026-01-07 16:30:30] [SUCCESS] Backup completed successfully
+[2026-01-07 16:30:30] [INFO] Backup file: backup/db/TDB1_backup_20260107_1630.sql
+[2026-01-07 16:30:30] [INFO] File size: 920K
+[2026-01-07 16:30:30] [INFO] ==========================================
+[2026-01-07 16:30:30] [INFO] Database Backup Completed Successfully
+[2026-01-07 16:30:30] [INFO] ==========================================
