@@ -8,6 +8,7 @@
     sound: null,
     initialized: false,
     currentTab: "unread",
+    isFirstLoad: true, // Track first load to prevent sound on page reload
 
     init: function () {
       if (this.initialized) {
@@ -54,8 +55,17 @@
             // Only update badge, don't render list
             self.updateNotificationBadge(response.count || 0);
             // Check for new notifications to play sound and shake bell
-            if (response.list && response.list.length > 0) {
+            // Only after first load to prevent sound on page reload
+            if (!self.isFirstLoad && response.list && response.list.length > 0) {
               self.checkForNewNotifications(response.list);
+            } else if (self.isFirstLoad && response.list && response.list.length > 0) {
+              // On first load, initialize previousIds without playing sound
+              for (var i = 0; i < response.list.length; i++) {
+                if (self.previousIds.indexOf(response.list[i].id) === -1) {
+                  self.previousIds.push(response.list[i].id);
+                }
+              }
+              self.isFirstLoad = false;
             }
           }
         },
@@ -68,6 +78,101 @@
           );
         },
       });
+    },
+
+    verifyNotificationSound: function (soundPath) {
+      var self = this;
+      // Use relative path for fetch (works better with same-origin)
+      // CRITICAL: Use _v2 to bust browser cache of old invalid file
+      var relativePath = "layouts/v7/modules/Vtiger/resources/sounds/notification_v2.mp3";
+
+      // Check if fetch API is available
+      if (typeof fetch === "undefined") {
+        console.warn(
+          "[NotificationSound] ❌ Fetch API not available (old browser)"
+        );
+        return;
+      }
+
+      fetch(relativePath, { method: "HEAD" })
+        .then(function (res) {
+          // Log HTTP status for debugging
+          console.log(
+            "[NotificationSound] 📡 HTTP Status:",
+            res.status,
+            res.statusText
+          );
+
+          if (!res.ok) {
+            console.warn(
+              "[NotificationSound] ❌ File not found (HTTP " +
+                res.status +
+                "):",
+              relativePath
+            );
+            console.warn(
+              "[NotificationSound] 💡 Check: File exists at",
+              soundPath
+            );
+            return;
+          }
+
+          // Log Content-Type header
+          var contentType = res.headers.get("content-type") || "unknown";
+          console.log(
+            "[NotificationSound] 📄 Content-Type:",
+            contentType
+          );
+
+          // Log Content-Length header
+          var size = parseInt(res.headers.get("content-length") || "0", 10);
+          console.log(
+            "[NotificationSound] 📦 Content-Length:",
+            size,
+            "bytes"
+          );
+
+          if (size === 0) {
+            console.warn(
+              "[NotificationSound] ❌ Sound file is empty (0 bytes)"
+            );
+            console.warn(
+              "[NotificationSound] 💡 This indicates a server configuration issue or invalid file"
+            );
+          } else if (size < 1024) {
+            console.warn(
+              "[NotificationSound] ⚠️ Sound file very small (likely invalid):",
+              size,
+              "bytes (expected > 1KB)"
+            );
+            console.warn(
+              "[NotificationSound] 💡 File may be corrupted or placeholder. Valid MP3 should be > 1KB"
+            );
+          } else {
+            console.log(
+              "[NotificationSound] ✅ Sound file detected:",
+              size,
+              "bytes (" +
+                (size / 1024).toFixed(2) +
+                " KB)"
+            );
+            if (contentType.indexOf("audio") === -1 && contentType !== "unknown") {
+              console.warn(
+                "[NotificationSound] ⚠️ Content-Type is not audio/*:",
+                contentType
+              );
+            }
+          }
+        })
+        .catch(function (err) {
+          console.warn(
+            "[NotificationSound] ❌ Unable to access sound file:",
+            err.message
+          );
+          console.warn(
+            "[NotificationSound] 💡 Possible causes: CORS issue, path incorrect, or file missing"
+          );
+        });
     },
 
     initSound: function () {
@@ -95,31 +200,120 @@
           baseUrl = baseUrl.slice(0, -1);
         }
 
+        // CRITICAL: Use _v2 to bust browser cache of old invalid 169-byte file
         var soundPath =
           baseUrl +
-          "/layouts/v7/modules/Vtiger/resources/sounds/notification.mp3";
+          "/layouts/v7/modules/Vtiger/resources/sounds/notification_v2.mp3";
 
+        console.log("[NotificationSound] 🔍 Initializing sound from:", soundPath);
+
+        // Create Audio object
         this.sound = new Audio(soundPath);
         this.sound.volume = 0.7;
         this.sound.preload = "auto";
 
-        // Preload sound on user interaction (required by browsers for autoplay)
         var self = this;
-        var preloadSound = function () {
-          if (self.sound) {
-            self.sound.load().catch(function (e) {
-              console.warn("[ModernNotifications] Sound preload failed:", e);
-            });
+
+        // Enhanced error handling for Audio object
+        this.sound.onerror = function (e) {
+          console.warn(
+            "[NotificationSound] ❌ Audio failed to load or decode"
+          );
+          console.warn(
+            "[NotificationSound] 💡 Check: File format (MP3), file corruption, or path issue"
+          );
+          if (self.sound.error) {
+            var errorMsg = "";
+            switch (self.sound.error.code) {
+              case 1:
+                errorMsg = "MEDIA_ERR_ABORTED";
+                break;
+              case 2:
+                errorMsg = "MEDIA_ERR_NETWORK";
+                break;
+              case 3:
+                errorMsg = "MEDIA_ERR_DECODE";
+                break;
+              case 4:
+                errorMsg = "MEDIA_ERR_SRC_NOT_SUPPORTED";
+                break;
+              default:
+                errorMsg = "Unknown error";
+            }
+            console.warn(
+              "[NotificationSound] Error code:",
+              self.sound.error.code,
+              "(" + errorMsg + ")"
+            );
           }
-          document.removeEventListener("click", preloadSound);
-          document.removeEventListener("touchstart", preloadSound);
-          document.removeEventListener("keydown", preloadSound);
+        };
+
+        this.sound.oncanplaythrough = function () {
+          console.log(
+            "[NotificationSound] ✅ Audio loaded and ready to play"
+          );
+        };
+
+        // Verify sound file exists and has valid size
+        this.verifyNotificationSound(soundPath);
+
+        // Preload sound on user interaction (required by browsers for autoplay)
+        // CRITICAL: preloadSound() must NEVER throw - wrap all operations in try/catch
+        var preloadSound = function () {
+          try {
+            if (!self.sound) {
+              console.warn(
+                "[NotificationSound] ⚠️ Cannot preload: Audio object not initialized"
+              );
+              return;
+            }
+
+            // CRITICAL: load() may not return a Promise in all browsers
+            // Never call .then() directly - always check if Promise exists
+            var loadResult = self.sound.load();
+            if (loadResult && typeof loadResult.then === "function") {
+              loadResult
+                .then(function () {
+                  console.log(
+                    "[NotificationSound] ✅ Sound preloaded successfully"
+                  );
+                })
+                .catch(function (e) {
+                  console.warn(
+                    "[NotificationSound] ❌ Sound preload failed:",
+                    e.message
+                  );
+                });
+            } else {
+              // load() returned undefined or non-Promise - this is OK, just log
+              console.log(
+                "[NotificationSound] ℹ️ Sound load() called (non-Promise return)"
+              );
+            }
+          } catch (e) {
+            // CRITICAL: Never let preload crash the system
+            console.warn(
+              "[NotificationSound] ❌ Preload exception (non-fatal):",
+              e.message
+            );
+          } finally {
+            // Always clean up event listeners
+            document.removeEventListener("click", preloadSound);
+            document.removeEventListener("touchstart", preloadSound);
+            document.removeEventListener("keydown", preloadSound);
+            document.removeEventListener("mousedown", preloadSound);
+          }
         };
         document.addEventListener("click", preloadSound, { once: true });
         document.addEventListener("touchstart", preloadSound, { once: true });
         document.addEventListener("keydown", preloadSound, { once: true });
+        document.addEventListener("mousedown", preloadSound, { once: true });
       } catch (e) {
-        console.warn("[ModernNotifications] Sound initialization failed:", e);
+        console.warn(
+          "[NotificationSound] ❌ Sound initialization failed:",
+          e.message
+        );
+        console.warn("[NotificationSound] Stack:", e.stack);
       }
     },
 
@@ -213,7 +407,19 @@
             // CRITICAL: Check again after AJAX completes
             if (self.currentTab === "unread") {
               self.updateUnreadUI(response);
-              self.checkForNewNotifications(response.list);
+              // Only check for new notifications after first load
+              if (!self.isFirstLoad) {
+                self.checkForNewNotifications(response.list);
+              } else {
+                // On first load, initialize previousIds with current notifications
+                // This prevents sound from playing for existing notifications
+                if (response.list && response.list.length > 0) {
+                  for (var i = 0; i < response.list.length; i++) {
+                    self.previousIds.push(response.list[i].id);
+                  }
+                }
+                self.isFirstLoad = false;
+              }
             }
           }
         },
@@ -712,22 +918,36 @@
     },
 
     checkForNewNotifications: function (newList) {
+      if (!newList || newList.length === 0) {
+        return;
+      }
+
       var newIds = [];
       for (var i = 0; i < newList.length; i++) {
         newIds.push(newList[i].id);
       }
 
+      // Check if there are any truly NEW notifications (not in previousIds)
       var hasNew = false;
       for (var j = 0; j < newIds.length; j++) {
         if (this.previousIds.indexOf(newIds[j]) === -1) {
           hasNew = true;
-          this.playSound();
-          // Add shake animation to bell icon
-          this.shakeBell();
           break;
         }
       }
 
+      // Only play sound and shake bell if there are NEW notifications
+      // This prevents sound from playing when:
+      // - Page reloads (isFirstLoad handled separately)
+      // - User marks notifications as read (count decreases, but no new IDs)
+      // - Opening notification list (no new notifications)
+      if (hasNew) {
+        this.playSound();
+        // Add shake animation to bell icon
+        this.shakeBell();
+      }
+
+      // Update previousIds to current list (for next comparison)
       this.previousIds = newIds;
     },
 
@@ -752,24 +972,58 @@
 
     playSound: function () {
       if (!this.sound) {
+        console.warn(
+          "[NotificationSound] ❌ Cannot play: Audio object not initialized"
+        );
         return;
       }
 
       try {
+        // Check if sound is ready
+        if (this.sound.readyState < 2) {
+          console.warn(
+            "[NotificationSound] ⚠️ Sound not ready (readyState:",
+            this.sound.readyState,
+            "). Attempting to play anyway..."
+          );
+        }
+
         // Reset sound to beginning
         this.sound.currentTime = 0;
 
-        // Play sound with promise handling
-        var playPromise = this.sound.play();
+        // CRITICAL FIX: audio.play() does NOT always return a Promise
+        // In many browsers it returns undefined → calling .then() crashes JS
+        // Must safely check if Promise exists before calling .then()
+        var playResult = this.sound.play();
 
-        if (playPromise !== undefined) {
-          playPromise
+        // Check if play() returned a Promise (modern browsers) or undefined (old browsers)
+        if (playResult && typeof playResult.then === "function") {
+          // Modern browser: play() returned a Promise
+          playResult
             .then(function () {
-              // Sound played successfully
+              console.log("[NotificationSound] 🔊 Sound played successfully");
             })
             .catch(function (error) {
               // Autoplay was prevented or sound failed
-              console.warn("[ModernNotifications] Sound play failed:", error);
+              console.warn(
+                "[NotificationSound] ❌ Sound play failed:",
+                error.message
+              );
+              if (error.name === "NotAllowedError") {
+                console.warn(
+                  "[NotificationSound] 💡 Autoplay blocked by browser. User interaction required."
+                );
+              } else if (error.name === "NotSupportedError") {
+                console.warn(
+                  "[NotificationSound] 💡 Audio format not supported by browser."
+                );
+              } else {
+                console.warn(
+                  "[NotificationSound] 💡 Error type:",
+                  error.name
+                );
+              }
+
               // Try to create a new Audio instance as fallback
               try {
                 var baseUrl = "";
@@ -792,25 +1046,60 @@
                 if (baseUrl.endsWith("/")) {
                   baseUrl = baseUrl.slice(0, -1);
                 }
+                // CRITICAL: Use _v2 for fallback too
                 var soundPath =
                   baseUrl +
-                  "/layouts/v7/modules/Vtiger/resources/sounds/notification.mp3";
+                  "/layouts/v7/modules/Vtiger/resources/sounds/notification_v2.mp3";
+                console.log(
+                  "[NotificationSound] 🔄 Attempting fallback Audio instance..."
+                );
                 var fallbackSound = new Audio(soundPath);
                 fallbackSound.volume = 0.7;
-                fallbackSound.play().catch(function (e) {
-                  console.warn(
-                    "[ModernNotifications] Fallback sound also failed"
+
+                // CRITICAL: Fallback play() must also be Promise-safe
+                var fallbackPlayResult = fallbackSound.play();
+                if (
+                  fallbackPlayResult &&
+                  typeof fallbackPlayResult.then === "function"
+                ) {
+                  fallbackPlayResult
+                    .then(function () {
+                      console.log(
+                        "[NotificationSound] ✅ Fallback sound played successfully"
+                      );
+                    })
+                    .catch(function (e) {
+                      console.warn(
+                        "[NotificationSound] ❌ Fallback sound also failed:",
+                        e.message
+                      );
+                    });
+                } else {
+                  // Fallback play() returned undefined - assume it worked (old browser)
+                  console.log(
+                    "[NotificationSound] ℹ️ Fallback sound play() called (non-Promise return)"
                   );
-                });
+                }
               } catch (e) {
                 console.warn(
-                  "[ModernNotifications] Fallback sound creation failed"
+                  "[NotificationSound] ❌ Fallback sound creation failed:",
+                  e.message
                 );
               }
             });
+        } else {
+          // Old browser: play() returned undefined - assume it worked
+          // This is the safe fallback for browsers that don't return Promises
+          console.log(
+            "[NotificationSound] ℹ️ Sound play() called (non-Promise return - old browser)"
+          );
         }
       } catch (e) {
-        console.warn("[ModernNotifications] Sound play error:", e);
+        console.warn(
+          "[NotificationSound] ❌ Sound play error:",
+          e.message
+        );
+        console.warn("[NotificationSound] Stack:", e.stack);
       }
     },
 
@@ -943,6 +1232,7 @@
       this.lastRenderedNotificationId = 0;
       this.previousIds = [];
       this.currentTab = "unread";
+      this.isFirstLoad = true;
     },
   };
 
@@ -981,4 +1271,114 @@
   });
 
   window.ModernNotifications = ModernNotifications;
+
+  // Global manual test function for console testing
+  window.__testNotificationSound = function () {
+    console.log("[NotificationSound] 🧪 Manual test initiated...");
+    try {
+      // Get base URL same way as initSound
+      var baseUrl = "";
+      if (typeof _META !== "undefined" && _META.notifier) {
+        var notifierUrl = _META.notifier;
+        baseUrl = notifierUrl.substring(0, notifierUrl.lastIndexOf("/"));
+      } else {
+        var pathParts = window.location.pathname.split("/");
+        pathParts = pathParts.filter(function (part) {
+          return part && part !== "index.php";
+        });
+        baseUrl = window.location.origin;
+        if (pathParts.length > 0 && pathParts[0] !== "") {
+          baseUrl += "/" + pathParts[0];
+        }
+      }
+      if (baseUrl.endsWith("/")) {
+        baseUrl = baseUrl.slice(0, -1);
+      }
+      // CRITICAL: Use _v2 to bust browser cache
+      var soundPath =
+        baseUrl +
+        "/layouts/v7/modules/Vtiger/resources/sounds/notification_v2.mp3";
+
+      console.log("[NotificationSound] 🧪 Using path:", soundPath);
+
+      var a = new Audio(soundPath);
+      a.volume = 1.0;
+
+      // Add error handlers
+      a.onerror = function () {
+        console.warn(
+          "[NotificationSound] ❌ Manual test: Audio failed to load"
+        );
+        if (a.error) {
+          var errorMsg = "";
+          switch (a.error.code) {
+            case 1:
+              errorMsg = "MEDIA_ERR_ABORTED";
+              break;
+            case 2:
+              errorMsg = "MEDIA_ERR_NETWORK";
+              break;
+            case 3:
+              errorMsg = "MEDIA_ERR_DECODE";
+              break;
+            case 4:
+              errorMsg = "MEDIA_ERR_SRC_NOT_SUPPORTED";
+              break;
+            default:
+              errorMsg = "Unknown error";
+          }
+          console.warn(
+            "[NotificationSound] Error code:",
+            a.error.code,
+            "(" + errorMsg + ")"
+          );
+        }
+      };
+
+      a.oncanplaythrough = function () {
+        console.log(
+          "[NotificationSound] ✅ Manual test: Audio ready to play"
+        );
+      };
+
+      // CRITICAL FIX: audio.play() does NOT always return a Promise
+      // Must safely check if Promise exists before calling .then()
+      var playResult = a.play();
+      if (playResult && typeof playResult.then === "function") {
+        // Modern browser: play() returned a Promise
+        playResult
+          .then(function () {
+            console.log(
+              "[NotificationSound] 🔊 Manual test: Sound played successfully"
+            );
+          })
+          .catch(function (err) {
+            console.warn(
+              "[NotificationSound] ❌ Manual test failed:",
+              err.message
+            );
+            if (err.name === "NotAllowedError") {
+              console.warn(
+                "[NotificationSound] 💡 Autoplay blocked. Try clicking on the page first."
+              );
+            }
+          });
+      } else {
+        // Old browser: play() returned undefined - assume it worked
+        console.log(
+          "[NotificationSound] ℹ️ Manual test: play() called (non-Promise return)"
+        );
+      }
+    } catch (e) {
+      console.warn(
+        "[NotificationSound] ❌ Manual test: Audio API exception:",
+        e.message
+      );
+      console.warn("[NotificationSound] Stack:", e.stack);
+    }
+  };
+
+  console.log(
+    "[NotificationSound] 💡 Manual test available: Run __testNotificationSound() in console"
+  );
 })();
