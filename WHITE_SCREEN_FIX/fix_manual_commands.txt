@@ -1,0 +1,84 @@
+# ============================================================================
+# FIX WHITE SCREEN - LỆNH THỦ CÔNG
+# ============================================================================
+# 
+# Từ kết quả debug:
+# 1. cache/ directory NOT FOUND
+# 2. .htaccess NOT FOUND
+# 
+# Chạy các lệnh sau trên hosting:
+#
+# ============================================================================
+
+# BƯỚC 1: Di chuyển đến thư mục root
+cd /home/nhtdbus8/supertestcrm.tdbsolution.com
+
+# ============================================================================
+
+# BƯỚC 2: Tạo cache/ directory
+mkdir -p cache
+chmod 755 cache
+
+# Tạo các subdirectories
+mkdir -p cache/templates_c
+mkdir -p cache/images
+mkdir -p cache/import
+mkdir -p cache/upload
+mkdir -p cache/htmlpurifier/HTML
+
+# Set permissions
+chmod -R 755 cache/
+
+# ============================================================================
+
+# BƯỚC 3: Tạo .htaccess
+# 
+# Nếu có htaccess.txt:
+cp htaccess.txt .htaccess
+chmod 644 .htaccess
+
+# HOẶC tạo .htaccess mới:
+cat > .htaccess << 'EOF'
+Options -Indexes
+
+# Enable output buffering
+php_flag output_buffering On
+php_value output_buffering 4096
+
+# Disable display errors (production)
+php_flag display_errors Off
+
+# Memory and execution time
+php_value memory_limit 512M
+php_value max_execution_time 300
+EOF
+
+chmod 644 .htaccess
+
+# ============================================================================
+
+# BƯỚC 4: Clear cache (nếu có)
+rm -rf cache/templates_c/*
+rm -rf cache/images/*
+
+# ============================================================================
+
+# BƯỚC 5: Verify
+ls -la cache/
+ls -la .htaccess
+ls -la cache/templates_c cache/images cache/htmlpurifier/HTML
+
+# ============================================================================
+
+# BƯỚC 6: Test
+# Truy cập: https://supertestcrm.tdbsolution.com
+# 
+# Nếu vẫn còn white screen:
+# 1. Check PHP error log trong cPanel
+# 2. Enable error display tạm thời trong config.inc.php:
+#    error_reporting(E_ALL);
+#    ini_set('display_errors', '1');
+# 3. Refresh trang và xem error message
+
+# ============================================================================
+
