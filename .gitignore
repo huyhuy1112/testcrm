@@ -82,7 +82,6 @@ verify_*.php
 check_*.php
 audit_*.php
 fix_*.php
-create_*.php
 setup_*.php
 register_*.php
 migrate_*.php
@@ -90,6 +89,12 @@ restore_*.php
 export_*.php
 backup_*.php
 *.sh
+
+# Allow WHITE_SCREEN_FIX tools
+!WHITE_SCREEN_FIX/*.php
+!WHITE_SCREEN_FIX/*.sh
+!WHITE_SCREEN_FIX/*.txt
+!WHITE_SCREEN_FIX/*.md
 *.sql
 
 # Documentation files (keep deployment guides, ignore others)
