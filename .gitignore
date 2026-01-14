@@ -103,6 +103,7 @@ backup_*.php
 !DEPLOY_PRODUCTION.md
 !PUSH_TO_GITHUB.md
 !QUICK_PUSH_GUIDE.txt
+!WHITE_SCREEN_FIX/*.md
 
 # Node modules (if any)
 node_modules/
