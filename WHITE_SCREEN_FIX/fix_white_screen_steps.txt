@@ -1,0 +1,122 @@
+# ============================================================================
+# FIX WHITE SCREEN - LỆNH THỦ CÔNG
+# ============================================================================
+
+# BƯỚC 1: Enable Error Display (Tạm thời)
+# 
+# Sửa config.inc.php, thêm vào đầu file (sau <?php):
+# 
+#   error_reporting(E_ALL);
+#   ini_set('display_errors', '1');
+#   ini_set('display_startup_errors', '1');
+# 
+# Hoặc sửa .htaccess, thêm:
+# 
+#   php_flag display_errors On
+#   php_value error_reporting E_ALL
+
+# ============================================================================
+
+# BƯỚC 2: Upload debug file
+# 
+# Upload file debug_white_screen.php lên hosting
+# Truy cập: https://supertestcrm.tdbsolution.com/debug_white_screen.php
+# Xem errors và fix
+
+# ============================================================================
+
+# BƯỚC 3: Check Common Issues
+
+# 3.1. Check file permissions
+cd /home/nhtdbus8/supertestcrm.tdbsolution.com
+ls -la index.php config.inc.php
+
+# 3.2. Set correct permissions
+chmod 644 index.php
+chmod 644 config.inc.php
+chmod 755 cache/
+chmod 755 storage/
+
+# 3.3. Check if config.inc.php exists
+ls -la config.inc.php
+
+# 3.4. Check if vendor/autoload.php exists
+ls -la vendor/autoload.php
+
+# ============================================================================
+
+# BƯỚC 4: Check PHP Errors Log
+# 
+# Trong cPanel:
+# - Vào "Errors" hoặc "Error Log"
+# - Xem recent errors
+# 
+# Hoặc qua SSH:
+tail -50 /home/nhtdbus8/supertestcrm.tdbsolution.com/error_log
+# hoặc
+tail -50 ~/public_html/error_log
+
+# ============================================================================
+
+# BƯỚC 5: Test Database Connection
+# 
+# Tạo file test_db.php:
+# 
+# <?php
+# require_once 'config.inc.php';
+# $conn = new mysqli($dbconfig['db_server'], $dbconfig['db_username'], 
+#                    $dbconfig['db_password'], $dbconfig['db_name']);
+# if ($conn->connect_error) {
+#     die("Connection failed: " . $conn->connect_error);
+# }
+# echo "Connected successfully";
+# $conn->close();
+# ?>
+# 
+# Truy cập: https://supertestcrm.tdbsolution.com/test_db.php
+
+# ============================================================================
+
+# BƯỚC 6: Check Memory Limit
+# 
+# Sửa .htaccess, thêm:
+# 
+#   php_value memory_limit 512M
+#   php_value max_execution_time 300
+
+# ============================================================================
+
+# BƯỚC 7: Check Missing Files
+# 
+# Đảm bảo các files sau tồn tại:
+# - index.php
+# - config.inc.php
+# - vendor/autoload.php
+# - .htaccess (hoặc htaccess.txt)
+
+# ============================================================================
+
+# BƯỚC 8: Clear Cache
+# 
+# rm -rf cache/templates_c/*
+# rm -rf cache/images/*
+# 
+# Tạo cache directories nếu chưa có:
+# mkdir -p cache/htmlpurifier/HTML
+# chmod -R 755 cache/
+
+# ============================================================================
+
+# NGUYÊN NHÂN THƯỜNG GẶP:
+# 
+# 1. config.inc.php không tồn tại hoặc có lỗi
+# 2. Database connection failed
+# 3. vendor/autoload.php không tồn tại
+# 4. File permissions sai
+# 5. Memory limit quá thấp
+# 6. PHP syntax error trong code
+# 7. Missing .htaccess
+# 8. Cache directory không writable
+
+# ============================================================================
+
