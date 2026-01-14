@@ -105,8 +105,8 @@ npm-debug.log
 yarn-error.log
 
 # Composer (if used)
-vendor/
-composer.lock
+# vendor/ - Commented out to allow pushing vendor directory
+# composer.lock - Commented out to allow pushing composer.lock
 
 # Temporary files
 *.tmp
