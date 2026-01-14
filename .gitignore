@@ -95,6 +95,9 @@ backup_*.php
 !WHITE_SCREEN_FIX/*.sh
 !WHITE_SCREEN_FIX/*.txt
 !WHITE_SCREEN_FIX/*.md
+# Allow HTMLPURIFIER_FIX tools
+!HTMLPURIFIER_FIX/*.php
+!HTMLPURIFIER_FIX/*.md
 *.sql
 
 # Documentation files (keep deployment guides, ignore others)
