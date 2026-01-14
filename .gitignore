@@ -66,6 +66,38 @@ backup/db/*.sql
 vtiger-prod/
 vtiger-prod.zip
 vtiger-prod.tar.gz
+vtiger_upload_fix.zip
+
+# Fix directories (reference only, not for production)
+CONNECTOR_DISPLAY_FIX/
+NOTIFICATION_JSON_FIX/
+CACHE_CONNECTOR_FIX/
+CACHE_HTMLPURIFIER_FIX/
+PROJECT_SAVE_JSON_FIX/
+
+# Test and development files
+test_*.php
+*_test.php
+verify_*.php
+check_*.php
+audit_*.php
+fix_*.php
+create_*.php
+setup_*.php
+register_*.php
+migrate_*.php
+restore_*.php
+export_*.php
+backup_*.php
+*.sh
+*.sql
+
+# Documentation files (keep deployment guides, ignore others)
+*.md
+!README.md
+!DEPLOY_PRODUCTION.md
+!PUSH_TO_GITHUB.md
+!QUICK_PUSH_GUIDE.txt
 
 # Node modules (if any)
 node_modules/
