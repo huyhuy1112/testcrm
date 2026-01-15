@@ -1,0 +1,97 @@
+═══════════════════════════════════════════════════════════════
+  HƯỚNG DẪN DEPLOY DATABASE LÊN HOSTING
+═══════════════════════════════════════════════════════════════
+
+BƯỚC 1: XÓA DATABASE CŨ (NẾU CẦN)
+───────────────────────────────────────────────────────────────
+
+1. Vào cPanel → phpMyAdmin
+2. Chọn database: nhtdbus8_supertestcrm
+3. Click tab "Operations"
+4. Click "Drop the database (DROP)" → Xác nhận xóa
+5. Tạo database mới: nhtdbus8_supertestcrm
+
+
+BƯỚC 2: CÀI ĐẶT VTIGER CRM
+───────────────────────────────────────────────────────────────
+
+1. Truy cập website: https://supertestcrm.tdbsolution.com
+2. Vtiger sẽ tự động vào Installation Wizard
+3. Điền thông tin database:
+   - Host Name: localhost
+   - User Name: nhtdbus8_supertestcrm
+   - Password: 987456321852huy
+   - Database Name: nhtdbus8_supertestcrm
+   - BỎ CHỌN "Create new database" (không tích)
+4. Click "Next" và hoàn tất installation
+5. Tạo admin user và hoàn tất setup
+
+
+BƯỚC 3: SETUP MENU MANAGEMENT
+───────────────────────────────────────────────────────────────
+
+1. Vào cPanel → phpMyAdmin
+2. Chọn database: nhtdbus8_supertestcrm
+3. Click tab "SQL"
+4. Mở file: FULL_DATABASE_SETUP.sql
+5. Copy TOÀN BỘ code trong file
+6. Paste vào ô SQL trong phpMyAdmin
+7. Click nút "Go"
+8. Kiểm tra kết quả (phải thấy 4 dòng: Calendar, Reports, Documents, Users)
+
+
+BƯỚC 4: CLEAR CACHE
+───────────────────────────────────────────────────────────────
+
+1. Vào Vtiger CRM
+2. Settings → Configuration → Clear Cache
+3. Hoặc chạy lệnh:
+   rm -rf cache/*
+   rm -rf storage/cache/*
+   rm -rf templates_c/*
+
+
+BƯỚC 5: KIỂM TRA
+───────────────────────────────────────────────────────────────
+
+1. Logout và Login lại Vtiger CRM
+2. Kiểm tra sidebar menu → Phải có "Management"
+3. Click vào "Management" → Phải thấy:
+   - Schedule (Calendar)
+   - Report (Reports)
+   - Document (Documents)
+   - Team (Users)
+
+
+═══════════════════════════════════════════════════════════════
+  CODE SQL THUẦN (COPY VÀ PASTE)
+═══════════════════════════════════════════════════════════════
+
+Nếu muốn copy trực tiếp, dùng code này:
+
+DELETE FROM vtiger_app2tab 
+WHERE tabid IN (
+    SELECT tabid FROM vtiger_tab 
+    WHERE name IN ('Calendar', 'Reports', 'Documents', 'Users')
+)
+AND appname != 'PROJECTS';
+
+INSERT INTO vtiger_app2tab (appname, tabid, sequence, visible)
+SELECT 'PROJECTS', tabid, 1, 1 FROM vtiger_tab WHERE name = 'Calendar' LIMIT 1;
+
+INSERT INTO vtiger_app2tab (appname, tabid, sequence, visible)
+SELECT 'PROJECTS', tabid, 2, 1 FROM vtiger_tab WHERE name = 'Reports' LIMIT 1;
+
+INSERT INTO vtiger_app2tab (appname, tabid, sequence, visible)
+SELECT 'PROJECTS', tabid, 3, 1 FROM vtiger_tab WHERE name = 'Documents' LIMIT 1;
+
+INSERT INTO vtiger_app2tab (appname, tabid, sequence, visible)
+SELECT 'PROJECTS', tabid, 4, 1 FROM vtiger_tab WHERE name = 'Users' LIMIT 1;
+
+UPDATE vtiger_tab SET tablabel = 'Schedule' WHERE name = 'Calendar';
+UPDATE vtiger_tab SET tablabel = 'Report' WHERE name = 'Reports';
+UPDATE vtiger_tab SET tablabel = 'Document' WHERE name = 'Documents';
+UPDATE vtiger_tab SET tablabel = 'Team' WHERE name = 'Users';
+
+═══════════════════════════════════════════════════════════════
+
