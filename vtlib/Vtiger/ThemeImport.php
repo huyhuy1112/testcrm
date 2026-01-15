@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once(dirname(__FILE__) . '/ThemeExport.php');
+include_once('vtlib/Vtiger/ThemeExport.php');
 
 /**
  * Provides API to import language into vtiger CRM

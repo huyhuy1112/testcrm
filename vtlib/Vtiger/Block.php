@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ******************************************************************************/
-include_once(dirname(__FILE__) . '/Utils.php');
+include_once('vtlib/Vtiger/Utils.php');
 require_once dirname(__FILE__) . '/../../includes/runtime/Cache.php';
 
 /**

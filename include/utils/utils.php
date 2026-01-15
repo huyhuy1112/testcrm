@@ -19,28 +19,28 @@
  * All Rights Reserved.
  * Contributor(s): ______________________________________..
  ********************************************************************************/
-require_once(dirname(__FILE__) . '/../database/PearDatabase.php');
-require_once(dirname(__FILE__) . '/../ComboUtil.php'); //new
-require_once(dirname(__FILE__) . '/../utils/ListViewUtils.php');
-require_once(dirname(__FILE__) . '/../utils/EditViewUtils.php');
-require_once(dirname(__FILE__) . '/../utils/CommonUtils.php');
-require_once(dirname(__FILE__) . '/../utils/InventoryUtils.php');
-require_once(dirname(__FILE__) . '/../utils/SearchUtils.php');
-require_once(dirname(__FILE__) . '/../FormValidationUtil.php');
-require_once(dirname(__FILE__) . '/../events/SqlResultIterator.inc');
-require_once(dirname(__FILE__) . '/../fields/DateTimeField.php');
-require_once(dirname(__FILE__) . '/../fields/CurrencyField.php');
-require_once(dirname(__FILE__) . '/../data/CRMEntity.php');
-require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Language.php');
-require_once(dirname(__FILE__) . '/../ListView/ListViewSession.php');
+require_once('include/database/PearDatabase.php');
+require_once('include/ComboUtil.php'); //new
+require_once('include/utils/ListViewUtils.php');
+require_once('include/utils/EditViewUtils.php');
+require_once('include/utils/CommonUtils.php');
+require_once('include/utils/InventoryUtils.php');
+require_once('include/utils/SearchUtils.php');
+require_once('include/FormValidationUtil.php');
+require_once('include/events/SqlResultIterator.inc');
+require_once('include/fields/DateTimeField.php');
+require_once('include/fields/CurrencyField.php');
+require_once('data/CRMEntity.php');
+require_once 'vtlib/Vtiger/Language.php';
+require_once("include/ListView/ListViewSession.php");
 
-require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Functions.php');
-require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Deprecated.php');
+require_once 'vtlib/Vtiger/Functions.php';
+require_once 'vtlib/Vtiger/Deprecated.php';
 
-require_once(dirname(__FILE__) . '/../../includes/runtime/Cache.php');
-require_once(dirname(__FILE__) . '/../../modules/Vtiger/helpers/Util.php');
-require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/AccessControl.php');
-require_once(dirname(__FILE__) . '/../../includes/runtime/Configs.php');
+require_once 'includes/runtime/Cache.php';
+require_once 'modules/Vtiger/helpers/Util.php';
+require_once 'vtlib/Vtiger/AccessControl.php';
+require_once 'includes/runtime/Configs.php';
 // Constants to be defined here
 
 // For Migration status.
@@ -132,7 +132,7 @@ function get_user_array($add_blank=true, $status="Active", $assigned_user="",$pr
 
 	if($user_array == null)
 	{
-		require_once(dirname(__FILE__) . '/../database/PearDatabase.php');
+		require_once('include/database/PearDatabase.php');
 		$db = PearDatabase::getInstance();
 		$temp_result = Array();
 		// Including deleted vtiger_users for now.
@@ -202,7 +202,7 @@ function get_group_array($add_blank=true, $status="Active", $assigned_user="",$p
 
 	if($group_array == null)
 	{
-		require_once(dirname(__FILE__) . '/../database/PearDatabase.php');
+		require_once('include/database/PearDatabase.php');
 		$db = PearDatabase::getInstance();
 		$temp_result = Array();
 		// Including deleted vtiger_users for now.

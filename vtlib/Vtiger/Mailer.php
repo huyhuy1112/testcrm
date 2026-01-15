@@ -12,8 +12,8 @@
 include_once('include/utils/CommonUtils.php');
 include_once('config.inc.php');
 include_once('include/database/PearDatabase.php');
-include_once(dirname(__FILE__) . '/Utils.php');
-include_once(dirname(__FILE__) . '/Event.php');
+include_once('vtlib/Vtiger/Utils.php');
+include_once('vtlib/Vtiger/Event.php');
 
 class Vtiger_Mailer_xOauth2Provider implements \PHPMailer\PHPMailer\OAuthTokenProvider {
 	protected $email;

@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once(dirname(__FILE__) . '/LanguageImport.php');
+require_once('vtlib/Vtiger/LanguageImport.php');
 
 /**
  * Language Manager class for vtiger Modules.

@@ -17,7 +17,7 @@
  * Description:  Kicks off log4php.
  ********************************************************************************/
 
-require_once(dirname(__FILE__) . '/../config.php');
+require_once('config.php');
 
 // Performance Optimization: Configure the log folder
 @include_once('config.performance.php');

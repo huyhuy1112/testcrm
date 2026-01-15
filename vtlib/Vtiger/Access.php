@@ -8,8 +8,8 @@
  * All Rights Reserved.
  *************************************************************************************/
 include_once('include/utils/UserInfoUtil.php');
-include_once(dirname(__FILE__) . '/Utils.php');
-include_once(dirname(__FILE__) . '/Profile.php');
+include_once('vtlib/Vtiger/Utils.php');
+include_once('vtlib/Vtiger/Profile.php');
 
 /**
  * Provides API to control Access like Sharing, Tools etc. for vtiger CRM Module
