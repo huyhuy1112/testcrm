@@ -133,3 +133,4 @@ echo "1. Clear cache: rm -rf cache/* templates_c/*\n";
 echo "2. Logout and login again\n";
 echo "3. Check MARKETING menu - Evaluate and Plans should appear\n";
 
+

@@ -272,3 +272,4 @@ Or manually remove:
 
 **Result:** Notification sound plays ONLY when a truly NEW notification arrives, not on page reload or when opening the list.
 
+

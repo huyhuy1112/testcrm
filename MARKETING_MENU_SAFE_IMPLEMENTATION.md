@@ -233,3 +233,4 @@ docker exec vtiger_web sh -c "rm -rf cache/* templates_c/*"
 
 **No White Screen:** ✅ Template-only changes cannot cause fatal PHP errors
 
+

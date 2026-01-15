@@ -112,3 +112,4 @@ docker exec vtiger_db mysqldump \
 **Status:** ✅ SQL file cleaning script ready  
 **File to clean:** `backup/db/TDB1_backup_20260107_1630.sql`
 
+

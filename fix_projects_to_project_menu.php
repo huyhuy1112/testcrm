@@ -299,3 +299,4 @@ echo "3. Check sidebar menu - 'Management' (PROJECT app) should appear\n";
 echo "4. Verify modules: Schedule, Report, Document, Team\n";
 echo "\n";
 
+

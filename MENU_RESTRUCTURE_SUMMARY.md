@@ -204,3 +204,4 @@ rm -rf cache/* templates_c/* storage/cache/*
 
 **Result:** Parent menu group renamed to "MANAGEMENT", child module label remains "Projects"/"Dự án" as required.
 
+

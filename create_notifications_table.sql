@@ -14,3 +14,4 @@ CREATE TABLE IF NOT EXISTS `vtiger_notifications` (
   KEY `idx_userid_is_read` (`userid`, `is_read`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+

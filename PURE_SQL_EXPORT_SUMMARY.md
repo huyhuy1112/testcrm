@@ -111,3 +111,4 @@ grep -c "^--\|^/\*" backup/db/vtiger_prod_pure.sql
 **Compatibility:** ✅ phpMyAdmin compatible  
 **Content:** ✅ CREATE TABLE and INSERT INTO only
 
+

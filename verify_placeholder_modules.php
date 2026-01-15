@@ -80,3 +80,4 @@ foreach ($files as $file) {
 echo "\n=== Verification Complete ===\n";
 echo "\nNext: Go to Settings > Menu Editor and drag Evaluate/Plans into MARKETING\n";
 
+

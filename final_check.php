@@ -26,3 +26,4 @@ echo "<hr>";
 echo "<h3>🎉 System Status: READY</h3>";
 echo "<p><a href='index.php'>Go to Vtiger</a></p>";
 
+

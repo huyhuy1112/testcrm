@@ -461,3 +461,4 @@ echo "1. Clear cache: rm -rf cache/* templates_c/* cache/menu/*\n";
 echo "2. Logout and login again\n";
 echo "3. Check TOOLS menu - Invoices, Orders, Document Templates, and History should appear\n";
 
+

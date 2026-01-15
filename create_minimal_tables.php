@@ -49,3 +49,4 @@ mysqli_close($conn);
 echo "\n✅ Minimal structure created!\n";
 echo "💡 Now try accessing: http://localhost:8080/index.php?module=Install&view=Index\n";
 
+

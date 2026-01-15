@@ -172,3 +172,4 @@ $createdYear = $dateObj->format('Y'); // Still 'Y' (4-digit) for SQL compatibili
 **Old Records:**
 - Remain unchanged: `20260108-ACC406-abc-cầu lông` (still valid)
 
+

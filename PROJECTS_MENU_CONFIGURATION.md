@@ -363,3 +363,4 @@ Then clear cache and logout/login.
 
 **Result:** PROJECTS app (displayed as "Management") configured with 4 modules, display labels updated, safe to re-run.
 
+

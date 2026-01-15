@@ -141,3 +141,4 @@ AND tabid = (SELECT tabid FROM vtiger_tab WHERE name = 'Potentials');
 - **Auto-sync:** The `ProjectCodeHandler` will automatically set `potentialname = Project Code` after save.
 - **Backward compatibility:** Existing Opportunities with manual names will continue to work.
 
+

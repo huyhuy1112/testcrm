@@ -153,3 +153,4 @@ zip -r vtiger-prod.zip vtiger-prod/
 **Last Verified:** January 10, 2025  
 **Vtiger Version:** 8.3.0
 
+

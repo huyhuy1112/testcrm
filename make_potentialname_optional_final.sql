@@ -27,3 +27,4 @@ AND tabid = (SELECT tabid FROM vtiger_tab WHERE name = 'Potentials');
 
 -- Expected result: typeofdata should contain ~O (optional)
 
+

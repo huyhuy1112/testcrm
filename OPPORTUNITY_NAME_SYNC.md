@@ -197,3 +197,4 @@ The Opportunity Name is now automatically synchronized with Project Code using d
 
 **Key Benefit:** Opportunity Name always equals Project Code, making it easy to identify Opportunities in ListView, Search, and Related modules.
 
+

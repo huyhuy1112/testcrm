@@ -197,3 +197,4 @@ echo "3. Go to Settings > Menu Editor\n";
 echo "4. Drag Evaluate and Plans into MARKETING category\n";
 echo "\nDone!\n";
 
+
