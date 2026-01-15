@@ -83,27 +83,135 @@ echo "<hr>";
 // Step 2: Test loading components
 echo "<h2>Step 2: Testing Component Loading</h2>";
 
-try {
-    if (!file_exists("vendor/autoload.php")) {
-        throw new Exception("vendor/autoload.php NOT FOUND");
+// Get root directory
+$script_dir = dirname(__FILE__);
+$root_dir = dirname($script_dir);
+
+// Find files with multiple paths
+$vendor_autoload_paths = [
+    '/home/nhtdbus8/supertestcrm.tdbsolution.com/vendor/autoload.php',
+    $root_dir . '/vendor/autoload.php',
+    dirname($root_dir) . '/vendor/autoload.php',
+    'vendor/autoload.php',
+    '../vendor/autoload.php',
+    '../../vendor/autoload.php'
+];
+
+$vendor_autoload = null;
+foreach ($vendor_autoload_paths as $path) {
+    if (file_exists($path)) {
+        $vendor_autoload = $path;
+        break;
     }
-    require_once 'vendor/autoload.php';
-    echo "<p style='color:green'><strong>✅ vendor/autoload.php loaded</strong></p>";
+}
+
+$config_paths = [
+    '/home/nhtdbus8/supertestcrm.tdbsolution.com/config.php',
+    $root_dir . '/config.php',
+    'config.php',
+    '../config.php'
+];
+
+$config_php = null;
+foreach ($config_paths as $path) {
+    if (file_exists($path)) {
+        $config_php = $path;
+        break;
+    }
+}
+
+$config_inc_paths = [
+    '/home/nhtdbus8/supertestcrm.tdbsolution.com/config.inc.php',
+    $root_dir . '/config.inc.php',
+    'config.inc.php',
+    '../config.inc.php'
+];
+
+$config_inc = null;
+foreach ($config_inc_paths as $path) {
+    if (file_exists($path)) {
+        $config_inc = $path;
+        break;
+    }
+}
+
+try {
+    if (!$vendor_autoload) {
+        throw new Exception("vendor/autoload.php NOT FOUND. Tried: " . implode(', ', $vendor_autoload_paths));
+    }
+    require_once $vendor_autoload;
+    echo "<p style='color:green'><strong>✅ vendor/autoload.php loaded: $vendor_autoload</strong></p>";
     
-    include_once 'config.php';
-    echo "<p style='color:green'><strong>✅ config.php loaded</strong></p>";
+    if ($config_php) {
+        include_once $config_php;
+        echo "<p style='color:green'><strong>✅ config.php loaded: $config_php</strong></p>";
+    } else {
+        echo "<p style='color:orange'><strong>⚠️ config.php NOT FOUND</strong></p>";
+    }
     
-    include_once 'config.inc.php';
-    echo "<p style='color:green'><strong>✅ config.inc.php loaded</strong></p>";
+    if ($config_inc) {
+        include_once $config_inc;
+        echo "<p style='color:green'><strong>✅ config.inc.php loaded: $config_inc</strong></p>";
+    } else {
+        echo "<p style='color:orange'><strong>⚠️ config.inc.php NOT FOUND</strong></p>";
+    }
     
-    include_once 'include/Webservices/Relation.php';
-    echo "<p style='color:green'><strong>✅ Relation.php loaded</strong></p>";
+    $relation_paths = [
+        $root_dir . '/include/Webservices/Relation.php',
+        'include/Webservices/Relation.php',
+        '../include/Webservices/Relation.php'
+    ];
+    $relation_php = null;
+    foreach ($relation_paths as $path) {
+        if (file_exists($path)) {
+            $relation_php = $path;
+            break;
+        }
+    }
+    if ($relation_php) {
+        include_once $relation_php;
+        echo "<p style='color:green'><strong>✅ Relation.php loaded</strong></p>";
+    } else {
+        echo "<p style='color:orange'><strong>⚠️ Relation.php NOT FOUND</strong></p>";
+    }
     
-    include_once 'vtlib/Vtiger/Module.php';
-    echo "<p style='color:green'><strong>✅ Module.php loaded</strong></p>";
+    $module_paths = [
+        $root_dir . '/vtlib/Vtiger/Module.php',
+        'vtlib/Vtiger/Module.php',
+        '../vtlib/Vtiger/Module.php'
+    ];
+    $module_php = null;
+    foreach ($module_paths as $path) {
+        if (file_exists($path)) {
+            $module_php = $path;
+            break;
+        }
+    }
+    if ($module_php) {
+        include_once $module_php;
+        echo "<p style='color:green'><strong>✅ Module.php loaded</strong></p>";
+    } else {
+        echo "<p style='color:orange'><strong>⚠️ Module.php NOT FOUND</strong></p>";
+    }
     
-    include_once 'includes/main/WebUI.php';
-    echo "<p style='color:green'><strong>✅ WebUI.php loaded</strong></p>";
+    $webui_paths = [
+        $root_dir . '/includes/main/WebUI.php',
+        'includes/main/WebUI.php',
+        '../includes/main/WebUI.php'
+    ];
+    $webui_php = null;
+    foreach ($webui_paths as $path) {
+        if (file_exists($path)) {
+            $webui_php = $path;
+            break;
+        }
+    }
+    if ($webui_php) {
+        include_once $webui_php;
+        echo "<p style='color:green'><strong>✅ WebUI.php loaded</strong></p>";
+    } else {
+        echo "<p style='color:orange'><strong>⚠️ WebUI.php NOT FOUND</strong></p>";
+    }
     
     // Test HTMLPurifier
     if (class_exists('HTMLPurifier_Config')) {
