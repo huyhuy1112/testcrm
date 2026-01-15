@@ -45,11 +45,12 @@ $HELPDESK_SUPPORT_EMAIL_REPLY_ID = $HELPDESK_SUPPORT_EMAIL_ID;
 */
 
 // PRODUCTION DATABASE CONFIGURATION - Fill in your hosting database credentials
+// ⚠️ IMPORTANT: Fill in these values to skip Installation Wizard
 $dbconfig['db_server'] = 'localhost';  // Usually 'localhost' for cPanel
 $dbconfig['db_port'] = '';  // Leave empty for default port, or use ':3306' if needed
-$dbconfig['db_username'] = '';  // TODO: Fill in your database username
-$dbconfig['db_password'] = '';  // TODO: Fill in your database password
-$dbconfig['db_name'] = '';  // TODO: Fill in your database name
+$dbconfig['db_username'] = '';  // ⚠️ REQUIRED: Fill in your database username (e.g., nhtdbus8_supertestcrm)
+$dbconfig['db_password'] = '';  // ⚠️ REQUIRED: Fill in your database password (e.g., 987456321852huy)
+$dbconfig['db_name'] = '';  // ⚠️ REQUIRED: Fill in your database name (e.g., nhtdbus8_supertestcrm)
 $dbconfig['db_type'] = 'mysqli';
 $dbconfig['db_status'] = 'true';
 
