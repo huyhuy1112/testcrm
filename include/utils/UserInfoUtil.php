@@ -13,7 +13,7 @@ require_once('include/database/PearDatabase.php');
 require_once('include/database/Postgres8.php');
 require_once('include/utils/utils.php');
 require_once('include/utils/GetUserGroups.php');
-include_once('config.php');
+include_once(dirname(__FILE__) . '/../config.php');
 require_once("include/events/include.inc");
 require_once 'includes/runtime/Cache.php';
 global $log;

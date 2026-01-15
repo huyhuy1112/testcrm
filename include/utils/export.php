@@ -13,7 +13,7 @@
  * Contributor(s): ______________________________________.
  ********************************************************************************/
 
-require_once('config.php');
+require_once(dirname(__FILE__) . '/../config.php');
 require_once('include/logging.php');
 require_once('include/database/PearDatabase.php');
 require_once('modules/Accounts/Accounts.php');
