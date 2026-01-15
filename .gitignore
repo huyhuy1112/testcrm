@@ -98,6 +98,9 @@ backup_*.php
 # Allow HTMLPURIFIER_FIX tools
 !HTMLPURIFIER_FIX/*.php
 !HTMLPURIFIER_FIX/*.md
+# Allow MISSING_FILES_FIX tools
+!MISSING_FILES_FIX/*.php
+!MISSING_FILES_FIX/*.md
 *.sql
 
 # Documentation files (keep deployment guides, ignore others)
