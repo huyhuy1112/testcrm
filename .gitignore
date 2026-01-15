@@ -1,8 +1,9 @@
 # Vtiger CRM .gitignore
 
 # Configuration files with sensitive data
-# NOTE: Allowing config files for test/production deployment
-# config.inc.php - ALLOWED for production
+# config.inc.php - IGNORED (each environment has its own)
+config.inc.php
+# config.inc.php.example - ALLOWED (template file)
 # config.php - ALLOWED for production
 # config.inc.php.backup
 # config.db.php
