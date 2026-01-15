@@ -8,7 +8,7 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-require_once 'vendor/autoload.php';
+require_once dirname(__FILE__) . '/../../vendor/autoload.php';
 require_once 'include/utils/utils.php';
 require_once 'include/utils/CommonUtils.php';
 
