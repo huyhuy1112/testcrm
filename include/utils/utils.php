@@ -30,17 +30,17 @@ require_once(dirname(__FILE__) . '/../FormValidationUtil.php');
 require_once(dirname(__FILE__) . '/../events/SqlResultIterator.inc');
 require_once(dirname(__FILE__) . '/../fields/DateTimeField.php');
 require_once(dirname(__FILE__) . '/../fields/CurrencyField.php');
-require_once('data/CRMEntity.php');
-require_once 'vtlib/Vtiger/Language.php';
-require_once(dirname(__FILE__) . '/../ListView/ListViewSession.php");
+require_once(dirname(__FILE__) . '/../data/CRMEntity.php');
+require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Language.php');
+require_once(dirname(__FILE__) . '/../ListView/ListViewSession.php');
 
-require_once 'vtlib/Vtiger/Functions.php';
-require_once 'vtlib/Vtiger/Deprecated.php';
+require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Functions.php');
+require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/Deprecated.php');
 
-require_once 'includes/runtime/Cache.php';
-require_once 'modules/Vtiger/helpers/Util.php';
-require_once 'vtlib/Vtiger/AccessControl.php';
-require_once 'includes/runtime/Configs.php';
+require_once(dirname(__FILE__) . '/../../includes/runtime/Cache.php');
+require_once(dirname(__FILE__) . '/../../modules/Vtiger/helpers/Util.php');
+require_once(dirname(__FILE__) . '/../../vtlib/Vtiger/AccessControl.php');
+require_once(dirname(__FILE__) . '/../../includes/runtime/Configs.php');
 // Constants to be defined here
 
 // For Migration status.
