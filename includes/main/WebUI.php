@@ -9,8 +9,8 @@
  ************************************************************************************/
 
 require_once dirname(__FILE__) . '/../../vendor/autoload.php';
-require_once 'include/utils/utils.php';
-require_once 'include/utils/CommonUtils.php';
+require_once dirname(__FILE__) . '/../../include/utils/utils.php';
+require_once dirname(__FILE__) . '/../../include/utils/CommonUtils.php';
 
 vimport ('includes.runtime.EntryPoint');
 
