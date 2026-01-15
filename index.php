@@ -8,6 +8,11 @@
  * All Rights Reserved.
  ************************************************************************************/
 
+// Start output buffering to prevent "headers already sent" errors
+if (ob_get_level() == 0) {
+    ob_start();
+}
+
 if (!file_exists("vendor/autoload.php")) {
     echo "Please install composer dependencies.";
     exit;
