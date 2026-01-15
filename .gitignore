@@ -1,18 +1,20 @@
 # Vtiger CRM .gitignore
 
 # Configuration files with sensitive data
-config.inc.php
-config.inc.php.backup
-config.php
-config.db.php
+# NOTE: Allowing config files for test/production deployment
+# config.inc.php - ALLOWED for production
+# config.php - ALLOWED for production
+# config.inc.php.backup
+# config.db.php
 .env
 .env.local
 .env.*.local
 
 # Cache directories
-cache/
-storage/cache/
-templates_c/
+# NOTE: Allowing cache structure for production (empty directories)
+# cache/ - ALLOWED (structure only, not content)
+# storage/cache/ - ALLOWED (structure only)
+# templates_c/ - ALLOWED (structure only)
 parent_tabdata.php
 
 # Log files
