@@ -19,8 +19,42 @@ ini_set('display_errors', '1');
 echo "<h1>FIX HTMLPURIFIER AUTOLOAD</h1>";
 echo "<hr>";
 
-$vtlib_utils_path = 'include/utils/VtlibUtils.php';
-$backup_path = 'include/utils/VtlibUtils.php.backup';
+// Get root directory (parent of HTMLPURIFIER_FIX)
+$script_dir = dirname(__FILE__);
+$root_dir = dirname($script_dir);
+
+// Try multiple paths to find VtlibUtils.php
+$possible_paths = [
+    $root_dir . '/include/utils/VtlibUtils.php',
+    dirname($root_dir) . '/include/utils/VtlibUtils.php',
+    'include/utils/VtlibUtils.php',
+    '../include/utils/VtlibUtils.php',
+    '../../include/utils/VtlibUtils.php'
+];
+
+$vtlib_utils_path = null;
+foreach ($possible_paths as $path) {
+    if (file_exists($path)) {
+        $vtlib_utils_path = $path;
+        break;
+    }
+}
+
+if (!$vtlib_utils_path) {
+    echo "<p style='color:red'><strong>✗ Cannot find include/utils/VtlibUtils.php</strong></p>";
+    echo "<p><strong>Tried paths:</strong></p>";
+    echo "<ul>";
+    foreach ($possible_paths as $path) {
+        $exists = file_exists($path) ? "✅ EXISTS" : "✗ NOT FOUND";
+        echo "<li>$path - $exists</li>";
+    }
+    echo "</ul>";
+    echo "<p><strong>Current script directory:</strong> $script_dir</p>";
+    echo "<p><strong>Root directory (parent):</strong> $root_dir</p>";
+    die();
+}
+
+$backup_path = dirname($vtlib_utils_path) . '/VtlibUtils.php.backup';
 
 // Check if file exists
 if (!file_exists($vtlib_utils_path)) {
