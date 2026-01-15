@@ -9,7 +9,7 @@
  ************************************************************************************/
 
 require_once dirname(__FILE__) . '/../../includes/runtime/Cache.php';
-include_once('vtlib/Vtiger/ModuleBasic.php');
+include_once(dirname(__FILE__) . '/ModuleBasic.php');
 /**
  * Provides API to work with vtiger CRM Modules
  * @package vtlib

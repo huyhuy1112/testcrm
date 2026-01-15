@@ -7,17 +7,17 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once('vtlib/Vtiger/Access.php');
-include_once('vtlib/Vtiger/Block.php');
-include_once('vtlib/Vtiger/Field.php');
-include_once('vtlib/Vtiger/Filter.php');
-include_once('vtlib/Vtiger/Profile.php');
-include_once('vtlib/Vtiger/Menu.php');
-include_once('vtlib/Vtiger/AppMenu.php');
-include_once('vtlib/Vtiger/Link.php');
-include_once('vtlib/Vtiger/Event.php');
-include_once('vtlib/Vtiger/Webservice.php');
-include_once('vtlib/Vtiger/Version.php');
+include_once(dirname(__FILE__) . '/Access.php');
+include_once(dirname(__FILE__) . '/Block.php');
+include_once(dirname(__FILE__) . '/Field.php');
+include_once(dirname(__FILE__) . '/Filter.php');
+include_once(dirname(__FILE__) . '/Profile.php');
+include_once(dirname(__FILE__) . '/Menu.php');
+include_once(dirname(__FILE__) . '/AppMenu.php');
+include_once(dirname(__FILE__) . '/Link.php');
+include_once(dirname(__FILE__) . '/Event.php');
+include_once(dirname(__FILE__) . '/Webservice.php');
+include_once(dirname(__FILE__) . '/Version.php');
 require_once dirname(__FILE__) . '/../../includes/runtime/Cache.php';
 
 /**
