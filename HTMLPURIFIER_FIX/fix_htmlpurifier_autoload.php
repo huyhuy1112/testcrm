@@ -112,58 +112,49 @@ if ($global_end !== false) {
     $insert_pos += $global_end + 1;
 }
 
-// Prepare fix code
+// Prepare fix code - Use $root_directory for correct path resolution
 $fix_code = "\n    // FIX: Ensure HTMLPurifier is autoloaded\n";
 $fix_code .= "    if (!class_exists('HTMLPurifier_Config')) {\n";
-$fix_code .= "        \$htmlpurifier_autoload_paths = [\n";
-$fix_code .= "            'vendor/ezyang/htmlpurifier/library/HTMLPurifier.autoload.php',\n";
-$fix_code .= "            'vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php',\n";
-$fix_code .= "            dirname(__FILE__) . '/../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.autoload.php',\n";
-$fix_code .= "            dirname(__FILE__) . '/../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php'\n";
-$fix_code .= "        ];\n";
+$fix_code .= "        // Use root_directory to find HTMLPurifier\n";
+$fix_code .= "        \$htmlpurifier_base = \$use_root_directory . '/vendor/ezyang/htmlpurifier/library';\n";
 $fix_code .= "        \n";
-$fix_code .= "        \$loaded = false;\n";
-$fix_code .= "        foreach (\$htmlpurifier_autoload_paths as \$path) {\n";
-$fix_code .= "            if (file_exists(\$path)) {\n";
-$fix_code .= "                require_once \$path;\n";
-$fix_code .= "                \$loaded = true;\n";
-$fix_code .= "                break;\n";
+$fix_code .= "        // Try autoload file first\n";
+$fix_code .= "        if (file_exists(\$htmlpurifier_base . '/HTMLPurifier.autoload.php')) {\n";
+$fix_code .= "            require_once \$htmlpurifier_base . '/HTMLPurifier.autoload.php';\n";
+$fix_code .= "        } elseif (file_exists(\$htmlpurifier_base . '/HTMLPurifier.auto.php')) {\n";
+$fix_code .= "            require_once \$htmlpurifier_base . '/HTMLPurifier.auto.php';\n";
+$fix_code .= "        } elseif (file_exists(\$htmlpurifier_base . '/HTMLPurifier.php')) {\n";
+$fix_code .= "            // Load manually if autoload files don't exist\n";
+$fix_code .= "            require_once \$htmlpurifier_base . '/HTMLPurifier.php';\n";
+$fix_code .= "            require_once \$htmlpurifier_base . '/HTMLPurifier/Config.php';\n";
+$fix_code .= "            require_once \$htmlpurifier_base . '/HTMLPurifier/Bootstrap.php';\n";
+$fix_code .= "        } else {\n";
+$fix_code .= "            // Fallback: try relative paths\n";
+$fix_code .= "            \$fallback_paths = [\n";
+$fix_code .= "                dirname(__FILE__) . '/../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.autoload.php',\n";
+$fix_code .= "                dirname(__FILE__) . '/../../vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php',\n";
+$fix_code .= "                'vendor/ezyang/htmlpurifier/library/HTMLPurifier.autoload.php',\n";
+$fix_code .= "                'vendor/ezyang/htmlpurifier/library/HTMLPurifier.auto.php'\n";
+$fix_code .= "            ];\n";
+$fix_code .= "            \n";
+$fix_code .= "            foreach (\$fallback_paths as \$path) {\n";
+$fix_code .= "                if (file_exists(\$path)) {\n";
+$fix_code .= "                    require_once \$path;\n";
+$fix_code .= "                    break;\n";
+$fix_code .= "                }\n";
 $fix_code .= "            }\n";
 $fix_code .= "        }\n";
 $fix_code .= "        \n";
-$fix_code .= "        // If autoload files don't exist, try to load manually\n";
-$fix_code .= "        if (!\$loaded && !class_exists('HTMLPurifier_Config')) {\n";
-$fix_code .= "            \$htmlpurifier_base = 'vendor/ezyang/htmlpurifier/library';\n";
-$fix_code .= "            if (!file_exists(\$htmlpurifier_base)) {\n";
-$fix_code .= "                \$htmlpurifier_base = dirname(__FILE__) . '/../../vendor/ezyang/htmlpurifier/library';\n";
-$fix_code .= "            }\n";
-$fix_code .= "            \n";
-$fix_code .= "            if (file_exists(\$htmlpurifier_base . '/HTMLPurifier.php')) {\n";
-$fix_code .= "                require_once \$htmlpurifier_base . '/HTMLPurifier.php';\n";
-$fix_code .= "                require_once \$htmlpurifier_base . '/HTMLPurifier/Config.php';\n";
-$fix_code .= "            }\n";
+$fix_code .= "        // Final check - if still not loaded, throw exception\n";
+$fix_code .= "        if (!class_exists('HTMLPurifier_Config')) {\n";
+$fix_code .= "            throw new Exception('HTMLPurifier_Config class not found. Please ensure HTMLPurifier is installed via Composer. Checked: ' . \$htmlpurifier_base);\n";
 $fix_code .= "        }\n";
 $fix_code .= "    }\n";
 
 // Insert fix code
 $new_content = substr_replace($content, $fix_code, $insert_pos, 0);
 
-// Also add check before using HTMLPurifier_Config
-$config_check = "            // Check again before using\n";
-$config_check .= "            if (!class_exists('HTMLPurifier_Config')) {\n";
-$config_check .= "                throw new Exception(\"HTMLPurifier_Config class not found. Please ensure HTMLPurifier is installed via Composer.\");\n";
-$config_check .= "            }\n";
-$config_check .= "\n";
-
-// Find where HTMLPurifier_Config::createDefault() is called
-$config_create_pos = strpos($new_content, '$config = HTMLPurifier_Config::createDefault();');
-if ($config_create_pos !== false) {
-    // Insert check before this line
-    $line_start = strrpos(substr($new_content, 0, $config_create_pos), "\n");
-    if ($line_start !== false) {
-        $new_content = substr_replace($new_content, $config_check, $line_start + 1, 0);
-    }
-}
+// Remove the old check - it's now in the fix_code above
 
 // Write fixed file
 if (file_put_contents($vtlib_utils_path, $new_content)) {
