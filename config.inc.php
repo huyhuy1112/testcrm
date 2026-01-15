@@ -1,4 +1,3 @@
-
 <?php
 /*********************************************************************************
  * The contents of this file are subject to the SugarCRM Public License Version 1.1.2
@@ -45,12 +44,12 @@ $HELPDESK_SUPPORT_EMAIL_REPLY_ID = $HELPDESK_SUPPORT_EMAIL_ID;
       db_name
 */
 
-// PRODUCTION DATABASE CONFIGURATION - Fill in your hosting database credentials
-$dbconfig['db_server'] = 'localhost';  // Usually 'localhost' for cPanel
-$dbconfig['db_port'] = '';  // Leave empty for default port, or use ':3306' if needed
-$dbconfig['db_username'] = 'nhtdbus8_supertestcrm';  // TODO: Fill in your database username
-$dbconfig['db_password'] = '987456321852huy';  // TODO: Fill in your database password
-$dbconfig['db_name'] = 'nhtdbus8_supertestcrm';  // TODO: Fill in your database name
+// LOCALHOST DOCKER DATABASE CONFIGURATION
+$dbconfig['db_server'] = 'db';
+$dbconfig['db_port'] = ':3306';
+$dbconfig['db_username'] = 'root';
+$dbconfig['db_password'] = '132120';
+$dbconfig['db_name'] = 'TDB1';
 $dbconfig['db_type'] = 'mysqli';
 $dbconfig['db_status'] = 'true';
 
@@ -83,18 +82,12 @@ $dbconfigoption['ssl'] = false;
 $host_name = $dbconfig['db_hostname'];
 
 // Site URL - auto-detect from server or set manually
-$site_URL = '';
-if (empty($site_URL)) {
-    // Auto-detect from server if not set
-    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-    $host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : (isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : '');
-    $site_URL = $protocol . $host . '/';
-}
+$site_URL = 'http://localhost:8080/';
 
 // url for customer portal (Example: http://vtiger.com/portal)
 $PORTAL_URL = $site_URL.'/customerportal';
-// root directory path - use relative path for production compatibility
-$root_directory = dirname(__FILE__) . '/';
+// root directory path
+$root_directory = '/var/www/html/';
 
 // cache direcory path
 $cache_dir = 'cache/';
