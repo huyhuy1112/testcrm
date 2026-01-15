@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once('vtlib/Vtiger/PackageUpdate.php');
+require_once(dirname(__FILE__) . '/PackageUpdate.php');
 
 /**
  * Package Manager class for vtiger Modules.

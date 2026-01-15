@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once('vtlib/Vtiger/LayoutImport.php');
+require_once(dirname(__FILE__) . '/LayoutImport.php');
 
 /**
  * Layout Manager class for vtiger Modules.

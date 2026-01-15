@@ -7,11 +7,11 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once('vtlib/Vtiger/PackageExport.php');
-include_once('vtlib/Vtiger/Unzip.php');
-include_once('vtlib/Vtiger/Module.php');
-include_once('vtlib/Vtiger/Event.php');
-include_once('vtlib/Vtiger/Cron.php');
+include_once(dirname(__FILE__) . '/PackageExport.php');
+include_once(dirname(__FILE__) . '/Unzip.php');
+include_once(dirname(__FILE__) . '/Module.php');
+include_once(dirname(__FILE__) . '/Event.php');
+include_once(dirname(__FILE__) . '/Cron.php');
 
 /**
  * Provides API to import module into vtiger CRM

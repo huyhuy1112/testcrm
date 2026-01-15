@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once('vtlib/Vtiger/LayoutExport.php');
+include_once(dirname(__FILE__) . '/LayoutExport.php');
 
 /**
  * Provides API to import layout into vtiger CRM

@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-include_once('vtlib/Vtiger/Package.php');
+include_once(dirname(__FILE__) . '/Package.php');
 
 /**
  * Provides API to package vtiger CRM language files.
