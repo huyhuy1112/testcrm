@@ -44,14 +44,36 @@ class Vtiger_Notifications_Action extends Vtiger_Action_Controller {
 				$list[] = $row;
 			}
 
-			header('Content-Type: application/json; charset=UTF-8');
 			$response = array(
 				'success' => true,
 				'type' => $type,
 				'count' => count($list),
 				'list' => $list
 			);
-			echo json_encode($response, JSON_UNESCAPED_UNICODE);
+
+			// Detect if request is from browser (not AJAX/API)
+			$isBrowserRequest = !isset($_SERVER['HTTP_X_REQUESTED_WITH']) || 
+								strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest';
+			
+			if ($isBrowserRequest) {
+				// Browser request - show HTML with back button
+				header('Content-Type: text/html; charset=UTF-8');
+				echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Thông báo</title>';
+				echo '<style>body{font-family:Arial;padding:20px;background:#f5f5f5;}';
+				echo '.container{max-width:800px;margin:0 auto;background:white;padding:20px;border-radius:5px;}';
+				echo '.back-btn{display:inline-block;padding:10px 20px;background:#4CAF50;color:white;text-decoration:none;border-radius:5px;margin-bottom:20px;}';
+				echo '.back-btn:hover{background:#45a049;}';
+				echo 'pre{background:#f4f4f4;padding:15px;border-radius:3px;overflow:auto;}</style>';
+				echo '</head><body><div class="container">';
+				echo '<a href="index.php" class="back-btn">← Quay về trang chính</a>';
+				echo '<h2>Thông báo (' . htmlspecialchars($type) . ')</h2>';
+				echo '<pre>' . htmlspecialchars(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)) . '</pre>';
+				echo '</div></body></html>';
+			} else {
+				// AJAX/API request - return JSON only
+				header('Content-Type: application/json; charset=UTF-8');
+				echo json_encode($response, JSON_UNESCAPED_UNICODE);
+			}
 			
 		} catch (Exception $e) {
 			global $log;
