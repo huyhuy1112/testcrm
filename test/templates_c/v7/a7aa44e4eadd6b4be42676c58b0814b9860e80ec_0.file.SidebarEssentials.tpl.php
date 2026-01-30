@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2026-01-29 07:35:25
+/* Smarty version 4.5.4, created on 2026-01-30 07:49:23
   from '/var/www/html/layouts/v7/modules/Calendar/partials/SidebarEssentials.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_697b0dbd007003_44757308',
+  'unifunc' => 'content_697c628322d521_68836826',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'a7aa44e4eadd6b4be42676c58b0814b9860e80ec' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Calendar/partials/SidebarEssentials.tpl',
-      1 => 1766628497,
+      1 => 1769759073,
       2 => 'file',
     ),
   ),
@@ -20,8 +20,14 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_697b0dbd007003_44757308 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c628322d521_68836826 (Smarty_Internal_Template $_smarty_tpl) {
 if ($_GET['view'] == 'Calendar' || $_GET['view'] == 'SharedCalendar') {?>
+<div class="calendar-sidebar-google">
+    <div class="calendar-mini-wrap" id="calendar-mini-wrap" title="<?php echo vtranslate('LBL_MINI_CALENDAR','Calendar');?>
+">
+        <div id="calendar-mini"></div>
+    </div>
+</div>
 <div class="sidebar-menu">
     <div class="module-filters" id="module-filters">
         <div class="sidebar-container lists-menu-container">

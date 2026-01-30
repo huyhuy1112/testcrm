@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2026-01-29 07:36:00
+/* Smarty version 4.5.4, created on 2026-01-30 07:22:50
   from '/var/www/html/layouts/v7/modules/Calendar/QuickCreate.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_697b0de04fcd40_84242874',
+  'unifunc' => 'content_697c5c4a196614_73094572',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '4c64ff57121dd2faf0da642c556008366dd72f69' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Calendar/QuickCreate.tpl',
-      1 => 1769667767,
+      1 => 1769747537,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_697b0de04fcd40_84242874 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c5c4a196614_73094572 (Smarty_Internal_Template $_smarty_tpl) {
 $_from = $_smarty_tpl->smarty->ext->_foreach->init($_smarty_tpl, $_smarty_tpl->tpl_vars['SCRIPTS']->value, 'jsModel', false, 'index');
 $_smarty_tpl->tpl_vars['jsModel']->do_else = true;
 if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['index']->value => $_smarty_tpl->tpl_vars['jsModel']->value) {
