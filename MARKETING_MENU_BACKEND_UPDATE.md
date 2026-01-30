@@ -237,3 +237,4 @@ Once modules are real, the template will automatically use normal rendering (no 
 - Unchanged
 - Leads still accessible via direct URL: `index.php?module=Leads&view=List`
 
+

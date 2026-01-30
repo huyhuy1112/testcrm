@@ -69,3 +69,4 @@ After logout/login, SALES menu should show:
 - Safe for production
 - Both modules are standard Vtiger modules (not custom)
 
+

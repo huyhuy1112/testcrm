@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:47:18
+/* Smarty version 4.5.4, created on 2026-01-29 07:36:00
   from '/var/www/html/layouts/v7/modules/Events/uitypes/DateTime.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca5b66c6dd4_58628734',
+  'unifunc' => 'content_697b0de086db33_69135934',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '28729eb5bb662d7bc681a17acb966298d7bec54e' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Events/uitypes/DateTime.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca5b66c6dd4_58628734 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0de086db33_69135934 (Smarty_Internal_Template $_smarty_tpl) {
 if ($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getName() == 'date_start') {
 $_smarty_tpl->_assignInScope('DATE_FIELD', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value);
 $_smarty_tpl->_assignInScope('MODULE_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE_MODEL']->value->getModule());

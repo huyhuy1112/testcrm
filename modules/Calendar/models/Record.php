@@ -97,9 +97,39 @@ class Calendar_Record_Model extends Vtiger_Record_Model {
 	}
 
 	function save() {
-		//Time should changed to 24hrs format
-		$_REQUEST['time_start'] = isset($_REQUEST['time_start']) ? Vtiger_Time_UIType::getTimeValueWithSeconds($_REQUEST['time_start']) : '';
-		$_REQUEST['time_end'] = isset($_REQUEST['time_end']) ? Vtiger_Time_UIType::getTimeValueWithSeconds($_REQUEST['time_end']): '';
+		// Get activity type
+		$activityType = $this->get('activitytype');
+		if (empty($activityType) && isset($_REQUEST['activitytype'])) {
+			$activityType = $_REQUEST['activitytype'];
+		}
+		// Fallback: Calendar module defaults to Task
+		if (empty($activityType) && $this->getModuleName() === 'Calendar') {
+			$activityType = 'Task';
+		}
+		
+		// For Task: Map task_deadline → due_date (for notification engine)
+		if ($activityType === 'Task') {
+			// If task_deadline is provided, use it as due_date
+			if (isset($_REQUEST['task_deadline']) && !empty($_REQUEST['task_deadline'])) {
+				$deadlineValue = $_REQUEST['task_deadline'];
+				// Convert to DB format if needed
+				$userModel = Users_Record_Model::getCurrentUserModel();
+				$dateFormat = $userModel->get('date_format');
+				// Use Vtiger_Date_UIType::getDBInsertedValue for date conversion
+				$deadlineDB = Vtiger_Date_UIType::getDBInsertedValue($deadlineValue);
+				$_REQUEST['due_date'] = $deadlineDB;
+				$this->set('due_date', $deadlineDB);
+			}
+			// For Task: Clear time_start and time_end (Task doesn't use time range)
+			$_REQUEST['time_start'] = '';
+			$_REQUEST['time_end'] = '';
+			$this->set('time_start', '');
+			$this->set('time_end', '');
+		} else {
+			// For Event: Time should changed to 24hrs format
+			$_REQUEST['time_start'] = isset($_REQUEST['time_start']) ? Vtiger_Time_UIType::getTimeValueWithSeconds($_REQUEST['time_start']) : '';
+			$_REQUEST['time_end'] = isset($_REQUEST['time_end']) ? Vtiger_Time_UIType::getTimeValueWithSeconds($_REQUEST['time_end']): '';
+		}
 		parent::save();
 	}
 	

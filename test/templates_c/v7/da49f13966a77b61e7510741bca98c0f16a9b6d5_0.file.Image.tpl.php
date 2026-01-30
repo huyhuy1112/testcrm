@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-29 03:37:38
+/* Smarty version 4.5.4, created on 2026-01-30 06:46:17
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/Image.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_6951f78248b523_74379936',
+  'unifunc' => 'content_697c53b91929c8_92804107',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'da49f13966a77b61e7510741bca98c0f16a9b6d5' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/Image.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_6951f78248b523_74379936 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c53b91929c8_92804107 (Smarty_Internal_Template $_smarty_tpl) {
 if (!is_array($_smarty_tpl->tpl_vars['IMAGE_DETAILS']->value)) {
 $_smarty_tpl->_assignInScope('IMAGE_DETAILS', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE_MODEL']->value->getRecord()->getImageDetails());
 }

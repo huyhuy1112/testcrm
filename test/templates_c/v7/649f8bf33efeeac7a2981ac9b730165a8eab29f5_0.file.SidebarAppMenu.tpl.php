@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:09:42
+/* Smarty version 4.5.4, created on 2026-01-30 04:53:00
   from '/var/www/html/layouts/v7/modules/Vtiger/partials/SidebarAppMenu.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9ce6441323_44404463',
+  'unifunc' => 'content_697c392c963bf0_38254517',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '649f8bf33efeeac7a2981ac9b730165a8eab29f5' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/partials/SidebarAppMenu.tpl',
-      1 => 1766628497,
+      1 => 1769748140,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9ce6441323_44404463 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c392c963bf0_38254517 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <div class="app-menu hide" id="app-menu">
 	<div class="container-fluid">
@@ -91,6 +91,11 @@ if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['moduleName']->va
 $_smarty_tpl->tpl_vars['moduleModel']->do_else = false;
 ?>
 								<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate($_smarty_tpl->tpl_vars['moduleModel']->value->get('label'),$_smarty_tpl->tpl_vars['moduleName']->value));?>
+																<?php if ($_smarty_tpl->tpl_vars['moduleName']->value == 'Calendar' && $_smarty_tpl->tpl_vars['APP_NAME']->value == 'MANAGEMENT') {?>
+									<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate('LBL_SCHEDULE','Calendar'));?>
+								<?php } elseif ($_smarty_tpl->tpl_vars['moduleName']->value == 'Calendar' && $_smarty_tpl->tpl_vars['APP_NAME']->value == 'SUPPORT') {?>
+									<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate('LBL_ACTIVITIES','Calendar'));?>
+								<?php }?>
 								<li>
 									<a href="<?php echo $_smarty_tpl->tpl_vars['moduleModel']->value->getDefaultUrl();?>
 &app=<?php echo $_smarty_tpl->tpl_vars['APP_NAME']->value;?>

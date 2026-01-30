@@ -1,0 +1,63 @@
+Calendar QuickCreate Enhancements - Checkpoint
+================================================
+
+Created: $(date)
+Status: ✅ Code is stable and working
+
+FILES IN THIS CHECKPOINT:
+-------------------------
+1. layouts/v7/modules/Calendar/QuickCreate.tpl
+   - Enhanced with All Day toggle
+   - Added Repeat dropdown (UI only)
+   - Added Optional fields (Location, Meeting Link, Description)
+   - Added duration display area
+
+2. layouts/v7/modules/Calendar/resources/ScheduleQuickCreate.js
+   - 15-minute time picker enhancement
+   - All Day toggle functionality
+   - Auto-duration calculation
+   - Auto-sync end time
+   - Repeat dropdown handler
+
+3. modules/Calendar/views/QuickCreateAjax.php
+   - Added ScheduleQuickCreate.js script loading
+
+FEATURES:
+---------
+✅ 15-minute time picker with manual typing
+✅ All Day toggle (hides time inputs, keeps in DOM)
+✅ Auto-duration calculation and display
+✅ Auto-sync end time when start time changes
+✅ Repeat dropdown (UI only - Phase 1)
+✅ Optional fields: Location, Meeting Link, Description
+
+SAFETY COMPLIANCE:
+------------------
+✅ No Vtiger.js modifications
+✅ No QuickCreate save logic changes
+✅ No modal overlay/backdrop changes
+✅ No request/response flow changes
+✅ Only UI and client-side enhancements
+✅ All fields optional
+✅ Form works normally if JS fails
+
+RESTORE COMMANDS:
+-----------------
+To restore this checkpoint:
+
+cd /Users/dangquochuy/Backup
+
+# Restore files
+cp checkpoints/calendar_quickcreate_YYYYMMDD_HHMMSS/layouts/v7/modules/Calendar/QuickCreate.tpl layouts/v7/modules/Calendar/
+cp checkpoints/calendar_quickcreate_YYYYMMDD_HHMMSS/layouts/v7/modules/Calendar/resources/ScheduleQuickCreate.js layouts/v7/modules/Calendar/resources/
+cp checkpoints/calendar_quickcreate_YYYYMMDD_HHMMSS/modules/Calendar/views/QuickCreateAjax.php modules/Calendar/views/
+
+# Clear cache
+rm -rf cache/templates_c/* cache/js/* storage/cache/*
+
+NOTES:
+------
+- This is a safe implementation that only enhances UI
+- No core Vtiger files were modified
+- All enhancements are optional and fail gracefully
+- Backend save logic remains unchanged

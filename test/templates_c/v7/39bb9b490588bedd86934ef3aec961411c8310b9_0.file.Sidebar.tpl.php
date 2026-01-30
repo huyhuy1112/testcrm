@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:21:46
+/* Smarty version 4.5.4, created on 2026-01-29 08:32:38
   from '/var/www/html/layouts/v7/modules/Settings/Vtiger/Sidebar.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fba69ad76_30538832',
+  'unifunc' => 'content_697b1b26073be4_56422350',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '39bb9b490588bedd86934ef3aec961411c8310b9' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Settings/Vtiger/Sidebar.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -21,7 +21,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
     'file:modules/Users/UsersSidebar.tpl' => 1,
   ),
 ),false)) {
-function content_694c9fba69ad76_30538832 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b1b26073be4_56422350 (Smarty_Internal_Template $_smarty_tpl) {
 if ($_smarty_tpl->tpl_vars['USER_MODEL']->value->isAdminUser()) {
 $_smarty_tpl->_assignInScope('SETTINGS_MODULE_MODEL', Settings_Vtiger_Module_Model::getInstance());
 $_smarty_tpl->_assignInScope('SETTINGS_MENUS', $_smarty_tpl->tpl_vars['SETTINGS_MODULE_MODEL']->value->getMenus());?><div class="settingsgroup"><div><input type="text" placeholder="<?php echo vtranslate('LBL_SEARCH_FOR_SETTINGS',$_smarty_tpl->tpl_vars['QUALIFIED_MODULE']->value);?>

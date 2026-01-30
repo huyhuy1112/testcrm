@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-26 01:31:41
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:00
   from '/var/www/html/layouts/v7/modules/Vtiger/dashboards/WidgetHeader.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694de57d17e750_17282258',
+  'unifunc' => 'content_697b0da487e2b1_19211103',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'e78c209ee22fbbdaec53b874e0adefddbac778e4' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/dashboards/WidgetHeader.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694de57d17e750_17282258 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da487e2b1_19211103 (Smarty_Internal_Template $_smarty_tpl) {
 $_from = $_smarty_tpl->smarty->ext->_foreach->init($_smarty_tpl, $_smarty_tpl->tpl_vars['STYLES']->value, 'cssModel', false, 'index');
 $_smarty_tpl->tpl_vars['cssModel']->do_else = true;
 if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['index']->value => $_smarty_tpl->tpl_vars['cssModel']->value) {

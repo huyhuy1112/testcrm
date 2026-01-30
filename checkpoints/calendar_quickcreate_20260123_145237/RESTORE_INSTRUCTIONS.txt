@@ -1,0 +1,38 @@
+========================================
+CALENDAR QUICKCREATE CHECKPOINT RESTORE
+========================================
+
+Checkpoint Created: $(date)
+Checkpoint Directory: $CHECKPOINT_DIR
+
+QUICK RESTORE COMMANDS:
+-----------------------
+cd /Users/dangquochuy/Backup
+
+# Restore all files
+cp "$CHECKPOINT_DIR/layouts/v7/modules/Vtiger/resources/Vtiger.js" layouts/v7/modules/Vtiger/resources/
+cp "$CHECKPOINT_DIR/layouts/v7/modules/Vtiger/QuickCreate.tpl" layouts/v7/modules/Vtiger/
+cp "$CHECKPOINT_DIR/layouts/v7/modules/Calendar/QuickCreate.tpl" layouts/v7/modules/Calendar/
+cp "$CHECKPOINT_DIR/modules/Calendar/views/QuickCreateAjax.php" modules/Calendar/views/
+cp "$CHECKPOINT_DIR/layouts/v7/resources/helper.js" layouts/v7/resources/
+
+# Clear cache
+rm -rf cache/templates_c/* cache/js/* storage/cache/*
+
+# Hard refresh browser (Cmd/Ctrl + Shift + R)
+
+FILES IN THIS CHECKPOINT:
+-------------------------
+- layouts/v7/modules/Vtiger/resources/Vtiger.js
+- layouts/v7/modules/Vtiger/QuickCreate.tpl
+- layouts/v7/modules/Calendar/QuickCreate.tpl
+- modules/Calendar/views/QuickCreateAjax.php
+- layouts/v7/resources/helper.js
+
+FIXES INCLUDED:
+--------------
+✅ Form variable bug fixed in Vtiger.js
+✅ Calendar fieldsInfo uses requested module
+✅ Modal-backdrop auto-cleanup in helper.js
+✅ quickcreate_uimeta safety check added
+

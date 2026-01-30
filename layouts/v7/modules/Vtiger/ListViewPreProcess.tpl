@@ -9,7 +9,7 @@
 
 {include file="modules/Vtiger/partials/Topbar.tpl"}
 
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-{$SELECTED_MENU_CATEGORY}">
 	<div class="row">
 		{include file="partials/SidebarHeader.tpl"|vtemplate_path:$MODULE}
 		{include file="ModuleHeader.tpl"|vtemplate_path:$MODULE}
@@ -25,7 +25,7 @@
 <div class="main-container main-container-{$MODULE}">
 		{assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
 		<div id="modnavigator" class="module-nav">
-			<div class="hidden-xs hidden-sm mod-switcher-container">
+			<div class="mod-switcher-container">
 				{include file="partials/Menubar.tpl"|vtemplate_path:$MODULE}
 			</div>
 		</div>

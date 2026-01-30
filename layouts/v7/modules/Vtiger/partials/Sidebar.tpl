@@ -25,7 +25,7 @@
 		</div>
 
 		<div id="modnavigator" class="row module-nav">
-			<div class="hidden-xs hidden-sm mod-switcher-container">
+			<div class="mod-switcher-container">
 				{include file="modules/Vtiger/partials/Menubar.tpl"}
 				{include file="modules/Vtiger/partials/SidebarEssentials.tpl"}
 			</div>

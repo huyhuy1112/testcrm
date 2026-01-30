@@ -94,3 +94,4 @@ AND p.related_to != 0
 ORDER BY p.potentialid DESC
 LIMIT 10;
 
+

@@ -1,11 +1,11 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:45:59
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:24
   from '/var/www/html/layouts/v7/modules/Calendar/partials/Menubar.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca567618207_86514769',
+  'unifunc' => 'content_697b0dbcf034a8_21276728',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca567618207_86514769 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0dbcf034a8_21276728 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('topMenus', $_smarty_tpl->tpl_vars['MENU_STRUCTURE']->value->getTop());
 $_smarty_tpl->_assignInScope('moreMenus', $_smarty_tpl->tpl_vars['MENU_STRUCTURE']->value->getMore());?>
 

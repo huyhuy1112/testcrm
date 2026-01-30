@@ -1,11 +1,11 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:49:42
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:22
   from '/var/www/html/layouts/v7/modules/Calendar/CalendarSharedUsers.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca6464fa632_14666757',
+  'unifunc' => 'content_697b2386f354e8_48831082',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca6464fa632_14666757 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2386f354e8_48831082 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('SHARED_USER_INFO', Zend_Json::encode($_smarty_tpl->tpl_vars['SHAREDUSERS_INFO']->value));
 $_smarty_tpl->_assignInScope('CURRENT_USER_ID', $_smarty_tpl->tpl_vars['CURRENTUSER_MODEL']->value->getId());?><input type="hidden" id="sharedUsersInfo" value= <?php echo Zend_Json::encode($_smarty_tpl->tpl_vars['SHAREDUSERS_INFO']->value);?>
  /><div class="sidebar-widget-contents" name='calendarViewTypes'><div id="calendarview-feeds"><ul class="list-group feedslist"><li class="activitytype-indicator calendar-feed-indicator mass-edit-option" style="background-color:#2c3b49; color:#FFFFFF;"><span><?php echo vtranslate('LBL_MASS_SELECT');?>

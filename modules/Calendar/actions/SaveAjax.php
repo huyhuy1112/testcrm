@@ -204,6 +204,45 @@ class Calendar_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			$_REQUEST['set_reminder'] = 'No';
 		}
 
+		// Handle All Day event
+		$allday = $request->get('allday');
+		if ($allday == '1' || $allday === true) {
+			// For all-day events, set times to 00:00:00 and ensure same-day or proper date range
+			$recordModel->set('time_start', '00:00:00');
+			$recordModel->set('time_end', '23:59:59');
+		}
+
+		// Handle optional fields (if custom fields exist, they will be saved automatically)
+		// Location, Meeting Link, Description - these may be custom fields
+		$location = $request->get('location');
+		if ($location) {
+			// Try to set as location field if it exists
+			try {
+				$recordModel->set('location', $location);
+			} catch (Exception $e) {
+				// Field may not exist, ignore
+			}
+		}
+
+		$meetingLink = $request->get('meeting_link');
+		if ($meetingLink) {
+			try {
+				$recordModel->set('meeting_link', $meetingLink);
+			} catch (Exception $e) {
+				// Field may not exist, ignore
+			}
+		}
+
+		$description = $request->get('description');
+		if ($description) {
+			// Description field should exist in Calendar
+			try {
+				$recordModel->set('description', $description);
+			} catch (Exception $e) {
+				// Ignore if field doesn't exist
+			}
+		}
+
 		return $recordModel;
 	}
 	

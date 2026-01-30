@@ -51,6 +51,12 @@
 						<ul class="dropdown-menu app-modules-dropdown" aria-labelledby="{$APP_NAME}_modules_dropdownMenu">
 							{foreach item=moduleModel key=moduleName from=$APP_GROUPED_MENU[$APP_NAME]}
 								{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
+								{* Calendar: MANAGEMENT = Schedule, SUPPORT = Activities *}
+								{if $moduleName eq 'Calendar' && $APP_NAME eq 'MANAGEMENT'}
+									{assign var='translatedModuleLabel' value=vtranslate('LBL_SCHEDULE','Calendar')}
+								{elseif $moduleName eq 'Calendar' && $APP_NAME eq 'SUPPORT'}
+									{assign var='translatedModuleLabel' value=vtranslate('LBL_ACTIVITIES','Calendar')}
+								{/if}
 								<li>
 									<a href="{$moduleModel->getDefaultUrl()}&app={$APP_NAME}" title="{$translatedModuleLabel}">
 										<span class="module-icon">{$moduleModel->getModuleIcon()}</span>

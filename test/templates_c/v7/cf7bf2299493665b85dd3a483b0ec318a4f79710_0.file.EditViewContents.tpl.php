@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:22
+/* Smarty version 4.5.4, created on 2026-01-30 06:46:16
   from '/var/www/html/layouts/v7/modules/Vtiger/partials/EditViewContents.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fde762c94_89023050',
+  'unifunc' => 'content_697c53b872ddd0_38791936',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'cf7bf2299493665b85dd3a483b0ec318a4f79710' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/partials/EditViewContents.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9fde762c94_89023050 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c53b872ddd0_38791936 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_checkPlugins(array(0=>array('file'=>'/var/www/html/vendor/smarty/smarty/libs/plugins/modifier.count.php','function'=>'smarty_modifier_count',),));
 if (!empty($_smarty_tpl->tpl_vars['PICKIST_DEPENDENCY_DATASOURCE']->value)) {?><input type="hidden" name="picklistDependency" value='<?php echo Vtiger_Util_Helper::toSafeHTML($_smarty_tpl->tpl_vars['PICKIST_DEPENDENCY_DATASOURCE']->value);?>
 ' /><?php }?><div name='editContent'><?php if ((isset($_smarty_tpl->tpl_vars['DUPLICATE_RECORDS']->value)) && $_smarty_tpl->tpl_vars['DUPLICATE_RECORDS']->value) {?><div class="fieldBlockContainer duplicationMessageContainer"><div class="duplicationMessageHeader"><b><?php echo vtranslate('LBL_DUPLICATES_DETECTED',$_smarty_tpl->tpl_vars['MODULE']->value);?>

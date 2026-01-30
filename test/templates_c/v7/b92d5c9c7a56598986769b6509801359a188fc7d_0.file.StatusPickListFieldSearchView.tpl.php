@@ -1,11 +1,11 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:49:55
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:25
   from '/var/www/html/layouts/v7/modules/Calendar/uitypes/StatusPickListFieldSearchView.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca65348ea37_22496176',
+  'unifunc' => 'content_697b23891debc5_15410454',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca65348ea37_22496176 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b23891debc5_15410454 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('FIELD_INFO', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldInfo());
 $_smarty_tpl->_assignInScope('PICKLIST_VALUES', $_smarty_tpl->tpl_vars['FIELD_INFO']->value['picklistvalues']);
 $_smarty_tpl->_assignInScope('FIELD_INFO', Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($_smarty_tpl->tpl_vars['FIELD_INFO']->value)));

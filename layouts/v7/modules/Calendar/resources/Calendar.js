@@ -1208,7 +1208,7 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			if (date.hasTime() || view.type == 'month') {
 				this.showCreateEventModal(date);
 			} else {
-				this.showCreateModal('Calendar', date);
+				this.showCreateTaskModal();
 			}
 		}
 	},
@@ -1628,13 +1628,33 @@ Vtiger.Class("Calendar_Calendar_Js", {
                                 columnFormat:'ddd'
                             },
                             agendaWeek: {
-                                columnFormat: 'ddd ' + dateFormat
+                                columnFormat: 'ddd ' + dateFormat,
+                                // Enable drag-to-create selection for Week view
+                                selectable: true,
+                                selectMirror: true
                             },
                             agendaDay: {
-                                columnFormat: 'dddd '+dateFormat
+                                columnFormat: 'dddd '+dateFormat,
+                                // Enable drag-to-create selection for Day view
+                                selectable: true,
+                                selectMirror: true
+                            },
+                            // FullCalendar v4+ view names (if supported)
+                            timeGridDay: {
+                                selectable: true,
+                                selectMirror: true
+                            },
+                            timeGridWeek: {
+                                selectable: true,
+                                selectMirror: true
                             }
 			},
 			fixedWeekCount: false,
+			// Month view: auto height so page scrolls; Week/Day: fixed height with internal scroll
+			contentHeight: function (view) {
+				if (view && view.name === 'month') return 'auto';
+				return thisInstance.getCalendarHeight();
+			},
 			firstDay: thisInstance.daysOfWeek[thisInstance.getUserPrefered('start_day')],
 			scrollTime: thisInstance.getUserPrefered('start_hour'),
 			editable: true,
@@ -1700,6 +1720,84 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			allDayText: app.vtranslate('LBL_ALL_DAY'),
 			dayClick: function (date, jsEvent, view) {
 				thisInstance.performDayClickAction(date, jsEvent, view);
+			},
+			select: function (start, end, jsEvent, view) {
+				// Handle drag-to-create selection (Google Calendar-like)
+				// FullCalendar v3: select callback receives (start, end, jsEvent, view) as separate parameters
+				// NOT as an info object!
+				console.log('[Calendar Drag Select] Parameters:', {
+					start: start,
+					end: end,
+					jsEvent: jsEvent,
+					view: view
+				});
+				
+				// Check if start and end exist
+				if (!start || !end) {
+					console.warn('[Calendar Drag Select] Missing start or end');
+					thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+					return;
+				}
+				
+				// Check if creation is allowed
+				var isAllowed = jQuery('#is_record_creation_allowed').val();
+				if (!isAllowed) {
+					console.warn('[Calendar Drag Select] Creation not allowed');
+					thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+					return;
+				}
+				
+				// Convert to moment objects if needed (FullCalendar v3 passes moment objects)
+				var startMoment = moment.isMoment(start) ? start : moment(start);
+				var endMoment = moment.isMoment(end) ? end : moment(end);
+				
+				if (!startMoment.isValid() || !endMoment.isValid()) {
+					console.warn('[Calendar Drag Select] Invalid dates:', {
+						start: start,
+						end: end,
+						startValid: startMoment.isValid(),
+						endValid: endMoment.isValid()
+					});
+					thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+					return;
+				}
+				
+				var viewType = (view && view.type) ? view.type : 'unknown';
+				console.log('[Calendar Drag Select] Valid selection:', {
+					start: startMoment.format(),
+					end: endMoment.format(),
+					viewType: viewType
+				});
+				
+				// Always open Event form (not Task)
+				var moduleName = 'Events';
+				console.log('[Calendar Drag Select] Opening Event form');
+				
+				// Store selection info (store as moment objects to preserve timezone and format)
+				// Check if it's all-day: if start and end are at midnight and span full days
+				var isAllDay = false;
+				if (startMoment.hours() === 0 && startMoment.minutes() === 0 && 
+				    endMoment.hours() === 0 && endMoment.minutes() === 0 &&
+				    endMoment.diff(startMoment, 'days') >= 1) {
+					isAllDay = true;
+				}
+				
+				// Store as moment objects (clone to avoid mutation)
+				thisInstance._dragSelection = {
+					start: startMoment.clone(),
+					end: endMoment.clone(),
+					allDay: isAllDay
+				};
+				
+				console.log('[Calendar Drag Select] Stored selection:', {
+					start: startMoment.format('YYYY-MM-DD HH:mm'),
+					end: endMoment.format('YYYY-MM-DD HH:mm'),
+					allDay: isAllDay
+				});
+				
+				// Auto-open QuickCreate (no chooser popup)
+				console.log('[Calendar Drag Select] Opening QuickCreate for:', moduleName);
+				thisInstance.openQuickCreateFromDrag(moduleName);
 			},
 			eventResize: function (event, delta, revertFunc, jsEvent, ui, view) {
 				thisInstance.updateEventOnResize(event, delta, revertFunc, jsEvent, ui, view);
@@ -2045,5 +2143,815 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		this.registerWidgetPostLoadEvent();
 		this.initializeWidgets();
 		this.registerPostQuickCreateSaveEvent();
+		this.registerTaskQuickCreateEnhancements();
+	},
+	/**
+	 * Open QuickCreate form from drag selection (Google Calendar-like)
+	 * SAFE: Uses existing QuickCreate mechanism, no overlay manipulation
+	 */
+	openQuickCreateFromSelection: function(start, end) {
+		var thisInstance = this;
+		var startMoment = moment(start);
+		var endMoment = moment(end);
+		
+		// Calculate duration in days
+		var durationDays = endMoment.diff(startMoment, 'days', true);
+		
+		// Auto-switch to Task if all-day (duration >= 1 day)
+		var isAllDay = durationDays >= 1;
+		var moduleName = isAllDay ? 'Calendar' : 'Events';
+		var activityType = isAllDay ? 'Task' : 'Events';
+		
+		// Check if creation is allowed
+		var isAllowed = jQuery('#is_record_creation_allowed').val();
+		if (!isAllowed) {
+			// Unselect if not allowed
+			thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+			return;
+		}
+		
+		// Find QuickCreate node
+		var quickCreateNode = jQuery('#quickCreateModules').find('[data-name="' + moduleName + '"]');
+		if (quickCreateNode.length <= 0) {
+			// Fallback: try Calendar module
+			quickCreateNode = jQuery('#quickCreateModules').find('[data-name="Calendar"]');
+			if (quickCreateNode.length <= 0) {
+				app.helper.showAlertNotification({
+					'message': app.vtranslate('JS_NO_CREATE_OR_NOT_QUICK_CREATE_ENABLED')
+				});
+				thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+				return;
+			}
+		}
+		
+		// FIRST: Trigger QuickCreate click to open modal
+		quickCreateNode.trigger('click');
+		
+		// WAIT for modal to render before setting values
+		// Use setTimeout as fallback to ensure modal is ready
+		setTimeout(function() {
+			var container = jQuery('.modal-content, #QuickCreate');
+			if (!container.length) {
+				console.warn('[Calendar Drag Select] QuickCreate modal not ready');
+				// Try again after a short delay
+				setTimeout(function() {
+					var retryContainer = jQuery('.modal-content, #QuickCreate');
+					if (!retryContainer.length) {
+						console.warn('[Calendar Drag Select] QuickCreate modal still not ready after retry');
+						thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+						return;
+					}
+					thisInstance.populateQuickCreateFields(retryContainer, startMoment, endMoment, isAllDay);
+				}, 200);
+				return;
+			}
+			
+			// Modal is ready, populate fields
+			thisInstance.populateQuickCreateFields(container, startMoment, endMoment, isAllDay);
+		}, 300);
+		
+		// Also listen for post.QuickCreateForm.show event as backup
+		app.event.one('post.QuickCreateForm.show', function (e, form) {
+			var modalContainer = form.closest('.modal, .modal-content');
+			if (modalContainer.length > 0) {
+				// Double-check fields aren't already populated
+				var startDateElement = modalContainer.find('input[name="date_start"]');
+				if (startDateElement.length > 0 && !startDateElement.val()) {
+					thisInstance.populateQuickCreateFields(modalContainer, startMoment, endMoment, isAllDay);
+				}
+			}
+		});
+	},
+	/**
+	 * Populate QuickCreate form fields with drag selection values
+	 * SAFE: Only sets field values, does not manipulate overlay
+	 */
+	populateQuickCreateFields: function(container, startMoment, endMoment, isAllDay) {
+		var thisInstance = this;
+		
+		if (!container || !container.length) {
+			console.warn('[Calendar Drag Select] Container not found');
+			return;
+		}
+		
+		if (isAllDay) {
+			// Task: Set date_start and deadline (due_date)
+			var startDateElement = container.find('input[name="date_start"]');
+			var deadlineElement = container.find('#task_deadline');
+			var dueDateElement = container.find('input[name="due_date"]');
+			
+			if (startDateElement.length > 0) {
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				startDateElement.val(startMoment.format(userDateFormat));
+				vtUtils.registerEventForDateFields(startDateElement);
+				startDateElement.trigger('change');
+			}
+			
+			// Set deadline to start date (Task deadline = start date for all-day)
+			if (deadlineElement.length > 0) {
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				deadlineElement.val(startMoment.format(userDateFormat));
+				vtUtils.registerEventForDateFields(deadlineElement);
+			} else if (dueDateElement.length > 0) {
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				dueDateElement.val(startMoment.format(userDateFormat));
+				vtUtils.registerEventForDateFields(dueDateElement);
+			}
+			
+			// Set activitytype to Task if field exists
+			var activityTypeElement = container.find('[name="activitytype"]');
+			if (activityTypeElement.length > 0) {
+				activityTypeElement.val('Task');
+				if (activityTypeElement.is('select')) {
+					vtUtils.showSelect2ElementView(activityTypeElement);
+				}
+			}
+		} else {
+			// Event: Set date_start, time_start, due_date, time_end
+			var startDateElement = container.find('input[name="date_start"]');
+			var startTimeElement = container.find('input[name="time_start"]');
+			var endDateElement = container.find('input[name="due_date"]');
+			var endTimeElement = container.find('input[name="time_end"]');
+			
+			if (startDateElement.length > 0) {
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				var startDate = startMoment.format(userDateFormat);
+				startDateElement.val(startDate);
+				vtUtils.registerEventForDateFields(startDateElement);
+				startDateElement.trigger('change');
+			}
+			
+			if (startTimeElement.length > 0) {
+				var userTimeFormat = vtUtils.getMomentTimeFormat();
+				var startTime = startMoment.format(userTimeFormat);
+				startTimeElement.val(startTime);
+				vtUtils.registerEventForTimeFields(startTimeElement);
+			}
+			
+			if (endDateElement.length > 0) {
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				var endDate = endMoment.format(userDateFormat);
+				endDateElement.val(endDate);
+				vtUtils.registerEventForDateFields(endDateElement);
+				endDateElement.trigger('change');
+			}
+			
+			if (endTimeElement.length > 0) {
+				var userTimeFormat = vtUtils.getMomentTimeFormat();
+				var endTime = endMoment.format(userTimeFormat);
+				endTimeElement.val(endTime);
+				vtUtils.registerEventForTimeFields(endTimeElement);
+			}
+		}
+		
+		// Cleanup: Unselect calendar selection
+		thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+	},
+	/**
+	 * Show create chooser popup after drag selection
+	 * SAFE: Lightweight popup, no overlay manipulation
+	 */
+	showCreateChooser: function(mouseEvent) {
+		var thisInstance = this;
+		
+		// Remove any existing chooser
+		jQuery('.calendar-create-chooser').remove();
+		
+		// Create chooser HTML
+		var html = '<div class="calendar-create-chooser">' +
+			'<div class="chooser-item" data-type="Events">➕ Add Event</div>' +
+			'<div class="chooser-item" data-type="Calendar">📝 Add Task</div>' +
+			'</div>';
+		
+		var chooser = jQuery(html).appendTo('body');
+		
+		// Style chooser
+		chooser.css({
+			position: 'absolute',
+			top: (mouseEvent ? mouseEvent.pageY + 5 : jQuery(window).scrollTop() + 200) + 'px',
+			left: (mouseEvent ? mouseEvent.pageX + 5 : jQuery(window).scrollLeft() + 200) + 'px',
+			background: '#1f1f1f',
+			color: '#fff',
+			padding: '8px',
+			borderRadius: '6px',
+			zIndex: 10000,
+			cursor: 'pointer',
+			boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+			fontSize: '13px',
+			minWidth: '120px'
+		});
+		
+		chooser.find('.chooser-item').css({
+			padding: '6px 10px',
+			borderRadius: '4px',
+			marginBottom: '2px'
+		}).hover(
+			function() {
+				jQuery(this).css('background', '#333');
+			},
+			function() {
+				jQuery(this).css('background', 'transparent');
+			}
+		);
+		
+		// Handle chooser item click
+		chooser.find('.chooser-item').on('click', function(e) {
+			e.stopPropagation();
+			var moduleName = jQuery(this).data('type');
+			chooser.remove();
+			thisInstance.openQuickCreateFromDrag(moduleName);
+		});
+		
+		// Remove chooser on document click
+		setTimeout(function() {
+			jQuery(document).one('click', function() {
+				chooser.remove();
+				// Unselect if chooser closed without selection
+				if (thisInstance._dragSelection) {
+					thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+					thisInstance._dragSelection = null;
+				}
+			});
+		}, 100);
+	},
+	/**
+	 * Open QuickCreate from drag selection (Google Calendar-like)
+	 * SAFE: Uses existing QuickCreate mechanism
+	 * Opens form immediately after drag, populates fields automatically
+	 */
+	openQuickCreateFromDrag: function(moduleName) {
+		var thisInstance = this;
+		var data = thisInstance._dragSelection;
+		
+		console.log('[openQuickCreateFromDrag] Called with module:', moduleName, 'data:', data);
+		
+		if (!data) {
+			console.warn('[openQuickCreateFromDrag] No selection data');
+			return;
+		}
+		
+		// Get start and end from stored selection (already moment objects)
+		var start = moment.isMoment(data.start) ? data.start.clone() : moment(data.start);
+		var end = moment.isMoment(data.end) ? data.end.clone() : moment(data.end);
+		
+		console.log('[openQuickCreateFromDrag] Original selection:', {
+			start: start.format('YYYY-MM-DD HH:mm'),
+			end: end.format('YYYY-MM-DD HH:mm')
+		});
+		
+		// Ensure end is always after start (fix for missing end time)
+		if (!end.isAfter(start)) {
+			console.warn('[openQuickCreateFromDrag] End not after start, adding 30 minutes');
+			end = start.clone().add(30, 'minutes');
+		}
+		
+		console.log('[openQuickCreateFromDrag] Final dates:', {
+			start: start.format('YYYY-MM-DD HH:mm'),
+			end: end.format('YYYY-MM-DD HH:mm')
+		});
+		
+		// Prepare prefill data
+		var prefillData = {};
+		if (moduleName === 'Events') {
+			prefillData = {
+				date_start: start.format('YYYY-MM-DD'),
+				time_start: start.format('HH:mm'),
+				due_date: end.format('YYYY-MM-DD'),
+				time_end: end.format('HH:mm'),
+				allday: 0
+			};
+		} else if (moduleName === 'Calendar') {
+			prefillData = {
+				date_start: start.format('YYYY-MM-DD'),
+				task_deadline: end.format('YYYY-MM-DD')
+			};
+		}
+		
+		console.log('[openQuickCreateFromDrag] Prefill data:', prefillData);
+		
+		// Find QuickCreate button
+		var quickCreateBtn = jQuery('#quickCreateModules').find('[data-name="' + moduleName + '"]');
+		console.log('[openQuickCreateFromDrag] QuickCreate button found:', quickCreateBtn.length);
+		
+		if (!quickCreateBtn.length) {
+			console.error('[openQuickCreateFromDrag] QuickCreate button not found for:', moduleName);
+			app.helper.showAlertNotification({
+				'message': app.vtranslate('JS_NO_CREATE_OR_NOT_QUICK_CREATE_ENABLED')
+			});
+			thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+			thisInstance._dragSelection = null;
+			return;
+		}
+		
+		// Function to populate fields
+		var populateFields = function(form) {
+			console.log('[openQuickCreateFromDrag] Populating fields, form:', form.length);
+			if (!form || !form.length) {
+				console.warn('[openQuickCreateFromDrag] Form not found for population');
+				return;
+			}
+			
+			// For Event: Ensure end date/time is always after start
+			if (moduleName === 'Events') {
+				// Convert to user date format for proper validation
+				var userDateFormat = vtUtils.getMomentDateFormat();
+				var userTimeFormat = vtUtils.getMomentTimeFormat();
+				
+				// Set start date/time first
+				var $startDate = form.find('[name="date_start"]');
+				var $startTime = form.find('[name="time_start"]');
+				var $endDate = form.find('[name="due_date"]');
+				var $endTime = form.find('[name="time_end"]');
+				
+				if ($startDate.length) {
+					var startDateFormatted = start.format(userDateFormat);
+					$startDate.val(startDateFormatted);
+					vtUtils.registerEventForDateFields($startDate);
+				}
+				
+				if ($startTime.length) {
+					var startTimeFormatted = start.format(userTimeFormat);
+					$startTime.val(startTimeFormatted);
+					vtUtils.registerEventForTimeFields($startTime);
+				}
+				
+				// IMPORTANT: Prevent auto-calculation of end time from start time
+				// Vtiger's registerTimeStartChangeEvent ALWAYS sets end time (line 346 in Edit.js)
+				// Solution: Temporarily off the event, set values, then restore
+				
+				// Step 1: Temporarily off changeTime event for time_start
+				var $timeStartInput = $startTime.length ? $startTime : form.find('input[name="time_start"]');
+				if ($timeStartInput.length) {
+					$timeStartInput.off('changeTime.calendar-drag-populate');
+				}
+				
+				// Step 2: Set ALL values first (without triggering change events)
+				var startDateFormatted = start.format(userDateFormat);
+				var startTimeFormatted = start.format(userTimeFormat);
+				var endDateFormatted = end.format(userDateFormat);
+				var endTimeFormatted = end.format(userTimeFormat);
+				
+				console.log('[openQuickCreateFromDrag] Setting values:', {
+					startDate: startDateFormatted,
+					startTime: startTimeFormatted,
+					endDate: endDateFormatted,
+					endTime: endTimeFormatted
+				});
+				
+				// Set start date/time
+				if ($startDate.length) {
+					$startDate.val(startDateFormatted);
+					vtUtils.registerEventForDateFields($startDate);
+				}
+				if ($startTime.length) {
+					$startTime.val(startTimeFormatted);
+					vtUtils.registerEventForTimeFields($startTime);
+				}
+				
+				// Set end date/time
+				if ($endDate.length) {
+					$endDate.val(endDateFormatted);
+					vtUtils.registerEventForDateFields($endDate);
+				}
+				if ($endTime.length) {
+					$endTime.val(endTimeFormatted);
+					vtUtils.registerEventForTimeFields($endTime);
+				}
+				
+				// Step 3: Mark fields as user-changed to prevent future auto-calculation
+				if ($startTime.length) {
+					$startTime.data('userChangedDateTime', 1);
+				}
+				if ($endTime.length) {
+					$endTime.data('userChangedDateTime', 1);
+				}
+				if ($endDate.length) {
+					$endDate.data('userChangedDateTime', 1);
+				}
+				
+				// Step 4: Trigger change events AFTER a delay to ensure values are set
+				setTimeout(function() {
+					// Trigger end fields first
+					if ($endDate.length) {
+						$endDate.trigger('change');
+					}
+					if ($endTime.length) {
+						$endTime.trigger('change');
+					}
+					
+					// Then trigger start fields (event is off, so auto-calculation won't run)
+					setTimeout(function() {
+						if ($startDate.length) {
+							$startDate.trigger('change');
+						}
+						if ($startTime.length) {
+							// Trigger change (not changeTime) to avoid auto-calculation
+							$startTime.trigger('change');
+						}
+						
+						// Step 5: Re-enable changeTime event and re-confirm end values
+						setTimeout(function() {
+							// Re-enable changeTime event
+							if ($timeStartInput.length) {
+								$timeStartInput.on('changeTime.calendar-drag-populate', function() {
+									// This handler will be called, but end is already set
+								});
+							}
+							
+							// Re-confirm end values (in case anything changed them)
+							var currentEndDate = $endDate.length ? $endDate.val() : '';
+							var currentEndTime = $endTime.length ? $endTime.val() : '';
+							
+							if ($endDate.length && currentEndDate !== endDateFormatted) {
+								console.warn('[openQuickCreateFromDrag] End date was changed, restoring:', endDateFormatted);
+								$endDate.val(endDateFormatted);
+								$endDate.data('userChangedDateTime', 1);
+							}
+							if ($endTime.length && currentEndTime !== endTimeFormatted) {
+								console.warn('[openQuickCreateFromDrag] End time was changed, restoring:', endTimeFormatted);
+								$endTime.val(endTimeFormatted);
+								$endTime.data('userChangedDateTime', 1);
+							}
+						}, 150);
+					}, 100);
+				}, 50);
+			} else {
+				// For Task: Just populate normally
+				jQuery.each(prefillData, function(name, value) {
+					var field = form.find('[name="' + name + '"]');
+					if (field.length) {
+						console.log('[openQuickCreateFromDrag] Setting field:', name, '=', value);
+						field.val(value);
+						
+						// Register date/time field events
+						if (name.indexOf('date') >= 0 || name === 'task_deadline') {
+							vtUtils.registerEventForDateFields(field);
+							field.trigger('change');
+						}
+						if (name.indexOf('time') >= 0) {
+							vtUtils.registerEventForTimeFields(field);
+							field.trigger('change');
+						}
+					} else {
+						console.warn('[openQuickCreateFromDrag] Field not found:', name);
+					}
+				});
+			}
+		};
+		
+		// Listen for QuickCreate form show event (primary method)
+		app.event.one('post.QuickCreateForm.show', function(e, form) {
+			console.log('[openQuickCreateFromDrag] post.QuickCreateForm.show event fired');
+			
+			// Set flag to prevent auto-calculation during population
+			window._calendarDragPopulating = true;
+			
+			// Populate fields
+			populateFields(form);
+			
+			// Clear flag after a delay to allow fields to be set
+			setTimeout(function() {
+				window._calendarDragPopulating = false;
+			}, 500);
+		});
+		
+		// Also listen for Bootstrap modal shown event (backup)
+		jQuery(document).one('shown.bs.modal', '.modal', function() {
+			console.log('[openQuickCreateFromDrag] shown.bs.modal event fired');
+			var form = jQuery(this).find('form[name="QuickCreate"]');
+			if (!form.length) {
+				form = jQuery(this).find('form');
+			}
+			if (form.length) {
+				// Retry with delay to ensure fields are rendered
+				setTimeout(function() {
+					populateFields(form);
+				}, 100);
+			}
+		});
+		
+		// Trigger QuickCreate click to open form immediately
+		console.log('[openQuickCreateFromDrag] Triggering QuickCreate click');
+		quickCreateBtn.trigger('click');
+		
+		// Cleanup: Unselect calendar selection
+		thisInstance.getCalendarViewContainer().fullCalendar('unselect');
+		thisInstance._dragSelection = null;
+	},
+	/**
+	 * Register Task-specific QuickCreate enhancements
+	 * SAFE: Only enhances Task form, does not affect Event or core logic
+	 */
+	registerTaskQuickCreateEnhancements: function() {
+		var thisInstance = this;
+		
+		// Listen for QuickCreate form shown
+		app.event.on('post.QuickCreateForm.show', function(e, form) {
+			// Hide end date/time fields IMMEDIATELY (before any delay) to prevent flash
+			thisInstance.hideEventEndFields(form);
+			
+			setTimeout(function() {
+				thisInstance.enhanceTaskQuickCreate(form);
+				// Confirm hide again after fields are fully rendered
+				thisInstance.hideEventEndFields(form);
+			}, 200);
+		});
+	},
+	/**
+	 * Hide End Date & End Time fields for Event QuickCreate (UI only)
+	 * SAFE: Only hides fields, backend values remain intact
+	 * Hides: Only "End Date & Time" field at bottom (in table), keeps top section with "To" label visible
+	 * SMOOTH: Uses CSS to hide immediately, then confirms with JS
+	 */
+	hideEventEndFields: function(form) {
+		if (!form || !jQuery(form).length) return;
+		
+		var $form = jQuery(form);
+		var $modal = $form.closest('.modal-content, .modal');
+		if (!$modal.length) {
+			$modal = jQuery('.modal-content');
+		}
+		if (!$modal.length) return;
+		
+		// Detect if this is an Event form (not Task)
+		var activityType = $form.find('[name="activitytype"]').val();
+		var moduleName = $form.find('[name="module"]').val();
+		
+		var isEvent = false;
+		if (activityType === 'Events' || moduleName === 'Events') {
+			isEvent = true;
+		} else if (moduleName === 'Calendar' && activityType !== 'Task') {
+			isEvent = true;
+		}
+		
+		if (isEvent) {
+			// IMMEDIATE: Hide fields using CSS first (no flash)
+			// Find and hide end date/time fields in table immediately
+			var hideFieldsImmediate = function() {
+				var $endDateField = $modal.find('input[name="due_date"]');
+				var $endTimeField = $modal.find('input[name="time_end"]');
+				
+				// Hide due_date field row in table (but NOT in calendar-event-datetime-section)
+				$endDateField.each(function() {
+					var $field = jQuery(this);
+					var $row = $field.closest('tr');
+					// Only hide if it's in massEditTable, not in calendar-event-datetime-section
+					if ($row.length > 0 && $row.closest('.calendar-event-datetime-section').length === 0) {
+						// Hide immediately with CSS
+						$row.css('display', 'none');
+						// Also hide previous row if it's the label row
+						var $prevRow = $row.prev('tr');
+						if ($prevRow.length > 0 && $prevRow.find('.fieldLabel').length > 0) {
+							var labelText = $prevRow.find('.fieldLabel').text().toLowerCase();
+							if (labelText.indexOf('end') >= 0 || labelText.indexOf('due') >= 0) {
+								$prevRow.css('display', 'none');
+							}
+						}
+					}
+				});
+				
+				// Hide time_end field row in table (but NOT in calendar-event-datetime-section)
+				$endTimeField.each(function() {
+					var $field = jQuery(this);
+					var $row = $field.closest('tr');
+					// Only hide if it's in massEditTable, not in calendar-event-datetime-section
+					if ($row.length > 0 && $row.closest('.calendar-event-datetime-section').length === 0) {
+						// Hide immediately with CSS
+						$row.css('display', 'none');
+						// Also hide previous row if it's the label row
+						var $prevRow = $row.prev('tr');
+						if ($prevRow.length > 0 && $prevRow.find('.fieldLabel').length > 0) {
+							var labelText = $prevRow.find('.fieldLabel').text().toLowerCase();
+							if (labelText.indexOf('end') >= 0 || labelText.indexOf('time') >= 0) {
+								$prevRow.css('display', 'none');
+							}
+						}
+					}
+				});
+			};
+			
+			// Try to hide immediately (if fields are already rendered)
+			hideFieldsImmediate();
+			
+			// Also hide after a short delay to catch dynamically rendered fields
+			setTimeout(hideFieldsImmediate, 50);
+			setTimeout(hideFieldsImmediate, 150);
+		}
+	},
+	/**
+	 * Enhance Task QuickCreate form
+	 * SAFE: Only modifies Task form UI, defensive checks throughout
+	 */
+	enhanceTaskQuickCreate: function(form) {
+		if (!form || !jQuery(form).length) return;
+		
+		var $form = jQuery(form);
+		var $container = $form.closest('#QuickCreate, .modal-body');
+		if (!$container.length) return;
+		
+		// Detect if this is a Task form
+		var activityType = $form.find('[name="activitytype"]').val();
+		var moduleName = $form.find('[name="module"]').val();
+		
+		// Task detection: activitytype === 'Task' OR module === 'Calendar' (defaults to Task)
+		var isTask = false;
+		if (activityType === 'Task') {
+			isTask = true;
+		} else if (moduleName === 'Calendar' && (!activityType || activityType === '')) {
+			// Calendar module defaults to Task if activitytype not set
+			isTask = true;
+		}
+		
+		if (!isTask) {
+			// Not a Task form, skip enhancements
+			return;
+		}
+		
+		// Enhance time pickers for Task (15-minute step, manual typing)
+		this.enhanceTaskTimePickers($container);
+		
+		// Setup All Day toggle for Task
+		this.setupTaskAllDayToggle($container);
+		
+		// Setup deadline field for Task
+		this.setupTaskDeadlineField($container);
+		
+		// Reorganize time fields layout for Task
+		this.reorganizeTaskTimeLayout($container);
+	},
+	/**
+	 * Enhance time pickers for Task: 15-minute step, allow manual typing
+	 * SAFE: Only updates UI, does not change form submission
+	 */
+	enhanceTaskTimePickers: function($container) {
+		if (!$container || !$container.length) return;
+		
+		var $timeFields = $container.find('input[name="time_start"], input[name="time_end"]');
+		if ($timeFields.length === 0) return;
+		
+		setTimeout(function() {
+			$timeFields.each(function() {
+				var $field = jQuery(this);
+				
+				// Destroy existing timepicker if it exists
+				if ($field.data('timepicker-list')) {
+					try {
+						$field.timepicker('remove');
+					} catch(e) {
+						// Ignore errors
+					}
+				}
+				
+				var timeFormat = $field.data('format');
+				if (timeFormat == '24') {
+					timeFormat = 'H:i';
+				} else {
+					timeFormat = 'h:i A';
+				}
+				
+				// Re-initialize with 15-minute step
+				try {
+					$field.timepicker({
+						timeFormat: timeFormat,
+						step: 15, // 15-minute intervals
+						disableTextInput: false, // Allow manual typing
+						className: 'timePicker calendar-task-timepicker'
+					});
+				} catch(e) {
+					// If timepicker fails, continue without enhancement
+					console.warn('Calendar Task: Timepicker enhancement failed', e);
+				}
+			});
+		}, 500);
+	},
+	/**
+	 * Setup All Day toggle for Task
+	 * SAFE: Only hides/shows time inputs, does not remove from DOM
+	 */
+	setupTaskAllDayToggle: function($container) {
+		if (!$container || !$container.length) return;
+		
+		var $allDayCheckbox = $container.find('input[name="allday"], #calendar_allday');
+		if ($allDayCheckbox.length === 0) return;
+		
+		var $timeStart = $container.find('input[name="time_start"]');
+		var $timeEnd = $container.find('input[name="time_end"]');
+		
+		// Find time field containers
+		var $timeStartContainer = $timeStart.closest('.input-group, .fieldValue, .calendar-task-time-wrapper').parent();
+		var $timeEndContainer = $timeEnd.closest('.input-group, .fieldValue, .calendar-task-time-wrapper').parent();
+		
+		if ($timeStartContainer.length === 0) {
+			$timeStartContainer = $timeStart.closest('div').parent();
+		}
+		if ($timeEndContainer.length === 0) {
+			$timeEndContainer = $timeEnd.closest('div').parent();
+		}
+		
+		$allDayCheckbox.off('change.calendar-task-allday').on('change.calendar-task-allday', function() {
+			var isAllDay = jQuery(this).is(':checked');
+			
+			if (isAllDay) {
+				// Hide time fields (but keep in DOM)
+				$timeStartContainer.hide();
+				$timeEndContainer.hide();
+			} else {
+				// Show time fields
+				$timeStartContainer.show();
+				$timeEndContainer.show();
+			}
+		});
+	},
+	/**
+	 * Setup deadline field for Task
+	 * SAFE: Only initializes date picker, does not change form submission
+	 */
+	setupTaskDeadlineField: function($container) {
+		if (!$container || !$container.length) return;
+		
+		var $deadlineField = $container.find('#task_deadline');
+		if ($deadlineField.length === 0) return;
+		
+		// Initialize date picker if not already initialized
+		setTimeout(function() {
+			if ($deadlineField.hasClass('dateField') && !$deadlineField.data('datepicker')) {
+				try {
+					vtUtils.registerEventForDateFields($deadlineField);
+				} catch(e) {
+					// Silently fail
+				}
+			}
+		}, 300);
+	},
+	/**
+	 * Sync task_deadline to due_date on form submit (Task only)
+	 * SAFE: Only updates form field values before submit, does not change submission logic
+	 */
+	syncTaskDeadlineToDueDate: function($container) {
+		if (!$container || !$container.length) return;
+		
+		var $form = $container.closest('form[name="QuickCreate"]');
+		if ($form.length === 0) return;
+		
+		var $deadlineField = $container.find('#task_deadline');
+		var $dueDateField = $container.find('input[name="due_date"]');
+		
+		if ($deadlineField.length === 0 || $dueDateField.length === 0) return;
+		
+		// On form submit, sync deadline to due_date
+		$form.on('submit.calendar-task-deadline', function() {
+			var deadlineValue = $deadlineField.val();
+			if (deadlineValue) {
+				// Copy deadline value to due_date
+				$dueDateField.val(deadlineValue);
+			}
+		});
+	},
+	/**
+	 * Reorganize time fields layout for Task
+	 * SAFE: Only moves DOM elements, does not change form structure
+	 */
+	reorganizeTaskTimeLayout: function($container) {
+		if (!$container || !$container.length) return;
+		
+		var $taskTimeSection = $container.find('.calendar-task-datetime-section');
+		if ($taskTimeSection.length === 0) return;
+		
+		var $timeStart = $container.find('input[name="time_start"]');
+		var $timeEnd = $container.find('input[name="time_end"]');
+		
+		if ($timeStart.length === 0 || $timeEnd.length === 0) return;
+		
+		// Find time field containers in RECORD_STRUCTURE loop (massEditTable)
+		var $timeStartRow = $timeStart.closest('tr');
+		var $timeEndRow = $timeEnd.closest('tr');
+		
+		// Move time_start to "From" container
+		var $fromContainer = $taskTimeSection.find('.calendar-task-time-wrapper').first();
+		if ($fromContainer.length > 0 && $timeStartRow.length > 0) {
+			// Find the input group or field value container
+			var $timeStartField = $timeStart.closest('.input-group, .fieldValue');
+			if ($timeStartField.length > 0) {
+				// Clone and append to "From" container
+				var $cloned = $timeStartField.clone();
+				$fromContainer.append($cloned);
+				// Hide original row
+				$timeStartRow.hide();
+			}
+		}
+		
+		// Move time_end to "To" container
+		var $toContainer = $taskTimeSection.find('.calendar-task-time-wrapper').last();
+		if ($toContainer.length > 0 && $timeEndRow.length > 0) {
+			// Find the input group or field value container
+			var $timeEndField = $timeEnd.closest('.input-group, .fieldValue');
+			if ($timeEndField.length > 0) {
+				// Clone and append to "To" container
+				var $cloned = $timeEndField.clone();
+				$toContainer.append($cloned);
+				// Hide original row
+				$timeEndRow.hide();
+			}
+		}
 	}
 });

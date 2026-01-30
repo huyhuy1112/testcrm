@@ -18,7 +18,7 @@ include_once('vtlib/Vtiger/Link.php');
 include_once('vtlib/Vtiger/Event.php');
 include_once('vtlib/Vtiger/Webservice.php');
 include_once('vtlib/Vtiger/Version.php');
-require_once 'includes/runtime/Cache.php';
+require_once dirname(__FILE__) . '/../../includes/runtime/Cache.php';
 
 /**
  * Provides API to work with vtiger CRM Module

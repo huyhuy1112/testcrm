@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:19
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:25
   from '/var/www/html/layouts/v7/modules/Vtiger/ListViewActions.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fdbbaa5f5_35155877',
+  'unifunc' => 'content_697b2389163964_19536430',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'd80586cd88126b836cc9616e5f33dca119d17161' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/ListViewActions.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9fdbbaa5f5_35155877 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2389163964_19536430 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_checkPlugins(array(0=>array('file'=>'/var/www/html/vendor/smarty/smarty/libs/plugins/modifier.count.php','function'=>'smarty_modifier_count',),));
 ?>
 

@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 03:28:58
+/* Smarty version 4.5.4, created on 2026-01-29 09:09:26
   from '/var/www/html/layouts/v7/modules/Documents/partials/SidebarHeader.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694caf7ac27863_99613011',
+  'unifunc' => 'content_697b23c6e4d4b3_22681788',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '477f8586941f307b0e71138fbb28b17fae36fb76' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Documents/partials/SidebarHeader.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -21,7 +21,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
     'file:modules/Vtiger/partials/SidebarAppMenu.tpl' => 1,
   ),
 ),false)) {
-function content_694caf7ac27863_99613011 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b23c6e4d4b3_22681788 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('APP_IMAGE_MAP', Vtiger_MenuStructure_Model::getAppIcons());?>
 <div class="col-sm-12 col-xs-12 app-indicator-icon-container app-<?php echo $_smarty_tpl->tpl_vars['SELECTED_MENU_CATEGORY']->value;?>
  moduleIcon">

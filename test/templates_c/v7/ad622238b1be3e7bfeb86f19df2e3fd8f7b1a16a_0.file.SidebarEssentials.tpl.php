@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 03:28:58
+/* Smarty version 4.5.4, created on 2026-01-29 09:09:27
   from '/var/www/html/layouts/v7/modules/Documents/partials/SidebarEssentials.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694caf7ae47c41_98187195',
+  'unifunc' => 'content_697b23c705b2a0_97394698',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'ad622238b1be3e7bfeb86f19df2e3fd8f7b1a16a' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Documents/partials/SidebarEssentials.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694caf7ae47c41_98187195 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b23c705b2a0_97394698 (Smarty_Internal_Template $_smarty_tpl) {
 ?><div class="sidebar-menu sidebar-menu-full">
     <div class="module-filters" id="module-filters">
         <div class="sidebar-container lists-menu-container">

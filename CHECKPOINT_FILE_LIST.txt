@@ -1,0 +1,48 @@
+# Checkpoint File List - All Modified Files
+# Date: 2026-01-23 09:14:59 +07
+# Use this list to restore files if needed
+
+## TEAMS MODULE - PHP FILES
+modules/Teams/actions/DeleteGroup.php
+modules/Teams/actions/SaveGroup.php
+modules/Teams/actions/SavePerson.php
+modules/Teams/actions/DeletePerson.php
+modules/Teams/actions/DeleteUser.php
+modules/Teams/views/EditGroup.php
+modules/Teams/views/List.php
+
+## TEAMS MODULE - TEMPLATE FILES
+layouts/v7/modules/Teams/partials/Groups.tpl
+layouts/v7/modules/Teams/partials/People.tpl
+layouts/v7/modules/Teams/AddPersonModal.tpl
+layouts/v7/modules/Teams/EditGroup.tpl
+
+## TEAMS MODULE - JAVASCRIPT FILES
+layouts/v7/modules/Teams/resources/Group.js
+layouts/v7/modules/Teams/resources/Person.js
+layouts/v7/modules/Teams/resources/TeamsModal.js
+
+## CALENDAR CSS
+layouts/v7/resources/custom.css
+
+## MODERNNOTIFICATIONS FIX (if exists)
+layouts/v7/modules/Vtiger/resources/ModernNotifications.js
+
+---
+Total files modified: 14
+---
+
+## Quick Restore Commands (if using git):
+
+# Restore all Teams module files
+git checkout modules/Teams/actions/DeleteGroup.php
+git checkout modules/Teams/actions/SaveGroup.php
+git checkout modules/Teams/actions/SavePerson.php
+git checkout modules/Teams/views/EditGroup.php
+git checkout layouts/v7/modules/Teams/partials/Groups.tpl
+git checkout layouts/v7/modules/Teams/partials/People.tpl
+git checkout layouts/v7/modules/Teams/AddPersonModal.tpl
+git checkout layouts/v7/modules/Teams/resources/Group.js
+git checkout layouts/v7/modules/Teams/resources/Person.js
+git checkout layouts/v7/modules/Teams/resources/TeamsModal.js
+git checkout layouts/v7/resources/custom.css

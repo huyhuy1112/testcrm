@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-26 01:37:56
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:00
   from '/var/www/html/layouts/v7/modules/Potentials/dashboards/GroupBySalesPerson.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694de6f42c6598_47954587',
+  'unifunc' => 'content_697b0da4bd5fa6_13932712',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '6fde5a7fef5cee0511f9b5970901b5482b69f3b8' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Potentials/dashboards/GroupBySalesPerson.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694de6f42c6598_47954587 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da4bd5fa6_13932712 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <div class="dashboardWidgetHeader">
     <?php $_smarty_tpl->_subTemplateRender(call_user_func_array($_smarty_tpl->registered_plugins[ 'modifier' ][ 'vtemplate_path' ][ 0 ], array( "dashboards/WidgetHeader.tpl",$_smarty_tpl->tpl_vars['MODULE_NAME']->value )), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);

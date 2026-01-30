@@ -230,7 +230,8 @@ class Vtiger_MenuStructure_Model extends Vtiger_Base_Model {
 	 * @return <array>
 	 */
 	public static function getAppMenuList(){
-		return array('MARKETING','SALES','INVENTORY','SUPPORT','PROJECT','TOOLS');
+		// NOTE: Add custom top-level app "MANAGEMENT"
+		return array('MARKETING','SALES','INVENTORY','SUPPORT','MANAGEMENT','PROJECT','TOOLS');
 	}
 
 	public static function getAppIcons() {
@@ -238,6 +239,7 @@ class Vtiger_MenuStructure_Model extends Vtiger_Base_Model {
 								'SALES'		=> 'fa-dot-circle-o',
 								'SUPPORT'	=> 'fa-life-ring',
 								'INVENTORY'	=> 'vicon-inventory',
+								'MANAGEMENT'=> 'fa-sitemap',
 								'PROJECT'	=> 'fa-briefcase',
 								'TOOLS'		=> 'fa-wrench'
 							);

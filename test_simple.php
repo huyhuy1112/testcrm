@@ -32,3 +32,4 @@ if (file_exists('config.inc.php')) {
 
 echo "<br><strong>If you see this, PHP is working correctly!</strong>";
 
+

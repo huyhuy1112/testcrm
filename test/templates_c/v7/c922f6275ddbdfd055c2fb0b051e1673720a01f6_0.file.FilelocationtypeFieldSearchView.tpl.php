@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 03:28:59
+/* Smarty version 4.5.4, created on 2026-01-29 09:09:27
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/FilelocationtypeFieldSearchView.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694caf7b064302_21183438',
+  'unifunc' => 'content_697b23c711bdf1_83624108',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'c922f6275ddbdfd055c2fb0b051e1673720a01f6' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/FilelocationtypeFieldSearchView.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694caf7b064302_21183438 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b23c711bdf1_83624108 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('FIELD_INFO', Zend_Json::encode($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldInfo()));
 $_smarty_tpl->_assignInScope('PICKLIST_VALUES', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFileLocationType());
 $_smarty_tpl->_assignInScope('SEARCH_VALUES', explode(',',$_smarty_tpl->tpl_vars['SEARCH_INFO']->value['searchValue']));?><div class="select2_search_div"><input type="text" class="listSearchContributor inputElement select2_input_element"/><select class="select2 listSearchContributor" name="<?php echo $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('name');?>

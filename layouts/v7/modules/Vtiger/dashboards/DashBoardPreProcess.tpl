@@ -11,7 +11,7 @@
 {* START YOUR IMPLEMENTATION FROM BELOW. Use {debug} for information *}
 {include file="modules/Vtiger/partials/Topbar.tpl"}
 
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-{$SELECTED_MENU_CATEGORY}">
     <div class="row">
         {include file="modules/Vtiger/partials/SidebarHeader.tpl"}
         {include file="ModuleHeader.tpl"|vtemplate_path:$MODULE}

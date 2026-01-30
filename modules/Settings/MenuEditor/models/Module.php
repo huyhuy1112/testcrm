@@ -71,12 +71,25 @@ class Settings_MenuEditor_Module_Model extends Settings_Vtiger_Module_Model {
 
 				$sequence = $db->query_result($result, $i, 'sequence');
 				$appname = $db->query_result($result, $i, 'appname');
+				$appKey = strtoupper(trim($appname));
 				$moduleModel->set('app2tab_sequence', $sequence);
 				if (($userPrivModel->isAdminUser() ||
 						$userPrivModel->hasGlobalReadPermission() ||
 						$userPrivModel->hasModulePermission($moduleModel->getId())) && in_array($moduleModel->get('presence'), $presence)) {
-					$modules[$appname][$moduleName] = $moduleModel;
+					$modules[$appKey][$moduleName] = $moduleModel;
 				}
+			}
+		}
+
+		// Gộp các biến thể tên app "Management" vào key MANAGEMENT (để menu MANAGEMENT luôn có menu con)
+		$managementAliases = array('MANAGMENT', 'MANAGEMANT', 'MANGEMENT', 'MANAGEMET');
+		foreach ($managementAliases as $alias) {
+			if (!empty($modules[$alias])) {
+				if (!isset($modules['MANAGEMENT'])) {
+					$modules['MANAGEMENT'] = array();
+				}
+				$modules['MANAGEMENT'] = array_merge($modules['MANAGEMENT'], $modules[$alias]);
+				unset($modules[$alias]);
 			}
 		}
 

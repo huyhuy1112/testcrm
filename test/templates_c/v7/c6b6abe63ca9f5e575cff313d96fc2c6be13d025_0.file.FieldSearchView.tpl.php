@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:21:46
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:25
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/FieldSearchView.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fbad37b28_75401249',
+  'unifunc' => 'content_697b2389281e72_24821757',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'c6b6abe63ca9f5e575cff313d96fc2c6be13d025' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/FieldSearchView.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9fbad37b28_75401249 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2389281e72_24821757 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('FIELD_INFO', Zend_Json::encode($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldInfo()));?><div class=""><input type="text" name="<?php echo $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('name');?>
 " class="listSearchContributor inputElement" value="<?php if ((isset($_smarty_tpl->tpl_vars['SEARCH_INFO']->value['searchValue']))) {
 echo htmlspecialchars((string)$_smarty_tpl->tpl_vars['SEARCH_INFO']->value['searchValue'], ENT_QUOTES, 'UTF-8', true);

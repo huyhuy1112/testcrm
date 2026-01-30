@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:32:04
+/* Smarty version 4.5.4, created on 2026-01-30 06:46:16
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/Salutation.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca2245a5d22_16247630',
+  'unifunc' => 'content_697c53b889a776_79932017',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'a659c5557a378a0b298bae24ac47274a5cd54ac4' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/Salutation.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca2245a5d22_16247630 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c53b889a776_79932017 (Smarty_Internal_Template $_smarty_tpl) {
 if ((isset($_smarty_tpl->tpl_vars['SALUTATION_FIELD_MODEL']->value))) {
 $_smarty_tpl->_assignInScope('PICKLIST_VALUES', $_smarty_tpl->tpl_vars['SALUTATION_FIELD_MODEL']->value->getEditablePicklistValues());
 $_smarty_tpl->_assignInScope('SALUTATION_VALIDATOR', $_smarty_tpl->tpl_vars['SALUTATION_FIELD_MODEL']->value->getValidator());?><select class="inputElement select2" style="width:78px;" name="<?php echo $_smarty_tpl->tpl_vars['SALUTATION_FIELD_MODEL']->value->get('name');?>

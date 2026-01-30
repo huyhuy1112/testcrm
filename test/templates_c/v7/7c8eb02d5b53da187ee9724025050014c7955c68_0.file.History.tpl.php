@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-26 01:31:30
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:00
   from '/var/www/html/layouts/v7/modules/Vtiger/dashboards/History.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694de57233cf18_89292666',
+  'unifunc' => 'content_697b0da4ec4314_53264392',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '7c8eb02d5b53da187ee9724025050014c7955c68' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/dashboards/History.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694de57233cf18_89292666 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da4ec4314_53264392 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_checkPlugins(array(0=>array('file'=>'/var/www/html/vendor/smarty/smarty/libs/plugins/modifier.count.php','function'=>'smarty_modifier_count',),));
 ?>
 <div class="dashboardWidgetHeader clearfix">

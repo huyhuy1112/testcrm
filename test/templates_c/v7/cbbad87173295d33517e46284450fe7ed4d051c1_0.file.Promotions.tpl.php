@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:09:49
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:02
   from '/var/www/html/layouts/v7/modules/ExtensionStore/Promotions.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9ced7ad1d6_04281386',
+  'unifunc' => 'content_697b0da637ed77_39066198',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'cbbad87173295d33517e46284450fe7ed4d051c1' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/ExtensionStore/Promotions.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9ced7ad1d6_04281386 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da637ed77_39066198 (Smarty_Internal_Template $_smarty_tpl) {
 $_from = $_smarty_tpl->smarty->ext->_foreach->init($_smarty_tpl, $_smarty_tpl->tpl_vars['HEADER_SCRIPTS']->value, 'SCRIPT');
 $_smarty_tpl->tpl_vars['SCRIPT']->do_else = true;
 if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['SCRIPT']->value) {

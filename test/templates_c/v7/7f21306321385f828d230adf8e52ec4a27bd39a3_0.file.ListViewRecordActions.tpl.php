@@ -1,11 +1,11 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:49:55
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:25
   from '/var/www/html/layouts/v7/modules/Calendar/ListViewRecordActions.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca65355fef5_74779295',
+  'unifunc' => 'content_697b2389386d56_64596251',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca65355fef5_74779295 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2389386d56_64596251 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <div class="table-actions calendar-table-actions"><?php if (!$_smarty_tpl->tpl_vars['SEARCH_MODE_RESULTS']->value) {?><span class="input" ><input type="checkbox" value="<?php echo $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->getId();?>
 " class="listViewEntriesCheckBox"/></span><?php }
@@ -36,8 +36,8 @@ if ($_smarty_tpl->tpl_vars['MODULE_MODEL']->value->isStarredEnabled()) {?><span>
 }?>"></a></span><?php }
 ob_start();
 echo $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->getEditViewUrl();
-$_prefixVariable1 = ob_get_clean();
-$_smarty_tpl->_assignInScope('EDIT_VIEW_URL', $_prefixVariable1);
+$_prefixVariable7 = ob_get_clean();
+$_smarty_tpl->_assignInScope('EDIT_VIEW_URL', $_prefixVariable7);
 if ((isset($_smarty_tpl->tpl_vars['IS_MODULE_EDITABLE']->value)) && $_smarty_tpl->tpl_vars['IS_MODULE_EDITABLE']->value && $_smarty_tpl->tpl_vars['EDIT_VIEW_URL']->value && $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->get('taskstatus') != vtranslate('Held',$_smarty_tpl->tpl_vars['MODULE']->value) && $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->get('taskstatus') != vtranslate('Completed',$_smarty_tpl->tpl_vars['MODULE']->value)) {?><span class="fa fa-check icon action markAsHeld" title="<?php echo vtranslate('LBL_MARK_AS_HELD',$_smarty_tpl->tpl_vars['MODULE']->value);?>
 " onclick="Calendar_Calendar_Js.markAsHeld('<?php echo $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->getId();?>
 ');"></span><?php }

@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:41:11
+/* Smarty version 4.5.4, created on 2026-01-29 07:36:00
   from '/var/www/html/layouts/v7/modules/Calendar/QuickCreate.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca44703b499_93875989',
+  'unifunc' => 'content_697b0de04fcd40_84242874',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '4c64ff57121dd2faf0da642c556008366dd72f69' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Calendar/QuickCreate.tpl',
-      1 => 1766628497,
+      1 => 1769667767,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca44703b499_93875989 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0de04fcd40_84242874 (Smarty_Internal_Template $_smarty_tpl) {
 $_from = $_smarty_tpl->smarty->ext->_foreach->init($_smarty_tpl, $_smarty_tpl->tpl_vars['SCRIPTS']->value, 'jsModel', false, 'index');
 $_smarty_tpl->tpl_vars['jsModel']->do_else = true;
 if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['index']->value => $_smarty_tpl->tpl_vars['jsModel']->value) {
@@ -59,7 +59,17 @@ $_smarty_tpl->_subTemplateRender(call_user_func_array($_smarty_tpl->registered_p
 " /><?php } else { ?><input type="hidden" name="record" value=""><?php }
 $_smarty_tpl->_assignInScope('RECORD_STRUCTURE_MODEL', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['recordStructureModel']);
 $_smarty_tpl->_assignInScope('RECORD_STRUCTURE', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['recordStructure']);
-$_smarty_tpl->_assignInScope('BLOCK_FIELDS', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['recordStructure']);?> 					<?php $_smarty_tpl->_assignInScope('MODULE_MODEL', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['moduleModel']);?><div class="quickCreateContent calendarQuickCreateContent" style="padding-top:2%;margin-top:5px;"><?php if ($_smarty_tpl->tpl_vars['MODULE']->value == 'Calendar') {
+$_smarty_tpl->_assignInScope('BLOCK_FIELDS', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['recordStructure']);?> 					<?php $_smarty_tpl->_assignInScope('MODULE_MODEL', $_smarty_tpl->tpl_vars['QUICK_CREATE_CONTENTS']->value[$_smarty_tpl->tpl_vars['MODULE']->value]['moduleModel']);
+$_smarty_tpl->_assignInScope('ACTIVITY_TYPE_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['activitytype']);
+$_smarty_tpl->_assignInScope('IS_TASK', false);
+if ($_smarty_tpl->tpl_vars['ACTIVITY_TYPE_MODEL']->value) {
+$_smarty_tpl->_assignInScope('ACTIVITY_TYPE_VALUE', $_smarty_tpl->tpl_vars['ACTIVITY_TYPE_MODEL']->value->get('fieldvalue'));
+if ($_smarty_tpl->tpl_vars['ACTIVITY_TYPE_VALUE']->value == 'Task') {
+$_smarty_tpl->_assignInScope('IS_TASK', true);
+}
+} elseif ($_smarty_tpl->tpl_vars['MODULE']->value == 'Calendar') {
+$_smarty_tpl->_assignInScope('IS_TASK', true);
+}?><div class="quickCreateContent calendarQuickCreateContent <?php if ($_smarty_tpl->tpl_vars['IS_TASK']->value) {?>calendar-task-quickcreate<?php } else { ?>calendar-event-quickcreate<?php }?>" style="padding-top:2%;margin-top:5px;"><?php if ($_smarty_tpl->tpl_vars['MODULE']->value == 'Calendar') {
 if (!empty($_smarty_tpl->tpl_vars['PICKIST_DEPENDENCY_DATASOURCE_TODO']->value)) {?><input type="hidden" name="picklistDependency" value='<?php echo Vtiger_Util_Helper::toSafeHTML($_smarty_tpl->tpl_vars['PICKIST_DEPENDENCY_DATASOURCE_TODO']->value);?>
 ' /><?php }
 } else {
@@ -81,18 +91,28 @@ $_smarty_tpl->_assignInScope('VALIDATOR_NAME', $_smarty_tpl->tpl_vars['VALIDATOR
  = "true"<?php
 }
 $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?>placeholder="<?php echo vtranslate($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('label'),$_smarty_tpl->tpl_vars['MODULE']->value);?>
- *" style="width: 100%;"/></div></div><div class="row" style="padding-top: 2%;"><div class="col-sm-12"><div class="col-sm-5"><?php $_smarty_tpl->_assignInScope('FIELD_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['date_start']);
+ *" style="width: 100%;"/></div></div><?php if ($_smarty_tpl->tpl_vars['IS_TASK']->value) {?><div class="row calendar-task-datetime-section" style="padding-top: 2%;"><div class="col-sm-12"><div class="col-sm-6 calendar-task-date-wrapper"><label class="control-label" style="font-size: 12px; color: #666; margin-bottom: 5px;">Date</label><?php $_smarty_tpl->_assignInScope('FIELD_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['date_start']);
+$_smarty_tpl->_subTemplateRender(vtemplate_path($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getUITypeModel()->getTemplateName(),$_smarty_tpl->tpl_vars['MODULE']->value), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
+?></div></div><div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;"><label class="checkbox-inline"><input type="checkbox" name="allday" id="calendar_allday" value="1" /><strong>All Day</strong></label></div></div><?php } else { ?><div class="row calendar-event-datetime-section" style="padding-top: 2%;"><div class="col-sm-12"><div class="col-sm-5 calendar-date-time-wrapper"><?php $_smarty_tpl->_assignInScope('FIELD_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['date_start']);
 $_smarty_tpl->_subTemplateRender(vtemplate_path($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getUITypeModel()->getTemplateName(),$_smarty_tpl->tpl_vars['MODULE']->value), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
 ?></div><div class="muted col-sm-1" style="line-height: 67px;left: 20px; padding-right: 7%;"><?php echo vtranslate('LBL_TO',$_smarty_tpl->tpl_vars['MODULE']->value);?>
-</div><div class="col-sm-5" <?php if ($_smarty_tpl->tpl_vars['MODULE']->value == 'Calendar') {?>style="margin-top: 4%;"<?php }?>><?php $_smarty_tpl->_assignInScope('FIELD_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['due_date']);
+</div><div class="col-sm-5 calendar-date-time-wrapper"><?php $_smarty_tpl->_assignInScope('FIELD_MODEL', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['due_date']);
 $_smarty_tpl->_subTemplateRender(vtemplate_path($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getUITypeModel()->getTemplateName(),$_smarty_tpl->tpl_vars['MODULE']->value), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
-?></div></div></div><div class="container-fluid paddingTop15"><table class="massEditTable table no-border"><tr><?php
+?></div></div><div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;"><label class="checkbox-inline"><input type="checkbox" name="allday" id="calendar_allday" value="1" /><strong>All Day</strong></label><span id="calendar-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span></div></div><?php }?><div class="container-fluid paddingTop15"><table class="massEditTable table no-border"><tr><?php
 $_from = $_smarty_tpl->smarty->ext->_foreach->init($_smarty_tpl, $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value, 'FIELD_MODEL', false, 'FIELD_NAME', 'blockfields', array (
 ));
 $_smarty_tpl->tpl_vars['FIELD_MODEL']->do_else = true;
 if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['FIELD_NAME']->value => $_smarty_tpl->tpl_vars['FIELD_MODEL']->value) {
 $_smarty_tpl->tpl_vars['FIELD_MODEL']->do_else = false;
-if ($_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'subject' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'date_start' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'due_date' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'time_start') {?></tr><?php continue 1;
+if ($_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'subject' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'date_start') {?></tr><?php continue 1;
+}
+if ($_smarty_tpl->tpl_vars['IS_TASK']->value) {
+if ($_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'time_start' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'time_end' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'due_date' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'location' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'meeting_link') {?></tr><?php continue 1;
+}
+} else {
+if ($_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'time_start') {?></tr><?php continue 1;
+}
+if ($_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'time_end' || $_smarty_tpl->tpl_vars['FIELD_NAME']->value == 'due_date') {?></tr><tr><?php } else { ?></tr><tr><?php }
 }
 $_smarty_tpl->_assignInScope('isReferenceField', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldDataType());
 $_smarty_tpl->_assignInScope('referenceList', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getReferenceList());
@@ -125,7 +145,10 @@ echo vtranslate($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('label'),$_sma
 if ($_smarty_tpl->tpl_vars['isReferenceField']->value != "reference") {?></label><?php }?></td><td class="fieldValue col-lg-9" <?php if ($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('uitype') == '19') {?> colspan="3" <?php $_smarty_tpl->_assignInScope('COUNTER', $_smarty_tpl->tpl_vars['COUNTER']->value+1);?> <?php }?>><?php $_smarty_tpl->_subTemplateRender(vtemplate_path($_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getUITypeModel()->getTemplateName(),$_smarty_tpl->tpl_vars['MODULE']->value), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
 ?></td><?php
 }
-$_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?></tr></table></div></div></div><div class="modal-footer"><center><?php if ($_smarty_tpl->tpl_vars['BUTTON_NAME']->value != null) {
+$_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?></tr></table></div><div class="calendar-repeat-section" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;"><div class="form-group" style="margin-bottom: 0;"><label class="control-label" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Repeat</label><select name="calendar_repeat_type" id="calendar_repeat_type" class="form-control" style="font-size: 13px;"><option value="">Does not repeat</option><option value="Daily">Daily</option><option value="Weekly">Weekly</option><option value="Monthly">Monthly</option><option value="Yearly">Yearly</option></select><input type="hidden" name="recurringtype" id="calendar_recurringtype_hidden" value="" /></div></div><?php if ($_smarty_tpl->tpl_vars['IS_TASK']->value) {?><div class="calendar-task-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;"><h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5><div class="form-group" style="margin-bottom: 10px;"><label class="control-label" style="font-size: 12px;">Add deadline</label><?php $_smarty_tpl->_assignInScope('DEADLINE_FIELD', $_smarty_tpl->tpl_vars['RECORD_STRUCTURE']->value['due_date']);
+if ($_smarty_tpl->tpl_vars['DEADLINE_FIELD']->value) {?><input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="<?php echo $_smarty_tpl->tpl_vars['USER_MODEL']->value->get('date_format');?>
+" /><?php } else { ?><input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="<?php echo $_smarty_tpl->tpl_vars['USER_MODEL']->value->get('date_format');?>
+" /><?php }?></div><div class="form-group" style="margin-bottom: 0;"><label class="control-label" style="font-size: 12px;">Description</label><textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea></div></div><?php } else { ?><div class="calendar-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;"><h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5><div class="form-group" style="margin-bottom: 10px;"><label class="control-label" style="font-size: 12px;">Location</label><input type="text" name="location" class="form-control" placeholder="Add location" style="font-size: 13px;" /></div><div class="form-group" style="margin-bottom: 10px;"><label class="control-label" style="font-size: 12px;">Meeting Link</label><input type="url" name="meeting_link" class="form-control" placeholder="https://meet.google.com/..." style="font-size: 13px;" /></div><div class="form-group" style="margin-bottom: 0;"><label class="control-label" style="font-size: 12px;">Description</label><textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea></div></div><?php }?></div></div><div class="modal-footer"><center><?php if ($_smarty_tpl->tpl_vars['BUTTON_NAME']->value != null) {
 $_smarty_tpl->_assignInScope('BUTTON_LABEL', $_smarty_tpl->tpl_vars['BUTTON_NAME']->value);
 } else {
 ob_start();

@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:09:43
+/* Smarty version 4.5.4, created on 2026-01-29 07:34:59
   from '/var/www/html/layouts/v7/modules/Vtiger/Footer.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9ce7094036_40378182',
+  'unifunc' => 'content_697b0da380dfd7_90493951',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'a87221a1af19a567024a97104b2605f2b2c4fada' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/Footer.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9ce7094036_40378182 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da380dfd7_90493951 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <footer class="app-footer">
 	<p>

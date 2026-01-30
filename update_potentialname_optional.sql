@@ -20,3 +20,4 @@ FROM vtiger_field
 WHERE fieldname = 'potentialname' 
 AND tabid = (SELECT tabid FROM vtiger_tab WHERE name = 'Potentials');
 
+

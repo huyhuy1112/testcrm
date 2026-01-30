@@ -41,8 +41,20 @@
 					{assign var="RECORD_STRUCTURE" value=$QUICK_CREATE_CONTENTS[$MODULE]['recordStructure']}
 					{assign var="BLOCK_FIELDS" value=$QUICK_CREATE_CONTENTS[$MODULE]['recordStructure']} {* Dependency in Time UiType template *}
 					{assign var="MODULE_MODEL" value=$QUICK_CREATE_CONTENTS[$MODULE]['moduleModel']}
+					{* Detect Task vs Event *}
+					{assign var="ACTIVITY_TYPE_MODEL" value=$RECORD_STRUCTURE['activitytype']}
+					{assign var="IS_TASK" value=false}
+					{if $ACTIVITY_TYPE_MODEL}
+						{assign var="ACTIVITY_TYPE_VALUE" value=$ACTIVITY_TYPE_MODEL->get('fieldvalue')}
+						{if $ACTIVITY_TYPE_VALUE eq 'Task'}
+							{assign var="IS_TASK" value=true}
+						{/if}
+					{elseif $MODULE eq 'Calendar'}
+						{* Calendar module defaults to Task if activitytype not set *}
+						{assign var="IS_TASK" value=true}
+					{/if}
 
-					<div class="quickCreateContent calendarQuickCreateContent" style="padding-top:2%;margin-top:5px;">
+					<div class="quickCreateContent calendarQuickCreateContent {if $IS_TASK}calendar-task-quickcreate{else}calendar-event-quickcreate{/if}" style="padding-top:2%;margin-top:5px;">
 						{if $MODULE eq 'Calendar'}
 							{if !empty($PICKIST_DEPENDENCY_DATASOURCE_TODO)}
 								<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE_TODO)}' />
@@ -69,27 +81,76 @@
 							</div>
 						</div>
 
-						<div class="row" style="padding-top: 2%;">
-							<div class="col-sm-12">
-								<div class="col-sm-5">
-									{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
-									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+						{* Date & Time Section - Different layout for Task vs Event *}
+						{if $IS_TASK}
+							{* Task Layout: Single Date picker + All Day checkbox (NO From/To time) *}
+							<div class="row calendar-task-datetime-section" style="padding-top: 2%;">
+								<div class="col-sm-12">
+									<div class="col-sm-6 calendar-task-date-wrapper">
+										<label class="control-label" style="font-size: 12px; color: #666; margin-bottom: 5px;">Date</label>
+										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
+										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									</div>
 								</div>
-								<div class="muted col-sm-1" style="line-height: 67px;left: 20px; padding-right: 7%;">
-									{vtranslate('LBL_TO',$MODULE)}
-								</div>
-								<div class="col-sm-5" {if $MODULE eq 'Calendar'}style="margin-top: 4%;"{/if}>
-									{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
-									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+								{* All Day Toggle for Task *}
+								<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
+									<label class="checkbox-inline">
+										<input type="checkbox" name="allday" id="calendar_allday" value="1" />
+										<strong>All Day</strong>
+									</label>
 								</div>
 							</div>
-						</div>
+						{else}
+							{* Event Layout: Keep existing layout *}
+							<div class="row calendar-event-datetime-section" style="padding-top: 2%;">
+								<div class="col-sm-12">
+									<div class="col-sm-5 calendar-date-time-wrapper">
+										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
+										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									</div>
+									<div class="muted col-sm-1" style="line-height: 67px;left: 20px; padding-right: 7%;">
+										{vtranslate('LBL_TO',$MODULE)}
+									</div>
+									<div class="col-sm-5 calendar-date-time-wrapper">
+										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
+										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									</div>
+								</div>
+								{* All Day Toggle and Duration Display for Event *}
+								<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
+									<label class="checkbox-inline">
+										<input type="checkbox" name="allday" id="calendar_allday" value="1" />
+										<strong>All Day</strong>
+									</label>
+									<span id="calendar-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span>
+								</div>
+							</div>
+						{/if}
 						<div class="container-fluid paddingTop15">
 							<table class="massEditTable table no-border">
 								<tr>
 									{foreach key=FIELD_NAME item=FIELD_MODEL from=$RECORD_STRUCTURE name=blockfields}
-									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'time_start'}
+									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start'}
 								</tr>{continue}
+								{/if}
+								{* For Task: Hide time_start, time_end, due_date (we show deadline separately), Location, Meeting link *}
+								{* For Event: Hide time_start (it's shown with date_start), keep due_date in loop *}
+								{if $IS_TASK}
+									{if $FIELD_NAME eq 'time_start' || $FIELD_NAME eq 'time_end' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'location' || $FIELD_NAME eq 'meeting_link'}
+								</tr>{continue}
+									{/if}
+								{else}
+									{* For Event: Hide time_start from RECORD_STRUCTURE loop (it's shown with date_start) *}
+									{if $FIELD_NAME eq 'time_start'}
+								</tr>{continue}
+									{/if}
+									{* For Event: Show time_end and due_date fields normally *}
+									{if $FIELD_NAME eq 'time_end' || $FIELD_NAME eq 'due_date'}
+								</tr>
+								<tr>
+								{else}
+								</tr><tr>
+								{/if}
 								{/if}
 								{assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
 								{assign var="referenceList" value=$FIELD_MODEL->getReferenceList()}
@@ -132,6 +193,61 @@
 								</tr>
 							</table>
 						</div>
+						
+						{* Repeat Section (UI Only - Phase 1) *}
+						<div class="calendar-repeat-section" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="control-label" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Repeat</label>
+								<select name="calendar_repeat_type" id="calendar_repeat_type" class="form-control" style="font-size: 13px;">
+									<option value="">Does not repeat</option>
+									<option value="Daily">Daily</option>
+									<option value="Weekly">Weekly</option>
+									<option value="Monthly">Monthly</option>
+									<option value="Yearly">Yearly</option>
+								</select>
+								<input type="hidden" name="recurringtype" id="calendar_recurringtype_hidden" value="" />
+							</div>
+						</div>
+						
+						{* Optional Fields Section - Different for Task vs Event *}
+						{if $IS_TASK}
+							{* Task: Deadline field + Description only *}
+							<div class="calendar-task-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
+								<h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5>
+								<div class="form-group" style="margin-bottom: 10px;">
+									<label class="control-label" style="font-size: 12px;">Add deadline</label>
+									{* Use existing due_date field if available, else create UI-only field *}
+									{assign var="DEADLINE_FIELD" value=$RECORD_STRUCTURE['due_date']}
+									{if $DEADLINE_FIELD}
+										{* due_date already exists, will be rendered in RECORD_STRUCTURE loop *}
+										<input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="{$USER_MODEL->get('date_format')}" />
+									{else}
+										<input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="{$USER_MODEL->get('date_format')}" />
+									{/if}
+								</div>
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="control-label" style="font-size: 12px;">Description</label>
+									<textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea>
+								</div>
+							</div>
+						{else}
+							{* Event: Location, Meeting Link, Description *}
+							<div class="calendar-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
+								<h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5>
+								<div class="form-group" style="margin-bottom: 10px;">
+									<label class="control-label" style="font-size: 12px;">Location</label>
+									<input type="text" name="location" class="form-control" placeholder="Add location" style="font-size: 13px;" />
+								</div>
+								<div class="form-group" style="margin-bottom: 10px;">
+									<label class="control-label" style="font-size: 12px;">Meeting Link</label>
+									<input type="url" name="meeting_link" class="form-control" placeholder="https://meet.google.com/..." style="font-size: 13px;" />
+								</div>
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="control-label" style="font-size: 12px;">Description</label>
+									<textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea>
+								</div>
+							</div>
+						{/if}
 					</div>
 				</div>
 				<div class="modal-footer">

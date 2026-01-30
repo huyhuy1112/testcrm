@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:49:11
+/* Smarty version 4.5.4, created on 2026-01-29 09:52:53
   from '/var/www/html/layouts/v7/modules/Reports/ModuleHeader.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca627b56a17_91337112',
+  'unifunc' => 'content_697b2df5008096_65854386',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'c39031bc696d418c150985966d40996efaf5011a' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Reports/ModuleHeader.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca627b56a17_91337112 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2df5008096_65854386 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <div class="col-sm-12 col-xs-12 module-action-bar clearfix coloredBorderTop"><div class="module-action-content clearfix"><span class="col-lg-7 col-md-7"><span><?php $_smarty_tpl->_assignInScope('MODULE_MODEL', Vtiger_Module_Model::getInstance($_smarty_tpl->tpl_vars['MODULE']->value));
 $_smarty_tpl->_assignInScope('DEFAULT_FILTER_ID', $_smarty_tpl->tpl_vars['MODULE_MODEL']->value->getDefaultCustomFilter());

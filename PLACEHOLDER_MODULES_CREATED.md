@@ -97,3 +97,4 @@ DELETE FROM vtiger_tab WHERE tabid IN (50, 51);
 rm -rf modules/Evaluate modules/Plans
 ```
 
+

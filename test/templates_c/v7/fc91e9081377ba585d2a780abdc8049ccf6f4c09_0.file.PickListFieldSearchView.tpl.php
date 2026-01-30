@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:19
+/* Smarty version 4.5.4, created on 2026-01-30 02:51:57
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/PickListFieldSearchView.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fdbc536f8_65838776',
+  'unifunc' => 'content_697c1ccd9d62f3_14311705',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'fc91e9081377ba585d2a780abdc8049ccf6f4c09' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/PickListFieldSearchView.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9fdbc536f8_65838776 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c1ccd9d62f3_14311705 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('FIELD_INFO', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldInfo());
 $_smarty_tpl->_assignInScope('PICKLIST_VALUES', $_smarty_tpl->tpl_vars['FIELD_INFO']->value['picklistvalues']);
 $_smarty_tpl->_assignInScope('FIELD_INFO', Vtiger_Util_Helper::toSafeHTML(Zend_Json::encode($_smarty_tpl->tpl_vars['FIELD_INFO']->value)));

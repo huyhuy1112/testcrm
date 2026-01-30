@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:22
+/* Smarty version 4.5.4, created on 2026-01-30 06:46:16
   from '/var/www/html/layouts/v7/modules/Vtiger/IndexViewPreProcess.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fde378ba1_65567800',
+  'unifunc' => 'content_697c53b8496875_68471554',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'bd56e0c748d9c20653c76c25397ec5224ea88d7a' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/IndexViewPreProcess.tpl',
-      1 => 1766628497,
+      1 => 1769748065,
       2 => 'file',
     ),
   ),
@@ -21,11 +21,12 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
     'file:modules/Vtiger/partials/Topbar.tpl' => 1,
   ),
 ),false)) {
-function content_694c9fde378ba1_65567800 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c53b8496875_68471554 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_subTemplateRender("file:modules/Vtiger/partials/Topbar.tpl", $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, false);
 ?>
 
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-<?php echo $_smarty_tpl->tpl_vars['SELECTED_MENU_CATEGORY']->value;?>
+">
     <div class="row">
         <?php $_smarty_tpl->_subTemplateRender(call_user_func_array($_smarty_tpl->registered_plugins[ 'modifier' ][ 'vtemplate_path' ][ 0 ], array( "partials/SidebarHeader.tpl",$_smarty_tpl->tpl_vars['MODULE']->value )), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
 ?>

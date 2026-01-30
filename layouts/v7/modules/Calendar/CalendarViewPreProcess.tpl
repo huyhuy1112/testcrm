@@ -11,13 +11,12 @@
 -->*}
 {include file="modules/Vtiger/partials/Topbar.tpl"}
 {strip}
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-{$SELECTED_MENU_CATEGORY}">
 	<div class="row">
 		{include file="modules/Calendar/partials/SidebarHeader.tpl"}
 		{include file="CalendarHeader.tpl"|vtemplate_path:$MODULE}
 	</div>
 </div>
-</nav>
 	<div id='overlayPageContent' class='fade modal overlayPageContent content-area overlay-container-60' tabindex='-1' role='dialog' aria-hidden='true'>
 		<div class="data">
 		</div>
@@ -27,7 +26,7 @@
 	<div class="main-container">
 		{assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
 		<div id="modnavigator" class="module-nav calendar-navigator clearfix">
-			<div class="hidden-xs hidden-sm mod-switcher-container">
+			<div class="mod-switcher-container">
 				{include file="modules/Calendar/partials/Sidebar.tpl"}
 			</div>
 		</div>

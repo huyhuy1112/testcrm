@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2026-01-03 03:49:42
+/* Smarty version 4.5.4, created on 2026-01-29 08:32:38
   from '/var/www/html/layouts/v7/modules/Settings/Vtiger/SettingsShortCut.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_695891d658ff37_11917537',
+  'unifunc' => 'content_697b1b26627a13_18593638',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '51cf4e56633cbe8c1275a7a2d9009737ea33407e' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Settings/Vtiger/SettingsShortCut.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_695891d658ff37_11917537 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b1b26627a13_18593638 (Smarty_Internal_Template $_smarty_tpl) {
 ?><span id="shortcut_<?php echo $_smarty_tpl->tpl_vars['SETTINGS_SHORTCUT']->value->getId();?>
 " data-actionurl="<?php echo $_smarty_tpl->tpl_vars['SETTINGS_SHORTCUT']->value->getPinUnpinActionUrl();?>
 " class="col-lg-3 contentsBackground well cursorPointer moduleBlock" data-url="<?php echo $_smarty_tpl->tpl_vars['SETTINGS_SHORTCUT']->value->getUrl();?>

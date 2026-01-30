@@ -11,7 +11,7 @@
 {* START YOUR IMPLEMENTATION FROM BELOW. Use {debug} for information *}
 {include file="modules/Vtiger/partials/Topbar.tpl"}
 
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-{$SELECTED_MENU_CATEGORY}">
     <div class="row">
         {include file="partials/SidebarHeader.tpl"|vtemplate_path:$MODULE}
         {include file="ModuleHeader.tpl"|vtemplate_path:$MODULE}
@@ -27,7 +27,7 @@
 <div class="container-fluid main-container">
     <div class="row">
         <div id="modnavigator" class="module-nav detailViewModNavigator clearfix">
-            <div class="hidden-xs hidden-sm mod-switcher-container">
+            <div class="mod-switcher-container">
                 {include file="partials/Menubar.tpl"|vtemplate_path:$MODULE}
             </div>
         </div>

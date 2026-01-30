@@ -30,6 +30,144 @@ body{
     font-family: 'Lato', 'Open-sans', sans-serif; 
 }
 
+/* Tránh scroll ngang toàn trang (bớt cảm giác vướng) - không áp dụng Calendar */
+body:not([data-module="Calendar"]) {
+    overflow-x: hidden !important;
+}
+html:not(:has(body[data-module="Calendar"])) {
+    overflow-x: hidden !important;
+}
+
+/* ========== Schedule (Calendar) - CẢ TRANG SCROLL, BỎ BLOCK ========== */
+/* Dùng cả data-module và :has() để chắc chắn áp dụng (kể cả khi load pjax) */
+body[data-module="Calendar"],
+body:has(.CalendarViewPageDiv) {
+    overflow-x: hidden !important;
+    overflow-y: scroll !important;
+    min-height: 100vh !important;
+    height: auto !important;
+    max-height: none !important;
+}
+
+/* html cũng cho phép scroll (trình duyệt hỗ trợ :has()) */
+html:has(body[data-module="Calendar"]),
+html:has(.CalendarViewPageDiv) {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    height: auto !important;
+    min-height: 100% !important;
+}
+
+/* Header không fixed: cuộn theo trang */
+body[data-module="Calendar"] .navbar-fixed-top,
+body[data-module="Calendar"] nav.app-fixed-navbar,
+body[data-module="Calendar"] .app-fixed-navbar,
+body:has(.CalendarViewPageDiv) .navbar-fixed-top,
+body:has(.CalendarViewPageDiv) nav.app-fixed-navbar {
+    position: relative !important;
+    top: auto !important;
+}
+
+body[data-module="Calendar"] #page,
+body:has(.CalendarViewPageDiv) #page {
+    padding-top: 0 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+/* Wrapper chính (skin có overflow-y: auto ở đây → bỏ để scroll về body) */
+body[data-module="Calendar"] #content-wrapper,
+body[data-module="Calendar"] #sidebar-wrapper,
+body:has(.CalendarViewPageDiv) #content-wrapper,
+body:has(.CalendarViewPageDiv) #sidebar-wrapper {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+/* Mọi wrapper: không overflow hidden, không ép height */
+body[data-module="Calendar"] .main-container,
+body[data-module="Calendar"] .viewContent,
+body[data-module="Calendar"] .content-area,
+body[data-module="Calendar"] .CalendarViewPageDiv,
+body:has(.CalendarViewPageDiv) .main-container,
+body:has(.CalendarViewPageDiv) .viewContent,
+body:has(.CalendarViewPageDiv) .content-area,
+body:has(.CalendarViewPageDiv) .CalendarViewPageDiv {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+body[data-module="Calendar"] .main-container,
+body:has(.CalendarViewPageDiv) .main-container {
+    min-height: 0 !important;
+}
+
+body[data-module="Calendar"] .CalendarViewPageDiv,
+body:has(.CalendarViewPageDiv) .CalendarViewPageDiv {
+    padding-left: 15px;
+}
+
+/* Khung lịch */
+body[data-module="Calendar"] #mycalendar,
+body[data-module="Calendar"] .calendarview,
+body:has(.CalendarViewPageDiv) #mycalendar,
+body:has(.CalendarViewPageDiv) .calendarview {
+    min-height: 400px;
+    height: auto !important;
+}
+
+body[data-module="Calendar"] .fc,
+body:has(.CalendarViewPageDiv) .fc {
+    min-height: 400px;
+}
+
+/* Week/Day: cuộn bên trong */
+body[data-module="Calendar"] .fc-scroller,
+body[data-module="Calendar"] .fc-time-grid-container,
+body[data-module="Calendar"] .fc-scroller.fc-time-grid-container,
+body[data-module="Calendar"] .fc-agenda-body .fc-scroller,
+body:has(.CalendarViewPageDiv) .fc-scroller,
+body:has(.CalendarViewPageDiv) .fc-time-grid-container {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    max-height: calc(100vh - 220px) !important;
+    min-height: 360px !important;
+}
+
+/* Scrollbar */
+body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar,
+body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar,
+body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar,
+body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar {
+    width: 10px;
+}
+body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-track,
+body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-track,
+body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-track,
+body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-thumb,
+body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-thumb,
+body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-thumb,
+body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-thumb:hover,
+body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-thumb:hover,
+body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-thumb:hover,
+body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 .app-fixed-navbar{
     background: #fff;
     border-bottom: 0;
@@ -70,7 +208,7 @@ body{
     }
     .main-container .module-nav{
         display: inline-block;
-        width: 300px;
+        width: 180px;
         z-index: 2;
         height:2px;
         position: absolute;
@@ -227,11 +365,17 @@ body{
     background: #2ecc71 !important;
 }
 
+/* App MANAGEMENT */
+.app-MANAGEMENT{
+    background: #1a73e8 !important;
+}
+
 .module-nav .mod-switcher-container{
     display: inline-block;
-    width: 300px;
+    width: 56px !important;
+    max-width: 56px;
     z-index: 2;
-    background: #596875;
+    background: #2c3e50;
 }
 
 .module-action-bar{
@@ -251,67 +395,149 @@ body{
     font-size: 14px;
     vertical-align: middle;
 }
+/* Menu hamburger: cố định khi kéo xuống (fixed), bỏ ô trống chặn ở dưới */
 .app-menu{
-    width: 100%;
-    padding: 20px 0;
-    color: #555;
-    position: absolute;
+    width: 280px !important;
+    max-width: 300px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 90px) !important;
+    padding: 12px 0 12px 0 !important;
+    padding-bottom: 12px !important;
+    color: #fff;
+    position: fixed !important;
     border: 0;
-    box-shadow: 0px 5px 14px #555;
-    background: #2c3b49;
+    box-shadow: 6px 12px 28px rgba(0,0,0,0.3);
+    background: linear-gradient(180deg, #2d3e50 0%, #1a252f 100%);
     overflow-y: auto;
     z-index: 10001;
+    border-radius: 0 10px 10px 0;
+    border-left: 4px solid #3498db;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+.app-menu:hover{
+    box-shadow: 8px 16px 32px rgba(0,0,0,0.35);
 }
 .app-menu hr{
-    border-top: 1px solid #596875;
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(52,152,219,0.4), transparent);
+    margin: 8px 12px;
+}
+.app-menu .container-fluid,
+.app-menu .app-list {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+.app-menu .app-list-divider {
+    margin-bottom: 4px !important;
 }
 
 .menu-item{
-    padding: 20px 5px;
-    margin: 10px;
-    background: #ddd;
-    text-align: center;
+    padding: 12px 10px;
+    margin: 5px 8px;
+    border-radius: 8px;
+    text-align: left;
     cursor: pointer;
+    transition: all 0.22s ease;
 }
 .app-item{
-    padding: 60px 5px;
-    font-size: 1.8em;
-    color: #fff;
-    text-shadow: 0 0 1px #999;
+    padding: 14px 12px;
+    font-size: 1.05em;
+    color: #ecf0f1;
     cursor: pointer;
+    border-left: 4px solid transparent;
+    border-radius: 6px;
+    transition: all 0.22s ease;
+}
+.app-item:hover{
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    transform: translateX(3px);
 }
 .app-item div{
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+    transition: all 0.22s ease;
 }
 .app-item:hover div{
-    font-size: 1em;
-    -ms-transform: translateY(30px) scale(0.7);
-    -moz-transform: translateY(30px) scale(0.7);
-    -webkit-transform: translateY(30px) scale(0.7);
-    transform: translateY(30px) scale(0.7);
-    -webkit-transition: all 0.25s ease-in;
-    transition: all 0.25s ease-in;
+    transform: translateX(4px);
 }
-.app-item .fa{
-    font-size: 1.5em;
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+.app-item .fa, .app-item .app-icon-list{
+    font-size: 1.25em;
+    margin-right: 10px;
+    transition: transform 0.22s ease;
 }
-.app-item:hover .fa{
-    -webkit-transform: scale(3);
-    -moz-transform: scale(3);
-    -ms-transform: scale(3);
-    transform: scale(3);
-    opacity: 1;
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+.app-item:hover .fa, .app-item:hover .app-icon-list{
+    transform: scale(1.15);
+}
+
+/* Màu từng nhóm app menu */
+.app-item-color-MARKETING{ border-left-color: #3498db !important; }
+.app-item-color-MARKETING:hover{ background: rgba(52,152,219,0.2) !important; }
+.app-item-color-SALES{ border-left-color: #e74c3c !important; }
+.app-item-color-SALES:hover{ background: rgba(231,76,60,0.2) !important; }
+.app-item-color-INVENTORY{ border-left-color: #e67e22 !important; }
+.app-item-color-INVENTORY:hover{ background: rgba(230,126,34,0.2) !important; }
+.app-item-color-SUPPORT{ border-left-color: #9b59b6 !important; }
+.app-item-color-SUPPORT:hover{ background: rgba(155,89,182,0.2) !important; }
+.app-item-color-MANAGEMENT{ border-left-color: #1abc9c !important; }
+.app-item-color-MANAGEMENT:hover{ background: rgba(26,188,156,0.2) !important; }
+.app-item-color-TOOLS{ border-left-color: #2ecc71 !important; }
+.app-item-color-TOOLS:hover{ background: rgba(46,204,113,0.2) !important; }
+.app-item-misc{ border-left-color: #95a5a6 !important; }
+.app-item-misc:hover{ background: rgba(149,165,166,0.2) !important; }
+.app-list > .menu-item.app-item:first-child{ border-left: 4px solid #f39c12 !important; }
+.app-list > .menu-item.app-item:first-child:hover{ background: rgba(243,156,18,0.2) !important; }
+
+/* Menu con MANAGEMENT và các app: chỉ cần hiện ra khi hover/click */
+.app-menu .app-modules-dropdown-container {
+    position: static;
+}
+/* Ghi đè Bootstrap .dropdown-menu { display: none } - bắt buộc hiện khi .open hoặc :hover */
+.app-menu .app-modules-dropdown-container.open > .app-modules-dropdown,
+.app-menu .app-modules-dropdown-container:hover > .app-modules-dropdown,
+.app-menu .app-modules-dropdown-container.open .app-modules-dropdown,
+.app-menu .app-modules-dropdown-container:hover .app-modules-dropdown {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10002 !important;
+    position: fixed !important;
+    left: 280px !important;
+    top: 95px !important;
+}
+.app-menu ul.dropdown-menu.app-modules-dropdown {
+    display: none;
+}
+.app-menu .app-modules-dropdown-container.open ul.app-modules-dropdown,
+.app-menu .app-modules-dropdown-container:hover ul.app-modules-dropdown {
+    display: block !important;
+}
+/* Menu con: nội dung hiện rõ, không chỉ thanh scroll */
+.app-menu .app-modules-dropdown {
+    pointer-events: auto !important;
+    min-width: 260px !important;
+    width: 260px !important;
+    height: auto !important;
+    max-height: calc(100vh - 120px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 8px 0 !important;
+    list-style: none;
+    background: #2C3B49 !important;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 4px 8px 20px rgba(0,0,0,0.25);
+}
+.app-menu .app-modules-dropdown li {
+    display: block !important;
+}
+.app-menu .app-modules-dropdown li a {
+    display: block !important;
+    padding: 10px 16px !important;
+    font-size: 1em !important;
+    color: #fff !important;
+}
+.app-menu {
+    overflow-x: visible !important;
 }
 
 .menu-toggle{
@@ -375,17 +601,69 @@ body{
     overflow-y: auto;
 }
 
+/* Sidebar: chỉ icon, không màu mè - rộng vừa icon (56px) */
 #sidebar{
-    width:300px;
+    width: 56px;
+    min-width: 56px;
+}
+.main-container .module-nav,
+.main-container .mod-switcher-container {
+    width: 56px !important;
+    max-width: 56px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+/* Tránh mục cuối (Project...) bị chặn: padding đáy + cho phép scroll */
+.module-nav .mod-switcher-container,
+#modnavigator .mod-switcher-container {
+    padding-bottom: 20px !important;
+    min-height: 0 !important;
+}
+.main-container .sidebar-essentials {
+    left: 56px !important;
+}
+.main-container .content-area {
+    padding-left: 296px !important;
+    position: relative !important;
+    z-index: 2 !important;
+    min-height: 200px !important;
+}
+.main-container .settingsPageDiv {
+    padding-left: 296px !important;
+}
+/* Tránh trang bị chặn: nội dung luôn trên, không bị đè bởi sidebar/footer */
+.viewContent .content-area,
+.listViewPageDiv.content-area,
+.detailViewContent .content-area {
+    position: relative !important;
+    z-index: 2 !important;
 }
 
+/* Sidebar (Management, Project, Teams...): luôn hiện, không mất */
+#sidebar,
+#sidebar .module-nav,
+#modnavigator,
+.main-container .module-nav,
+.main-container #modnavigator,
+.main-container .mod-switcher-container {
+    display: block !important;
+    visibility: visible !important;
+}
 #sidebar .module-nav {
-    display: inline-block;
-    background: #fff;
-    width: 300px;
+    display: block !important;
+    background: #2c3e50;
+    width: 56px !important;
+    min-width: 56px !important;
     z-index: 2;
     position: relative;
 }
+/* Sidebar: scrollbar mỏng, bớt khúc dư */
+#sidebar::-webkit-scrollbar,
+.module-nav::-webkit-scrollbar { width: 6px; }
+#sidebar::-webkit-scrollbar-track,
+.module-nav::-webkit-scrollbar-track { background: transparent; }
+#sidebar::-webkit-scrollbar-thumb,
+.module-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 3px; }
 
 .module-nav .toggled{
     width : 0px;
@@ -448,11 +726,18 @@ body{
 .module-nav{
     background: #fff; 
 }
-.module-nav .modules-menu{
-    display: inline-block;
-    width: 32%;
-    float:left;
-    background: #2c3b49;
+/* Sidebar Management (Schedule, Teams, Report, Project...): luôn hiện, chỉ icon */
+.module-nav .modules-menu,
+#modnavigator .modules-menu,
+#modules-menu {
+    display: block !important;
+    visibility: visible !important;
+    width: 100%;
+    float: left;
+    background: #2c3e50;
+    padding-bottom: 24px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 }
 .modules-menu ul{
     list-style: none;
@@ -460,23 +745,116 @@ body{
     padding-left: 0;
 }
 .modules-menu ul li a{
-    color: #fff;
-    padding: 20px 5px;
+    color: #ecf0f1;
+    padding: 12px 10px;
     text-align: center;
     display: block;
     z-index: 1;
-    word-break: break-word;
-    font-size: 12px;
+    border-left: none !important;
+    transition: background 0.15s ease;
 }
-.modules-menu ul li:hover, 
+.modules-menu ul li a span{
+    display: none !important;
+}
+.modules-menu ul li a:hover{
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+}
+.modules-menu ul li:hover,
 .modules-menu ul li.active{
-    background: #596875;
+    background: rgba(255,255,255,0.06);
+}
+.modules-menu ul li.active a{
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-weight: normal;
 }
 .module-nav .module-filters{
     display: inline-block;
     width: 68%;
     float:left;
-    background: #596875;
+    background: linear-gradient(180deg, #3d5a80 0%, #293241 100%);
+    border-left: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Sidebar Calendar: cùng style chỉ icon, không màu mè */
+body[data-module="Calendar"] .calendar-navigator .mod-switcher-container,
+body[data-module="Calendar"] .main-container .calendar-navigator.module-nav {
+    width: 56px !important;
+}
+body[data-module="Calendar"] .mod-switcher-container {
+    background: #2c3e50 !important;
+}
+body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a span { display: none !important; }
+body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a { border-left: none !important; text-align: center; }
+body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a:hover { background: rgba(255,255,255,0.08) !important; }
+body[data-module="Calendar"] .calendar-navigator .modules-menu ul li.active a { background: rgba(255,255,255,0.1) !important; font-weight: normal !important; }
+body[data-module="Calendar"] #sidebar-essentials.sidebar-essentials {
+    width: 170px !important;
+    min-width: 170px;
+    max-width: 170px;
+    background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%) !important;
+    border-left: 1px solid rgba(255,255,255,0.06);
+}
+body[data-module="Calendar"] .calendar-sidebar-tab .sidebar-widget-header,
+body[data-module="Calendar"] .sidebar-widget-header {
+    background: rgba(52,152,219,0.2) !important;
+    color: #ecf0f1 !important;
+    border-radius: 4px;
+    margin: 4px 6px;
+    padding: 8px 10px !important;
+}
+body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a {
+    padding: 10px 10px;
+    font-size: 11px;
+}
+
+/* Trang Teams: sidebar chỉ icon, không che nút */
+body[data-module="Teams"] .main-container .module-nav,
+body[data-module="Teams"] .main-container #modnavigator,
+body[data-module="Teams"] .main-container .mod-switcher-container {
+    width: 56px !important;
+    max-width: 56px !important;
+}
+body[data-module="Teams"] .main-container #sidebar-essentials.sidebar-essentials {
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+body[data-module="Teams"] .main-container .listViewPageDiv.content-area,
+body[data-module="Teams"] .main-container .content-area,
+body[data-module="Teams"] #listViewContent.listViewPageDiv {
+    padding-left: 72px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    min-width: 0 !important;
+}
+body[data-module="Teams"] .teams-page-container {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    box-sizing: border-box !important;
+}
+body[data-module="Teams"] .teams-modern-header,
+body[data-module="Teams"] .teams-header-content {
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    max-width: 100% !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+body[data-module="Teams"] .teams-header-right {
+    margin-left: auto !important;
+    flex-shrink: 0 !important;
+}
+body[data-module="Teams"] .teams-action-btn {
+    position: relative !important;
+    z-index: 3 !important;
 }
 
 

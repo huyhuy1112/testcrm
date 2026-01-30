@@ -27,7 +27,7 @@
 <div class="main-container main-container-{$MODULE}">
 		{assign var=LEFTPANELHIDE value=$CURRENT_USER_MODEL->get('leftpanelhide')}
         <div id="modnavigator" class="module-nav">
-            <div class="hidden-xs hidden-sm mod-switcher-container">
+            <div class="mod-switcher-container">
                 {include file="modules/Vtiger/partials/Menubar.tpl"}
             </div>
         </div>

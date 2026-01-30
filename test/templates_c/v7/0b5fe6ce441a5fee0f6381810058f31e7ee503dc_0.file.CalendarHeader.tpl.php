@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:47:14
+/* Smarty version 4.5.4, created on 2026-01-30 06:18:52
   from '/var/www/html/layouts/v7/modules/Calendar/CalendarHeader.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca5b2d32ef8_18705792',
+  'unifunc' => 'content_697c4d4c743c10_36374631',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '0b5fe6ce441a5fee0f6381810058f31e7ee503dc' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Calendar/CalendarHeader.tpl',
-      1 => 1766628497,
+      1 => 1769747707,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca5b2d32ef8_18705792 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c4d4c743c10_36374631 (Smarty_Internal_Template $_smarty_tpl) {
 ?>
 <input type="hidden" name="is_record_creation_allowed" id="is_record_creation_allowed" value="<?php echo $_smarty_tpl->tpl_vars['IS_CREATE_PERMITTED']->value;?>
 "><div class="col-sm-12 col-xs-12 module-action-bar clearfix"><div class="module-action-content clearfix coloredBorderTop"><div class="col-lg-5 col-md-5"><span><?php $_smarty_tpl->_assignInScope('VIEW_HEADER_LABEL', "LBL_CALENDAR_VIEW");

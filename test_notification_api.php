@@ -112,3 +112,4 @@ echo "<h3>✅ Test Complete</h3>";
 echo "<p>Now try accessing: <a href='index.php?module=Vtiger&action=Notifications&type=unread' target='_blank'>Notification API</a></p>";
 echo "<p>Or go to Vtiger: <a href='index.php' target='_blank'>Vtiger Home</a></p>";
 
+

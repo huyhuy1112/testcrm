@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:19
+/* Smarty version 4.5.4, created on 2026-01-29 09:08:25
   from '/var/www/html/layouts/v7/modules/Vtiger/uitypes/OwnerFieldSearchView.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fdbd7d023_36000698',
+  'unifunc' => 'content_697b2389330189_69423318',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '9f20ef4b3db1e16bba617356d2d3a29cbf5bd60c' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/uitypes/OwnerFieldSearchView.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694c9fdbd7d023_36000698 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2389330189_69423318 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_assignInScope('FIELD_INFO', call_user_func_array($_smarty_tpl->registered_plugins[ 'modifier' ][ 'vtlib_array' ][ 0 ], array( $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->getFieldInfo() )));?><div class="select2_search_div"><?php $_smarty_tpl->_assignInScope('ASSIGNED_USER_ID', $_smarty_tpl->tpl_vars['FIELD_MODEL']->value->get('name'));
 $_smarty_tpl->_assignInScope('ALL_ACTIVEUSER_LIST', $_smarty_tpl->tpl_vars['FIELD_INFO']->value['picklistvalues'][vtranslate('LBL_USERS')]);
 $_smarty_tpl->_assignInScope('SEARCH_VALUES', explode(',',(isset($_smarty_tpl->tpl_vars['SEARCH_INFO']->value['searchValue'])) ? $_smarty_tpl->tpl_vars['SEARCH_INFO']->value['searchValue'] : ','));

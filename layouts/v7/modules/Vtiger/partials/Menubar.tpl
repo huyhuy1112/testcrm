@@ -14,6 +14,12 @@
 <div id="modules-menu" class="modules-menu">
 	{foreach key=moduleName item=moduleModel from=$SELECTED_CATEGORY_MENU_LIST}
 		{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
+		{* Calendar: MANAGEMENT = Schedule, SUPPORT = Activities *}
+		{if $moduleName eq 'Calendar' && $SELECTED_MENU_CATEGORY eq 'MANAGEMENT'}
+			{assign var='translatedModuleLabel' value=vtranslate('LBL_SCHEDULE','Calendar')}
+		{elseif $moduleName eq 'Calendar' && $SELECTED_MENU_CATEGORY eq 'SUPPORT'}
+			{assign var='translatedModuleLabel' value=vtranslate('LBL_ACTIVITIES','Calendar')}
+		{/if}
 		<ul title="{$translatedModuleLabel}" class="module-qtip">
 			<li {if $MODULE eq $moduleName}class="active"{else}class=""{/if}>
 				<a href="{$moduleModel->getDefaultUrl()}&app={$SELECTED_MENU_CATEGORY}">

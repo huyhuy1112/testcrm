@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 06:09:37
+/* Smarty version 4.5.4, created on 2026-01-29 09:52:35
   from '/var/www/html/layouts/v7/modules/Vtiger/OperationNotPermitted.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694cd521abace4_30080483',
+  'unifunc' => 'content_697b2de39ef4b2_41110251',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '869b13bf537029e9527366854ec2d4561ebf3994' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/OperationNotPermitted.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694cd521abace4_30080483 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2de39ef4b2_41110251 (Smarty_Internal_Template $_smarty_tpl) {
 ?><div style="margin:0 auto;width: 50em;">
 	<table border='0' cellpadding='5' cellspacing='0' height='600px' width="700px">
 	<tr><td align='center'>

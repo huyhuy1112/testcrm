@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2026-01-06 06:41:09
+/* Smarty version 4.5.4, created on 2026-01-30 04:53:00
   from '/var/www/html/layouts/v7/modules/Vtiger/Header.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_695cae85bb5988_68122515',
+  'unifunc' => 'content_697c392c698a85_09376801',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'a355056cb56f9b87c73c7bc9f698c5b7fe085dc5' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/Header.tpl',
-      1 => 1767679776,
+      1 => 1769748313,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_695cae85bb5988_68122515 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c392c698a85_09376801 (Smarty_Internal_Template $_smarty_tpl) {
 ?><!DOCTYPE html><html><head><title><?php echo vtranslate($_smarty_tpl->tpl_vars['PAGETITLE']->value,$_smarty_tpl->tpl_vars['QUALIFIED_MODULE']->value);?>
 </title><link rel="SHORTCUT ICON" href="layouts/v7/skins/images/favicon.ico"><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><link type='text/css' rel='stylesheet' href='<?php echo vresource_url("libraries/bootstrap-legacy/css/bootstrap-responsive.min.css");?>
 '> <link type='text/css' rel='stylesheet' href='<?php echo vresource_url("layouts/v7/lib/todc/css/bootstrap.min.css");?>
@@ -55,7 +55,8 @@ $_smarty_tpl->tpl_vars['cssModel']->do_else = false;
 $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?><link type="text/css" rel="stylesheet" href="<?php echo vresource_url('layouts/v7/modules/Vtiger/resources/ModernNotifications.css');?>
 " media="screen" /><link type="text/css" rel="stylesheet" href="<?php echo vresource_url('layouts/v7/modules/Vtiger/resources/DashBoard.css');?>
 " media="screen" /><?php if ($_smarty_tpl->tpl_vars['MODULE_NAME']->value == 'Products') {?><link type="text/css" rel="stylesheet" href="<?php echo vresource_url('layouts/v7/modules/Products/resources/Products.css');?>
-" media="screen" /><?php }?><style type="text/css">@media print {.noprint { display:none; }}</style><?php echo '<script'; ?>
+" media="screen" /><?php }?><link type="text/css" rel="stylesheet" href="<?php echo vresource_url('layouts/v7/resources/custom.css');?>
+" media="screen" /><style type="text/css">@media print {.noprint { display:none; }}</style><?php echo '<script'; ?>
  type="text/javascript">var __pageCreationTime = (new Date()).getTime();<?php echo '</script'; ?>
 ><?php echo '<script'; ?>
  src="<?php echo vresource_url('layouts/v7/lib/jquery/jquery.min.js');?>
@@ -81,6 +82,7 @@ $_smarty_tpl->smarty->ext->_foreach->restore($_smarty_tpl, 1);?><link type="text
 ",};<?php }
 echo '</script'; ?>
 ></head><?php $_smarty_tpl->_assignInScope('CURRENT_USER_MODEL', Users_Record_Model::getCurrentUserModel());?><body data-skinpath="<?php echo Vtiger_Theme::getBaseThemePath();?>
+" data-module="<?php echo $_smarty_tpl->tpl_vars['MODULE']->value;?>
 " data-language="<?php echo $_smarty_tpl->tpl_vars['LANGUAGE']->value;?>
 " data-user-decimalseparator="<?php echo $_smarty_tpl->tpl_vars['CURRENT_USER_MODEL']->value->get('currency_decimal_separator');?>
 " data-user-dateformat="<?php echo $_smarty_tpl->tpl_vars['CURRENT_USER_MODEL']->value->get('date_format');?>

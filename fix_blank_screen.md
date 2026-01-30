@@ -36,3 +36,4 @@ Cần sử dụng Vtiger's installation framework để parse DatabaseSchema.xml
 - Database TDB1 đã được tạo và có thể kết nối
 - Chỉ cần có cấu trúc database (tables) là Vtiger sẽ chạy được
 
+

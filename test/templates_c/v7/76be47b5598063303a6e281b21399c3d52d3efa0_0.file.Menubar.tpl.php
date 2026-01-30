@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2026-01-09 06:00:48
+/* Smarty version 4.5.4, created on 2026-01-30 04:53:39
   from '/var/www/html/layouts/v7/modules/Vtiger/partials/Menubar.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_696099909fbca1_56683692',
+  'unifunc' => 'content_697c3953f3c285_67152345',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '76be47b5598063303a6e281b21399c3d52d3efa0' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/partials/Menubar.tpl',
-      1 => 1767938430,
+      1 => 1769748335,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_696099909fbca1_56683692 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c3953f3c285_67152345 (Smarty_Internal_Template $_smarty_tpl) {
 if ($_smarty_tpl->tpl_vars['MENU_STRUCTURE']->value) {
 $_smarty_tpl->_assignInScope('topMenus', $_smarty_tpl->tpl_vars['MENU_STRUCTURE']->value->getTop());
 $_smarty_tpl->_assignInScope('moreMenus', $_smarty_tpl->tpl_vars['MENU_STRUCTURE']->value->getMore());?>
@@ -33,6 +33,11 @@ if ($_from !== null) foreach ($_from as $_smarty_tpl->tpl_vars['moduleName']->va
 $_smarty_tpl->tpl_vars['moduleModel']->do_else = false;
 ?>
 		<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate($_smarty_tpl->tpl_vars['moduleModel']->value->get('label'),$_smarty_tpl->tpl_vars['moduleName']->value));?>
+				<?php if ($_smarty_tpl->tpl_vars['moduleName']->value == 'Calendar' && $_smarty_tpl->tpl_vars['SELECTED_MENU_CATEGORY']->value == 'MANAGEMENT') {?>
+			<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate('LBL_SCHEDULE','Calendar'));?>
+		<?php } elseif ($_smarty_tpl->tpl_vars['moduleName']->value == 'Calendar' && $_smarty_tpl->tpl_vars['SELECTED_MENU_CATEGORY']->value == 'SUPPORT') {?>
+			<?php $_smarty_tpl->_assignInScope('translatedModuleLabel', vtranslate('LBL_ACTIVITIES','Calendar'));?>
+		<?php }?>
 		<ul title="<?php echo $_smarty_tpl->tpl_vars['translatedModuleLabel']->value;?>
 " class="module-qtip">
 			<li <?php if ($_smarty_tpl->tpl_vars['MODULE']->value == $_smarty_tpl->tpl_vars['moduleName']->value) {?>class="active"<?php } else { ?>class=""<?php }?>>

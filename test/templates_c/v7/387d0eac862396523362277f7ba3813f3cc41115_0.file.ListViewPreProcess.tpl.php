@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:22:19
+/* Smarty version 4.5.4, created on 2026-01-30 06:45:22
   from '/var/www/html/layouts/v7/modules/Vtiger/ListViewPreProcess.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694c9fdb5d4b66_52419543',
+  'unifunc' => 'content_697c53822f6240_47624574',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '387d0eac862396523362277f7ba3813f3cc41115' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/ListViewPreProcess.tpl',
-      1 => 1766628497,
+      1 => 1769755242,
       2 => 'file',
     ),
   ),
@@ -21,11 +21,12 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
     'file:modules/Vtiger/partials/Topbar.tpl' => 1,
   ),
 ),false)) {
-function content_694c9fdb5d4b66_52419543 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697c53822f6240_47624574 (Smarty_Internal_Template $_smarty_tpl) {
 $_smarty_tpl->_subTemplateRender("file:modules/Vtiger/partials/Topbar.tpl", $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, false);
 ?>
 
-<div class="container-fluid app-nav">
+<div class="container-fluid app-nav app-nav-<?php echo $_smarty_tpl->tpl_vars['SELECTED_MENU_CATEGORY']->value;?>
+">
 	<div class="row">
 		<?php $_smarty_tpl->_subTemplateRender(call_user_func_array($_smarty_tpl->registered_plugins[ 'modifier' ][ 'vtemplate_path' ][ 0 ], array( "partials/SidebarHeader.tpl",$_smarty_tpl->tpl_vars['MODULE']->value )), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
 ?>
@@ -44,7 +45,7 @@ $_smarty_tpl->_subTemplateRender("file:modules/Vtiger/partials/Topbar.tpl", $_sm
 ">
 		<?php $_smarty_tpl->_assignInScope('LEFTPANELHIDE', $_smarty_tpl->tpl_vars['CURRENT_USER_MODEL']->value->get('leftpanelhide'));?>
 		<div id="modnavigator" class="module-nav">
-			<div class="hidden-xs hidden-sm mod-switcher-container">
+			<div class="mod-switcher-container">
 				<?php $_smarty_tpl->_subTemplateRender(call_user_func_array($_smarty_tpl->registered_plugins[ 'modifier' ][ 'vtemplate_path' ][ 0 ], array( "partials/Menubar.tpl",$_smarty_tpl->tpl_vars['MODULE']->value )), $_smarty_tpl->cache_id, $_smarty_tpl->compile_id, 0, $_smarty_tpl->cache_lifetime, array(), 0, true);
 ?>
 			</div>

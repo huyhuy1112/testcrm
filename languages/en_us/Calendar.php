@@ -46,7 +46,8 @@ $languageStrings = array(
 	'Private' => 'Private',
 	'Public' => 'Public',
 	
-	//Side Bar Names
+	//Side Bar Names (menu label: MANAGEMENT = Schedule, SUPPORT = Activities)
+	'LBL_SCHEDULE' => 'Schedule',
 	'LBL_ACTIVITY_TYPES' => 'Activity Types',
 	'LBL_CONTACTS_SUPPORT_END_DATE' => 'Support End Date',
 	'LBL_CONTACTS_BIRTH_DAY' => 'Date of Birth',

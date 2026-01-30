@@ -85,3 +85,4 @@ WHERE (pcf.cf_855 IS NOT NULL AND pcf.cf_855 != '')
 ORDER BY p.potentialid DESC
 LIMIT 10;
 
+

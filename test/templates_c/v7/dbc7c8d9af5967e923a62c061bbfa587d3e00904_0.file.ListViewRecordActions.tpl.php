@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-25 02:49:11
+/* Smarty version 4.5.4, created on 2026-01-29 09:52:53
   from '/var/www/html/layouts/v7/modules/Reports/ListViewRecordActions.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694ca627d07339_92961365',
+  'unifunc' => 'content_697b2df51d9c76_55214495',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     'dbc7c8d9af5967e923a62c061bbfa587d3e00904' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Reports/ListViewRecordActions.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694ca627d07339_92961365 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b2df51d9c76_55214495 (Smarty_Internal_Template $_smarty_tpl) {
 ?><!--LIST VIEW RECORD ACTIONS--><div class="table-actions reportListActions"><?php if (!$_smarty_tpl->tpl_vars['SEARCH_MODE_RESULTS']->value) {?><span class="input" ><input type="checkbox" value="<?php echo $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->getId();?>
 " class="listViewEntriesCheckBox"/></span><?php }
 $_smarty_tpl->_assignInScope('REPORT_TYPE', $_smarty_tpl->tpl_vars['LISTVIEW_ENTRY']->value->get('reporttype'));

@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-26 01:38:56
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:00
   from '/var/www/html/layouts/v7/modules/Leads/dashboards/LeadsByStatus.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694de730ebf882_23287748',
+  'unifunc' => 'content_697b0da4802cf5_50690105',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '1c3417d72d840c9cad4d4f31f5bc69f7615a1b86' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Leads/dashboards/LeadsByStatus.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694de730ebf882_23287748 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da4802cf5_50690105 (Smarty_Internal_Template $_smarty_tpl) {
 echo '<script'; ?>
  type="text/javascript">
 	Vtiger_Barchat_Widget_Js('Vtiger_LeadsByStatus_Widget_Js',{},{});

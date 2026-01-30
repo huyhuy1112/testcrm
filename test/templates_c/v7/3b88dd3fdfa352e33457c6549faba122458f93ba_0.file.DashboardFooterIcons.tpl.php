@@ -1,18 +1,18 @@
 <?php
-/* Smarty version 4.5.4, created on 2025-12-26 01:31:30
+/* Smarty version 4.5.4, created on 2026-01-29 07:35:00
   from '/var/www/html/layouts/v7/modules/Vtiger/dashboards/DashboardFooterIcons.tpl' */
 
 /* @var Smarty_Internal_Template $_smarty_tpl */
 if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   'version' => '4.5.4',
-  'unifunc' => 'content_694de5727850b7_63681275',
+  'unifunc' => 'content_697b0da4917558_48460777',
   'has_nocache_code' => false,
   'file_dependency' => 
   array (
     '3b88dd3fdfa352e33457c6549faba122458f93ba' => 
     array (
       0 => '/var/www/html/layouts/v7/modules/Vtiger/dashboards/DashboardFooterIcons.tpl',
-      1 => 1766628497,
+      1 => 1768793648,
       2 => 'file',
     ),
   ),
@@ -20,7 +20,7 @@ if ($_smarty_tpl->_decodeProperties($_smarty_tpl, array (
   array (
   ),
 ),false)) {
-function content_694de5727850b7_63681275 (Smarty_Internal_Template $_smarty_tpl) {
+function content_697b0da4917558_48460777 (Smarty_Internal_Template $_smarty_tpl) {
 if ($_smarty_tpl->tpl_vars['SETTING_EXIST']->value) {?>
 <a name="dfilter">
 	<i class='fa fa-cog' border='0' align="absmiddle" title="<?php echo vtranslate('LBL_FILTER');?>

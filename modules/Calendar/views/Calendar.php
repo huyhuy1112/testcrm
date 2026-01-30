@@ -36,7 +36,8 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 			"~layouts/".Vtiger_Viewer::getDefaultLayoutName()."/lib/jquery/fullcalendar/fullcalendar.js",
 			"~layouts/".Vtiger_Viewer::getDefaultLayoutName()."/lib/jquery/webui-popover/dist/jquery.webui-popover.js",
 			"modules.Calendar.resources.CalendarView",
-			"~/libraries/jquery/colorpicker/js/colorpicker.js"
+			"~/libraries/jquery/colorpicker/js/colorpicker.js",
+			"layouts.v7.modules.Calendar.resources.CalendarQuickCreate"
 		);
 
 		$jsScriptInstances = $this->checkAndConvertJsScripts($jsFileNames);

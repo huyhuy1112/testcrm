@@ -17,3 +17,4 @@ class Plans_List_View extends Vtiger_List_View {
     // Use parent implementation - no custom logic needed
 }
 
+
