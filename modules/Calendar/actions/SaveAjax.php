@@ -160,23 +160,34 @@ class Calendar_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 				$endTime = Vtiger_Time_UIType::getTimeValueWithSeconds($endTime);
 				$endDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($request->get('due_date')." ".$endTime);
 				list($endDate, $endTime) = explode(' ', $endDateTime);
+			} else {
+				// Task: deadline có ngày nhưng không có giờ → mặc định 23:59
+				$endTime = '23:59:00';
 			}
 
 			$recordModel->set('time_end', $endTime);
 			$recordModel->set('due_date', $endDate);
 		} else {
-			//End Date and Time values
-			$endTime = $recordModel->get('time_end');
-			$endDate = Vtiger_Date_UIType::getDBInsertedValue($recordModel->get('due_date'));
+			// Task: deadline optional - khi để trống thì dùng date_start và time_start
+			$activityType = $request->get('activitytype');
+			$isTask = (empty($activityType) && $recordModel->get('activitytype') === 'Task') || $activityType === 'Task';
+			if ($isTask && $recordModel->getModuleName() === 'Calendar') {
+				$recordModel->set('due_date', $recordModel->get('date_start'));
+				$recordModel->set('time_end', $recordModel->get('time_start'));
+			} else {
+				//End Date and Time values
+				$endTime = $recordModel->get('time_end');
+				$endDate = Vtiger_Date_UIType::getDBInsertedValue($recordModel->get('due_date'));
 
-			if ($endTime) {
-				$endTime = Vtiger_Time_UIType::getTimeValueWithSeconds($endTime);
-				$endDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($recordModel->get('due_date')." ".$endTime);
-				list($endDate, $endTime) = explode(' ', $endDateTime);
+				if ($endTime) {
+					$endTime = Vtiger_Time_UIType::getTimeValueWithSeconds($endTime);
+					$endDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($recordModel->get('due_date')." ".$endTime);
+					list($endDate, $endTime) = explode(' ', $endDateTime);
+				}
+
+				$recordModel->set('time_end', $endTime);
+				$recordModel->set('due_date', $endDate);
 			}
-
-			$recordModel->set('time_end', $endTime);
-			$recordModel->set('due_date', $endDate);
 		}
 
 		$activityType = $request->get('activitytype');

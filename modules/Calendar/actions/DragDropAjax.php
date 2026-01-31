@@ -32,6 +32,10 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
 		$minuteDelta = $request->get('minuteDelta');
 		$secondsDelta = $request->get('secondsDelta',NULL);
 		$recurringEditMode = $request->get('recurringEditMode');
+		$newDateStart = $request->get('new_date_start');
+		$newDueDate = $request->get('new_due_date');
+		$newTimeStart = $request->get('new_time_start');
+		$newTimeEnd = $request->get('new_time_end');
 
 		$actionname = 'EditView';
 		$response = new Vtiger_Response();
@@ -44,70 +48,90 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
 				$record = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
 				$record->set('mode','edit');
 
-                $startDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
-                $oldDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
-
-				$resultDateTime = $this->changeDateTime($oldDateTime,$dayDelta,$minuteDelta,$secondsDelta);
-				$interval = strtotime($resultDateTime) - strtotime($startDateTime);
-
-				if(!empty($recurringEditMode) && $recurringEditMode != 'current') {
-					$recurringRecordsList = $record->getRecurringRecordsList();
-					foreach($recurringRecordsList as $parent=>$childs) {
-						$parentRecurringId = $parent;
-						$childRecords = $childs;
+				// All-day Task: client gửi ngày mới trực tiếp (tránh lỗi kéo 25-26 chỉ còn 25)
+				if (!empty($newDateStart) && !empty($newDueDate)) {
+					$record->set('date_start', $newDateStart);
+					$record->set('due_date', $newDueDate);
+					if ($newTimeStart !== null && $newTimeStart !== '') {
+						$record->set('time_start', $newTimeStart);
 					}
-					if($recurringEditMode == 'future') {
-						$parentKey = array_keys($childRecords, $recordId);
-						$childRecords = array_slice($childRecords, $parentKey[0]);
+					if ($newTimeEnd !== null && $newTimeEnd !== '') {
+						$record->set('time_end', $newTimeEnd);
 					}
-					foreach($childRecords as $childId) {
-						$recordModel = Vtiger_Record_Model::getInstanceById($childId, 'Events');
-						$recordModel->set('mode','edit');
-
-                        $startDateTime = $this->getFormattedDateTime($recordModel->get('date_start'), $recordModel->get('time_start'));
-						$dueDate = strtotime($startDateTime) + $interval;
-						$formatDate = date("Y-m-d H:i:s", $dueDate);
-						$parts = explode(' ',$formatDate);
-						$startDateTime = new DateTime($startDateTime);
-
-						$recordModel->set('due_date',$parts[0]);
-						if($activityType != 'Task') {
-							$recordModel->set('time_end',$parts[1]);
-						}
-
-                        $endDateTime = $this->getFormattedDateTime($recordModel->get('due_date'), $recordModel->get('time_end'));
-						$endDateTime = new DateTime($endDateTime);
-
-						if($startDateTime <= $endDateTime) {
-							$this->setRecurrenceInfo($recordModel);
-							$recordModel->save();
-						} else {
-							$result['error'] = true;
-						}
-					}
-					$result['recurringRecords'] = true;
-				} else {
-                    $oldDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
-					$resultDateTime = $this->changeDateTime($oldDateTime,$dayDelta,$minuteDelta,$secondsDelta);
-					$parts = explode(' ',$resultDateTime);
-					$record->set('due_date',$parts[0]);
-					if($activityType != 'Task') {
-						$record->set('time_end',$parts[1]);
-					}
-
-                    $startDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
-					$startDateTime = new DateTime($startDateTime);
-
-                    $endDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
-					$endDateTime = new DateTime($endDateTime);
-					//Checking if startDateTime is less than or equal to endDateTime
-					if($startDateTime <= $endDateTime) {
+					$startDateTime = new DateTime($newDateStart . ' ' . ($newTimeStart ?: '00:00:00'));
+					$endDateTime = new DateTime($newDueDate . ' ' . ($newTimeEnd ?: '23:59:59'));
+					if ($startDateTime <= $endDateTime) {
 						$this->setRecurrenceInfo($record);
 						$record->save();
 					} else {
 						$result['error'] = true;
 					}
 					$result['recurringRecords'] = false;
+				} else {
+					$startDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
+					$oldDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
+
+					$resultDateTime = $this->changeDateTime($oldDateTime,$dayDelta,$minuteDelta,$secondsDelta);
+					$interval = strtotime($resultDateTime) - strtotime($startDateTime);
+
+					if(!empty($recurringEditMode) && $recurringEditMode != 'current') {
+						$recurringRecordsList = $record->getRecurringRecordsList();
+						foreach($recurringRecordsList as $parent=>$childs) {
+							$parentRecurringId = $parent;
+							$childRecords = $childs;
+						}
+						if($recurringEditMode == 'future') {
+							$parentKey = array_keys($childRecords, $recordId);
+							$childRecords = array_slice($childRecords, $parentKey[0]);
+						}
+						foreach($childRecords as $childId) {
+							$recordModel = Vtiger_Record_Model::getInstanceById($childId, 'Events');
+							$recordModel->set('mode','edit');
+
+							$startDateTime = $this->getFormattedDateTime($recordModel->get('date_start'), $recordModel->get('time_start'));
+							$dueDate = strtotime($startDateTime) + $interval;
+							$formatDate = date("Y-m-d H:i:s", $dueDate);
+							$parts = explode(' ',$formatDate);
+							$startDateTime = new DateTime($startDateTime);
+
+							$recordModel->set('due_date',$parts[0]);
+							if($activityType != 'Task') {
+								$recordModel->set('time_end',$parts[1]);
+							}
+
+							$endDateTime = $this->getFormattedDateTime($recordModel->get('due_date'), $recordModel->get('time_end'));
+							$endDateTime = new DateTime($endDateTime);
+
+							if($startDateTime <= $endDateTime) {
+								$this->setRecurrenceInfo($recordModel);
+								$recordModel->save();
+							} else {
+								$result['error'] = true;
+							}
+						}
+						$result['recurringRecords'] = true;
+					} else {
+						$oldDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
+						$resultDateTime = $this->changeDateTime($oldDateTime,$dayDelta,$minuteDelta,$secondsDelta);
+						$parts = explode(' ',$resultDateTime);
+						$record->set('due_date',$parts[0]);
+						if($activityType != 'Task') {
+							$record->set('time_end',$parts[1]);
+						}
+
+						$startDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
+						$startDateTime = new DateTime($startDateTime);
+
+						$endDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
+						$endDateTime = new DateTime($endDateTime);
+						if($startDateTime <= $endDateTime) {
+							$this->setRecurrenceInfo($record);
+							$record->save();
+						} else {
+							$result['error'] = true;
+						}
+						$result['recurringRecords'] = false;
+					}
 				}
 
 				$response->setResult($result);
@@ -165,6 +189,10 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
 		$minuteDelta = $request->get('minuteDelta');
 		$secondsDelta = $request->get('secondsDelta');
 		$recurringEditMode = $request->get('recurringEditMode');
+		$newDateStart = $request->get('new_date_start');
+		$newDueDate = $request->get('new_due_date');
+		$newTimeStart = $request->get('new_time_start');
+		$newTimeEnd = $request->get('new_time_end');
 		$actionname = 'EditView';
 
 		$response = new Vtiger_Response();
@@ -177,69 +205,84 @@ class Calendar_DragDropAjax_Action extends Calendar_SaveAjax_Action {
 				$record = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
 				$record->set('mode','edit');
 
-                $oldStartDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
-				$resultDateTime = $this->changeDateTime($oldStartDateTime, $dayDelta, $minuteDelta, $secondsDelta);
-				$startDateInterval = strtotime($resultDateTime) - strtotime($oldStartDateTime);
-
-                $oldEndDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
-				$resultDateTime = $this->changeDateTime($oldEndDateTime, $dayDelta, $minuteDelta, $secondsDelta);
-				$endDateInterval = strtotime($resultDateTime) - strtotime($oldEndDateTime);
-
-				if (!empty($recurringEditMode) && $recurringEditMode != 'current') {
-					$recurringRecordsList = $record->getRecurringRecordsList();
-					foreach ($recurringRecordsList as $parent => $childs) {
-						$parentRecurringId = $parent;
-						$childRecords = $childs;
+				// All-day Task: client gửi ngày mới trực tiếp (tránh lệch khi kéo)
+				if (!empty($newDateStart) && !empty($newDueDate)) {
+					$record->set('date_start', $newDateStart);
+					$record->set('due_date', $newDueDate);
+					if ($newTimeStart !== null && $newTimeStart !== '') {
+						$record->set('time_start', $newTimeStart);
 					}
-					if ($recurringEditMode == 'future') {
-						$parentKey = array_keys($childRecords, $recordId);
-						$childRecords = array_slice($childRecords, $parentKey[0]);
+					if ($newTimeEnd !== null && $newTimeEnd !== '') {
+						$record->set('time_end', $newTimeEnd);
 					}
-					foreach ($childRecords as $childId) {
-						$recordModel = Vtiger_Record_Model::getInstanceById($childId, 'Events');
-						$recordModel->set('mode', 'edit');
-
-                        $startDateTime = $this->getFormattedDateTime($recordModel->get('date_start'), $recordModel->get('time_start'));
-						$startDate = strtotime($startDateTime) + $startDateInterval;
-						$formatStartDate = date("Y-m-d H:i:s", $startDate);
-						$parts = explode(' ', $formatStartDate);
-						$startDateTime = new DateTime($startDateTime);
-
-						$recordModel->set('date_start', $parts[0]);
-						if ($activityType != 'Task')
-							$recordModel->set('time_start', $parts[1]);
-
-                        $endDateTime = $this->getFormattedDateTime($recordModel->get('due_date'), $recordModel->get('time_end'));
-						$endDate = strtotime($endDateTime) + $endDateInterval;
-						$formatEndDate = date("Y-m-d H:i:s", $endDate);
-						$endDateParts = explode(' ', $formatEndDate);
-						$endDateTime = new DateTime($endDateTime);
-						$recordModel->set('due_date', $endDateParts[0]);
-						if ($activityType != 'Task')
-							$recordModel->set('time_end', $endDateParts[1]);
-
-						$this->setRecurrenceInfo($recordModel);
-						$recordModel->save();
-					}
-					$result['recurringRecords'] = true;
-				} else {
-                    $oldStartDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
-					$resultDateTime = $this->changeDateTime($oldStartDateTime,$dayDelta,$minuteDelta,$secondsDelta);
-					$parts = explode(' ',$resultDateTime);
-					$record->set('date_start',$parts[0]);
-					$record->set('time_start',$parts[1]);
-
-                    $oldEndDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
-					$resultDateTime = $this->changeDateTime($oldEndDateTime,$dayDelta,$minuteDelta,$secondsDelta);
-					$parts = explode(' ',$resultDateTime);
-					$record->set('due_date',$parts[0]);
-					if($activityType != 'Task') {
-						$record->set('time_end',$parts[1]);
-					}
-
 					$this->setRecurrenceInfo($record);
 					$record->save();
 					$result['recurringRecords'] = false;
+				} else {
+					$oldStartDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
+					$resultDateTime = $this->changeDateTime($oldStartDateTime, $dayDelta, $minuteDelta, $secondsDelta);
+					$startDateInterval = strtotime($resultDateTime) - strtotime($oldStartDateTime);
+
+					$oldEndDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
+					$resultDateTime = $this->changeDateTime($oldEndDateTime, $dayDelta, $minuteDelta, $secondsDelta);
+					$endDateInterval = strtotime($resultDateTime) - strtotime($oldEndDateTime);
+
+					if (!empty($recurringEditMode) && $recurringEditMode != 'current') {
+						$recurringRecordsList = $record->getRecurringRecordsList();
+						foreach ($recurringRecordsList as $parent => $childs) {
+							$parentRecurringId = $parent;
+							$childRecords = $childs;
+						}
+						if ($recurringEditMode == 'future') {
+							$parentKey = array_keys($childRecords, $recordId);
+							$childRecords = array_slice($childRecords, $parentKey[0]);
+						}
+						foreach ($childRecords as $childId) {
+							$recordModel = Vtiger_Record_Model::getInstanceById($childId, 'Events');
+							$recordModel->set('mode', 'edit');
+
+							$startDateTime = $this->getFormattedDateTime($recordModel->get('date_start'), $recordModel->get('time_start'));
+							$startDate = strtotime($startDateTime) + $startDateInterval;
+							$formatStartDate = date("Y-m-d H:i:s", $startDate);
+							$parts = explode(' ', $formatStartDate);
+							$startDateTime = new DateTime($startDateTime);
+
+							$recordModel->set('date_start', $parts[0]);
+							if ($activityType != 'Task')
+								$recordModel->set('time_start', $parts[1]);
+
+							$endDateTime = $this->getFormattedDateTime($recordModel->get('due_date'), $recordModel->get('time_end'));
+							$endDate = strtotime($endDateTime) + $endDateInterval;
+							$formatEndDate = date("Y-m-d H:i:s", $endDate);
+							$endDateParts = explode(' ', $formatEndDate);
+							$endDateTime = new DateTime($endDateTime);
+							$recordModel->set('due_date', $endDateParts[0]);
+							if ($activityType != 'Task')
+								$recordModel->set('time_end', $endDateParts[1]);
+
+							$this->setRecurrenceInfo($recordModel);
+							$recordModel->save();
+						}
+						$result['recurringRecords'] = true;
+					} else {
+						$oldStartDateTime = $this->getFormattedDateTime($record->get('date_start'), $record->get('time_start'));
+						$resultDateTime = $this->changeDateTime($oldStartDateTime,$dayDelta,$minuteDelta,$secondsDelta);
+						$parts = explode(' ',$resultDateTime);
+						$record->set('date_start',$parts[0]);
+						$record->set('time_start',$parts[1]);
+
+						$oldEndDateTime = $this->getFormattedDateTime($record->get('due_date'), $record->get('time_end'));
+						$resultDateTime = $this->changeDateTime($oldEndDateTime,$dayDelta,$minuteDelta,$secondsDelta);
+						$parts = explode(' ',$resultDateTime);
+						$record->set('due_date',$parts[0]);
+						if($activityType != 'Task') {
+							$record->set('time_end',$parts[1]);
+						}
+
+						$this->setRecurrenceInfo($record);
+						$record->save();
+						$result['recurringRecords'] = false;
+					}
 				}
 			}
 			$response->setResult($result);

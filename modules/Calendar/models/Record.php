@@ -120,11 +120,7 @@ class Calendar_Record_Model extends Vtiger_Record_Model {
 				$_REQUEST['due_date'] = $deadlineDB;
 				$this->set('due_date', $deadlineDB);
 			}
-			// For Task: Clear time_start and time_end (Task doesn't use time range)
-			$_REQUEST['time_start'] = '';
-			$_REQUEST['time_end'] = '';
-			$this->set('time_start', '');
-			$this->set('time_end', '');
+			// For Task: giữ time_start và time_end (form Task đã có trường giờ bắt đầu/kết thúc; SaveAjax đã set từ request hoặc 00:00/23:59 khi All day)
 		} else {
 			// For Event: Time should changed to 24hrs format
 			$_REQUEST['time_start'] = isset($_REQUEST['time_start']) ? Vtiger_Time_UIType::getTimeValueWithSeconds($_REQUEST['time_start']) : '';

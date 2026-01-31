@@ -41,20 +41,8 @@
 					{assign var="RECORD_STRUCTURE" value=$QUICK_CREATE_CONTENTS[$MODULE]['recordStructure']}
 					{assign var="BLOCK_FIELDS" value=$QUICK_CREATE_CONTENTS[$MODULE]['recordStructure']} {* Dependency in Time UiType template *}
 					{assign var="MODULE_MODEL" value=$QUICK_CREATE_CONTENTS[$MODULE]['moduleModel']}
-					{* Detect Task vs Event *}
-					{assign var="ACTIVITY_TYPE_MODEL" value=$RECORD_STRUCTURE['activitytype']}
-					{assign var="IS_TASK" value=false}
-					{if $ACTIVITY_TYPE_MODEL}
-						{assign var="ACTIVITY_TYPE_VALUE" value=$ACTIVITY_TYPE_MODEL->get('fieldvalue')}
-						{if $ACTIVITY_TYPE_VALUE eq 'Task'}
-							{assign var="IS_TASK" value=true}
-						{/if}
-					{elseif $MODULE eq 'Calendar'}
-						{* Calendar module defaults to Task if activitytype not set *}
-						{assign var="IS_TASK" value=true}
-					{/if}
 
-					<div class="quickCreateContent calendarQuickCreateContent {if $IS_TASK}calendar-task-quickcreate{else}calendar-event-quickcreate{/if}" style="padding-top:2%;margin-top:5px;">
+					<div class="quickCreateContent calendarQuickCreateContent" style="padding-top:2%;margin-top:5px;">
 						{if $MODULE eq 'Calendar'}
 							{if !empty($PICKIST_DEPENDENCY_DATASOURCE_TODO)}
 								<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE_TODO)}' />
@@ -65,7 +53,8 @@
 							{/if}
 						{/if}
 
-						<div>
+						{* Subject / Title: "Add title" cho Task, label chuẩn cho Event *}
+						<div class="{if $MODULE eq 'Calendar'}google-task-title-wrap{/if}">
 							{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['subject']}
 							<div style="margin-left: 14px;width: 95%;">
 								{assign var="FIELD_INFO" value=$FIELD_MODEL->getFieldInfo()}
@@ -77,80 +66,109 @@
 										   {assign var=VALIDATOR_NAME value=$VALIDATOR["name"]}
 										   data-rule-{$VALIDATOR_NAME} = "true" 
 									   {/foreach}
-									   placeholder="{vtranslate($FIELD_MODEL->get('label'), $MODULE)} *" style="width: 100%;"/>
+									   placeholder="{if $MODULE eq 'Calendar'}{vtranslate('LBL_ADD_TITLE','Calendar')}{else}{vtranslate($FIELD_MODEL->get('label'), $MODULE)} *{/if}" style="width: 100%;"/>
 							</div>
 						</div>
 
-						{* Date & Time Section - Different layout for Task vs Event *}
-						{if $IS_TASK}
-							{* Task Layout: Single Date picker + All Day checkbox (NO From/To time) *}
-							<div class="row calendar-task-datetime-section" style="padding-top: 2%;">
-								<div class="col-sm-12">
-									<div class="col-sm-6 calendar-task-date-wrapper">
-										<label class="control-label" style="font-size: 12px; color: #666; margin-bottom: 5px;">Date</label>
+						{* ----- TASK (Calendar): Form giống hình - thời gian 1 dòng "Thursday, Jan 1 8:45am - 4:45pm", deadline optional ----- *}
+						{if $MODULE eq 'Calendar'}
+						<div class="google-task-form calendar-task-qc" style="margin-top: 16px;">
+							{* Dòng thời gian: icon đồng hồ + text "Thursday, January 1 8:45am - 4:45pm" (JS cập nhật) *}
+							<div class="google-task-row calendar-qc-datetime-row" style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+								<span class="fa fa-clock-o" style="width: 24px; margin-right: 12px; color: #5f6368; margin-top: 6px;"></span>
+								<div style="flex: 1;">
+									<div class="calendar-qc-datetime-summary" style="font-size: 14px; color: #202124; margin-bottom: 8px; min-height: 22px;">—</div>
+									<div class="calendar-qc-datetime-inputs" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+										{* date_start dùng DateTime.tpl → đã có cả ô ngày + ô giờ (time_start) bên trong, không include time_start lần nữa *}
 										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
 										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
 									</div>
 								</div>
-								{* All Day Toggle for Task *}
-								<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
-									<label class="checkbox-inline">
-										<input type="checkbox" name="allday" id="calendar_allday" value="1" />
-										<strong>All Day</strong>
-									</label>
+							</div>
+							{* All day: khi tick thì trên full calendar sẽ vẽ trên hàng All day từ ngày bắt đầu đến hết ngày deadline (điền deadline để span nhiều ngày) *}
+							<div class="google-task-row" style="margin-bottom: 12px; padding-left: 36px;">
+								<label class="checkbox-inline">
+									<input type="checkbox" name="allday" value="1" /> {vtranslate('LBL_ALL_DAY','Calendar')}
+								</label>
+								<span class="muted small" style="margin-left: 8px;">({vtranslate('LBL_ALL_DAY_HINT','Calendar')})</span>
+							</div>
+							{* Repeat: giống Event - chữ Repeat ở trên, ô chọn bên dưới *}
+							<div class="calendar-repeat-section" style="margin-top: 12px; margin-bottom: 12px; padding: 10px 15px; padding-left: 36px; background: #f9f9f9; border-radius: 4px;">
+								<div class="form-group" style="margin-bottom: 0;">
+									<label class="control-label" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Repeat</label>
+									<select name="calendar_repeat_type" id="calendar_repeat_type" class="form-control" style="font-size: 13px; max-width: 280px;">
+										<option value="">{vtranslate('LBL_DOES_NOT_REPEAT','Calendar')}</option>
+										<option value="Daily">Daily</option>
+										<option value="Weekly">Weekly</option>
+										<option value="Monthly">Monthly</option>
+										<option value="Yearly">Yearly</option>
+									</select>
+									<input type="hidden" name="recurringtype" id="calendar_recurringtype_hidden" value="" />
 								</div>
 							</div>
+							{* Deadline: optional, để trống, placeholder "Add deadline" *}
+							<div class="google-task-row" style="display: flex; align-items: center; margin-bottom: 12px;">
+								<span class="fa fa-bullseye" style="width: 24px; margin-right: 12px; color: #5f6368;"></span>
+								<div style="flex: 1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+									<input type="text" class="inputElement dateField" name="due_date" value="" placeholder="{vtranslate('LBL_ADD_DEADLINE','Calendar')}" data-date-format="{$USER_MODEL->get('date_format')}" data-rule-required="false" style="max-width: 220px;" />
+									<input type="text" name="time_end" class="timepicker-default form-control input-sm" data-format="24" placeholder="HH:mm" style="width: 80px;" />
+								</div>
+							</div>
+							{* Add description *}
+							<div class="google-task-row" style="display: flex; align-items: flex-start; margin-bottom: 12px;">
+								<span class="fa fa-align-left" style="width: 24px; margin-right: 12px; color: #5f6368; margin-top: 8px;"></span>
+								<div style="flex: 1;">
+									<textarea name="description" class="form-control" rows="3" placeholder="{vtranslate('LBL_ADD_DESCRIPTION','Calendar')}" style="resize: vertical; font-size: 13px;"></textarea>
+								</div>
+							</div>
+						</div>
+						{* Assigned To + Status: hàng kiểu Google (List / Calendar owner) *}
+						<div class="google-task-meta" style="margin-top: 8px; padding-left: 36px; font-size: 13px; color: #5f6368;">
+							{* Các field Assigned To, Status vẫn nằm trong table bên dưới *}
+						</div>
+						{* ----- EVENT (Events): ngày + giờ, All Day, Duration ----- *}
 						{else}
-							{* Event Layout: Keep existing layout *}
-							<div class="row calendar-event-datetime-section" style="padding-top: 2%;">
-								<div class="col-sm-12">
-									<div class="col-sm-5 calendar-date-time-wrapper">
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
+						<div class="row" style="padding-top: 2%;">
+							<div class="col-sm-12">
+								<div class="col-sm-5 calendar-date-time-wrapper">
+									{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
+									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									{if isset($RECORD_STRUCTURE['time_start'])}
+									<div style="margin-top: 8px;">
+										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['time_start']}
 										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
 									</div>
-									<div class="muted col-sm-1" style="line-height: 67px;left: 20px; padding-right: 7%;">
-										{vtranslate('LBL_TO',$MODULE)}
-									</div>
-									<div class="col-sm-5 calendar-date-time-wrapper">
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
-									</div>
+									{/if}
 								</div>
-								{* All Day Toggle and Duration Display for Event *}
-								<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
-									<label class="checkbox-inline">
-										<input type="checkbox" name="allday" id="calendar_allday" value="1" />
-										<strong>All Day</strong>
-									</label>
-									<span id="calendar-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span>
+								<div class="muted col-sm-1" style="line-height: 67px; left: 20px; padding-right: 7%; text-align: center;">
+									{vtranslate('LBL_TO',$MODULE)}
+								</div>
+								<div class="col-sm-5 calendar-date-time-wrapper">
+									{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
+									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									{if isset($RECORD_STRUCTURE['time_end'])}
+									<div style="margin-top: 8px;">
+										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['time_end']}
+										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),$MODULE)}
+									</div>
+									{/if}
 								</div>
 							</div>
+							<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
+								<label class="checkbox-inline">
+									<input type="checkbox" name="allday" id="calendar_allday" value="1" />
+									<strong>All Day</strong>
+								</label>
+								<span id="calendar-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span>
+							</div>
+						</div>
 						{/if}
 						<div class="container-fluid paddingTop15">
 							<table class="massEditTable table no-border">
 								<tr>
 									{foreach key=FIELD_NAME item=FIELD_MODEL from=$RECORD_STRUCTURE name=blockfields}
-									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start'}
+									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'time_start' || ($MODULE eq 'Events' && $FIELD_NAME eq 'time_end') || ($MODULE eq 'Calendar' && $FIELD_NAME eq 'description')}
 								</tr>{continue}
-								{/if}
-								{* For Task: Hide time_start, time_end, due_date (we show deadline separately), Location, Meeting link *}
-								{* For Event: Hide time_start (it's shown with date_start), keep due_date in loop *}
-								{if $IS_TASK}
-									{if $FIELD_NAME eq 'time_start' || $FIELD_NAME eq 'time_end' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'location' || $FIELD_NAME eq 'meeting_link'}
-								</tr>{continue}
-									{/if}
-								{else}
-									{* For Event: Hide time_start from RECORD_STRUCTURE loop (it's shown with date_start) *}
-									{if $FIELD_NAME eq 'time_start'}
-								</tr>{continue}
-									{/if}
-									{* For Event: Show time_end and due_date fields normally *}
-									{if $FIELD_NAME eq 'time_end' || $FIELD_NAME eq 'due_date'}
-								</tr>
-								<tr>
-								{else}
-								</tr><tr>
-								{/if}
 								{/if}
 								{assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
 								{assign var="referenceList" value=$FIELD_MODEL->getReferenceList()}
@@ -194,7 +212,8 @@
 							</table>
 						</div>
 						
-						{* Repeat Section (UI Only - Phase 1) *}
+						{* Repeat + Optional Details: chỉ cho EVENT, không cho Task *}
+						{if $MODULE eq 'Events'}
 						<div class="calendar-repeat-section" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
 							<div class="form-group" style="margin-bottom: 0;">
 								<label class="control-label" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Repeat</label>
@@ -208,45 +227,21 @@
 								<input type="hidden" name="recurringtype" id="calendar_recurringtype_hidden" value="" />
 							</div>
 						</div>
-						
-						{* Optional Fields Section - Different for Task vs Event *}
-						{if $IS_TASK}
-							{* Task: Deadline field + Description only *}
-							<div class="calendar-task-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
-								<h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5>
-								<div class="form-group" style="margin-bottom: 10px;">
-									<label class="control-label" style="font-size: 12px;">Add deadline</label>
-									{* Use existing due_date field if available, else create UI-only field *}
-									{assign var="DEADLINE_FIELD" value=$RECORD_STRUCTURE['due_date']}
-									{if $DEADLINE_FIELD}
-										{* due_date already exists, will be rendered in RECORD_STRUCTURE loop *}
-										<input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="{$USER_MODEL->get('date_format')}" />
-									{else}
-										<input type="text" name="task_deadline" id="task_deadline" class="form-control dateField" placeholder="Select deadline" style="font-size: 13px;" data-date-format="{$USER_MODEL->get('date_format')}" />
-									{/if}
-								</div>
-								<div class="form-group" style="margin-bottom: 0;">
-									<label class="control-label" style="font-size: 12px;">Description</label>
-									<textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea>
-								</div>
+						<div class="calendar-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
+							<h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5>
+							<div class="form-group" style="margin-bottom: 10px;">
+								<label class="control-label" style="font-size: 12px;">Location</label>
+								<input type="text" name="location" class="form-control" placeholder="Add location" style="font-size: 13px;" />
 							</div>
-						{else}
-							{* Event: Location, Meeting Link, Description *}
-							<div class="calendar-optional-fields" style="margin-top: 15px; padding: 10px 15px; background: #f9f9f9; border-radius: 4px;">
-								<h5 style="margin-top: 0; margin-bottom: 12px; font-size: 13px; color: #666; font-weight: bold;">Optional Details</h5>
-								<div class="form-group" style="margin-bottom: 10px;">
-									<label class="control-label" style="font-size: 12px;">Location</label>
-									<input type="text" name="location" class="form-control" placeholder="Add location" style="font-size: 13px;" />
-								</div>
-								<div class="form-group" style="margin-bottom: 10px;">
-									<label class="control-label" style="font-size: 12px;">Meeting Link</label>
-									<input type="url" name="meeting_link" class="form-control" placeholder="https://meet.google.com/..." style="font-size: 13px;" />
-								</div>
-								<div class="form-group" style="margin-bottom: 0;">
-									<label class="control-label" style="font-size: 12px;">Description</label>
-									<textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea>
-								</div>
+							<div class="form-group" style="margin-bottom: 10px;">
+								<label class="control-label" style="font-size: 12px;">Meeting Link</label>
+								<input type="url" name="meeting_link" class="form-control" placeholder="https://meet.google.com/..." style="font-size: 13px;" />
 							</div>
+							<div class="form-group" style="margin-bottom: 0;">
+								<label class="control-label" style="font-size: 12px;">Description</label>
+								<textarea name="description" class="form-control" rows="3" placeholder="Add description" style="font-size: 13px; resize: vertical;"></textarea>
+							</div>
+						</div>
 						{/if}
 					</div>
 				</div>

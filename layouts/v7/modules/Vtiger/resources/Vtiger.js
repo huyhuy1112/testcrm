@@ -1300,6 +1300,10 @@ Vtiger.Class('Vtiger_Index_Js', {
 	},
 
 	modulesMenuScrollbar : function(){
+		// Trên Schedule (Calendar view) không dùng mCustomScrollbar cho nav để tránh chặn kéo/chọn lịch
+		if (app.getModuleName() === 'Calendar' && app.getViewName() === 'Calendar') {
+			return;
+		}
 		app.helper.showVerticalScroll(jQuery("#modnavigator #modules-menu"),{autoHideScrollbar:true});
 	},
 

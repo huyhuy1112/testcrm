@@ -1,5 +1,6 @@
 {strip}
-<link rel="stylesheet" type="text/css" href="layouts/v7/modules/Teams/resources/teams.css" media="screen" />
+{* Cache-bust: đổi ?v= khi sửa CSS/JS để refresh tải bản mới *}
+<link rel="stylesheet" type="text/css" href="layouts/v7/modules/Teams/resources/teams.css?v=2" media="screen" />
 
 <div class="teams-page-container">
 	<!-- Modern Header Section -->
@@ -53,23 +54,82 @@
 		</ul>
 	</div>
 
-	<!-- Content Area -->
+	<!-- Content Area: tab People = giao diện ProofHub (sidebar + main), còn lại giữ cũ -->
 	<div class="teams-content-wrapper">
-		<div class="teams-content">
-			{if $ACTIVE_TAB eq 'groups'}
-				{include file='partials/Groups.tpl'|@vtemplate_path:$MODULE}
-			{elseif $ACTIVE_TAB eq 'settings'}
-				{include file='partials/Settings.tpl'|@vtemplate_path:$MODULE}
-			{else}
-				{include file='partials/People.tpl'|@vtemplate_path:$MODULE}
-			{/if}
-		</div>
+		{if $ACTIVE_TAB eq 'people'}
+			<div class="teams-people-layout">
+				<div class="teams-people-sidebar">
+					<h3 class="teams-people-sidebar-title">{vtranslate('LBL_PEOPLE','Teams')}</h3>
+					<div class="teams-people-groups-section">
+						<div class="teams-people-groups-header">
+							<span class="teams-people-groups-label">
+								<i class="fa fa-users" aria-hidden="true"></i>
+								{vtranslate('LBL_GROUPS','Teams')}
+							</span>
+							<button type="button" class="teams-sidebar-icon js-add-group" data-url="index.php?module=Teams&view=AddGroup&app=Management" title="{vtranslate('LBL_ADD_GROUP','Vtiger')}"><i class="fa fa-plus"></i></button>
+							<span class="teams-sidebar-icon" title="{vtranslate('LBL_SEARCH','Vtiger')}"><i class="fa fa-search"></i></span>
+						</div>
+						<ul class="teams-people-groups-list">
+							<li class="{if $SELECTED_GROUP_ID eq 0}active{/if}">
+								<a href="index.php?module=Teams&view=List&tab=people&app=Management">
+									{vtranslate('LBL_ALL_PEOPLE','Teams')}
+									<span class="teams-group-count">{$ALL_PEOPLE_ACTIVE_COUNT} {vtranslate('LBL_ACTIVE','Teams')}</span>
+								</a>
+							</li>
+							{foreach item=GRP from=$GROUPS_SIDEBAR}
+							<li class="{if $SELECTED_GROUP_ID eq $GRP.groupid}active{/if}">
+								<a href="index.php?module=Teams&view=List&tab=people&app=Management&groupid={$GRP.groupid}">
+									{$GRP.group_name|decode_html}
+									<span class="teams-group-count">{$GRP.active_count} {vtranslate('LBL_ACTIVE','Teams')}</span>
+								</a>
+							</li>
+							{/foreach}
+						</ul>
+					</div>
+				</div>
+				<div class="teams-people-main">
+					<div class="teams-people-main-header">
+						<span class="teams-people-current-view">
+							<i class="fa fa-list" aria-hidden="true"></i>
+							{if $SELECTED_GROUP_ID eq 0}
+								{vtranslate('LBL_ALL_PEOPLE','Teams')}
+							{else}
+								{foreach item=GRP from=$GROUPS_SIDEBAR}
+									{if $SELECTED_GROUP_ID eq $GRP.groupid}{$GRP.group_name|decode_html}{/if}
+								{/foreach}
+							{/if}
+						</span>
+						{if $CAN_ADD_PERSON}
+						<div class="teams-people-add-wrap">
+							<button type="button" class="btn btn-primary teams-people-add-btn js-add-person" data-url="index.php?module=Teams&view=People&app=Management&mode=modal">
+								<i class="fa fa-plus" aria-hidden="true"></i> {vtranslate('LBL_ADD','Vtiger')}
+							</button>
+						</div>
+						{/if}
+						<input type="text" class="teams-people-search form-control" placeholder="{vtranslate('LBL_SEARCH_PEOPLE','Teams')}..." id="teams-people-search-input" />
+						<span class="teams-people-filter-icon" title="{vtranslate('LBL_FILTER','Vtiger')}"><i class="fa fa-filter"></i></span>
+						<span class="teams-people-more-icon" title="{vtranslate('LBL_MORE','Vtiger')}"><i class="fa fa-ellipsis-v"></i></span>
+					</div>
+					<div class="teams-people-content">
+						{include file='partials/People.tpl'|@vtemplate_path:$MODULE}
+					</div>
+				</div>
+			</div>
+		{else}
+			<div class="teams-content">
+				{if $ACTIVE_TAB eq 'groups'}
+					{include file='partials/Groups.tpl'|@vtemplate_path:$MODULE}
+				{elseif $ACTIVE_TAB eq 'settings'}
+					{include file='partials/Settings.tpl'|@vtemplate_path:$MODULE}
+				{/if}
+			</div>
+		{/if}
 	</div>
 </div>
 {/strip}
-<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/TeamsModal.js')}"></script>
-<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/Group.js')}"></script>
-<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/Person.js')}"></script>
+<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/TeamsModal.js')}?v=2"></script>
+<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/Group.js')}?v=2"></script>
+<script type="text/javascript" src="{vresource_url('layouts/v7/modules/Teams/resources/Person.js')}?v=2"></script>
 <script type="text/javascript">
 {literal}
 jQuery(document).ready(function($) {
@@ -116,6 +176,35 @@ jQuery(document).ready(function($) {
 	$(window).on('beforeunload', function() {
 		$('.teams-project-count').popover('destroy');
 	});
+
+	// ProofHub: search people by name/email
+	$('#teams-people-search-input').on('keyup', function() {
+		var q = $(this).val().toLowerCase();
+		$('.teams-people-row').each(function() {
+			var $row = $(this);
+			var name = ($row.find('.teams-people-name-link').text() + ' ' + $row.find('.teams-people-email-cell').text()).toLowerCase();
+			$row.toggle(name.indexOf(q) !== -1);
+		});
+	});
+
+	// ProofHub: collapse/expand role sections
+	$('.js-role-toggle').on('click', function() {
+		var role = $(this).data('role');
+		var $rows = $('.teams-role-row[data-role="' + role + '"]');
+		var $chevron = $(this).find('.teams-role-chevron');
+		if ($rows.hasClass('teams-role-collapsed')) {
+			$rows.removeClass('teams-role-collapsed');
+			$chevron.removeClass('fa-chevron-right').addClass('fa-chevron-down');
+		} else {
+			$rows.addClass('teams-role-collapsed');
+			$chevron.removeClass('fa-chevron-down').addClass('fa-chevron-right');
+		}
+	});
+
+	// ProofHub: select all checkbox
+	$('.teams-people-select-all').on('change', function() {
+		$('.teams-people-row-select').prop('checked', $(this).prop('checked'));
+	});
 	
 	// Auto-refresh status every 5 seconds (only on People tab) - more frequent for better real-time updates
 	if (window.location.href.indexOf('tab=people') !== -1 || window.location.href.indexOf('tab=') === -1) {
@@ -132,7 +221,7 @@ jQuery(document).ready(function($) {
 					// Update status for each user row
 					$('tbody tr[data-userid]').each(function() {
 						var $row = $(this);
-						var $statusCell = $row.find('td:nth-child(5)'); // Status column
+						var $statusCell = $row.find('td:nth-child(6)'); // Last active column
 						
 						// Get user ID from data attribute
 						var userId = parseInt($row.attr('data-userid'));

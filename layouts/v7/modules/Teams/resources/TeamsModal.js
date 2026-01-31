@@ -247,7 +247,8 @@
 							
 							if (response && response.success) {
 								closeModal();
-								window.location.reload();
+								// Về lại trang Teams tab People sau khi save Add Person
+								window.location.href = 'index.php?module=Teams&view=List&tab=people&app=Management';
 							} else {
 								var errorMsg = 'Save failed';
 								if (response && response.error) {

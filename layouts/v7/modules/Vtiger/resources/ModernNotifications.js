@@ -172,7 +172,7 @@
           console.warn(
             "[NotificationSound] 💡 Possible causes: CORS issue, path incorrect, or file missing"
           );
-        });
+      });
     },
 
     initSound: function () {
@@ -298,9 +298,9 @@
             );
           } finally {
             // Always clean up event listeners
-            document.removeEventListener("click", preloadSound);
-            document.removeEventListener("touchstart", preloadSound);
-            document.removeEventListener("keydown", preloadSound);
+          document.removeEventListener("click", preloadSound);
+          document.removeEventListener("touchstart", preloadSound);
+          document.removeEventListener("keydown", preloadSound);
             document.removeEventListener("mousedown", preloadSound);
           }
         };
@@ -409,7 +409,7 @@
               self.updateUnreadUI(response);
               // Only check for new notifications after first load
               if (!self.isFirstLoad) {
-                self.checkForNewNotifications(response.list);
+              self.checkForNewNotifications(response.list);
               } else {
                 // On first load, initialize previousIds with current notifications
                 // This prevents sound from playing for existing notifications
@@ -942,9 +942,9 @@
       // - User marks notifications as read (count decreases, but no new IDs)
       // - Opening notification list (no new notifications)
       if (hasNew) {
-        this.playSound();
-        // Add shake animation to bell icon
-        this.shakeBell();
+          this.playSound();
+          // Add shake animation to bell icon
+          this.shakeBell();
       }
 
       // Update previousIds to current list (for next comparison)
@@ -1069,11 +1069,11 @@
                       );
                     })
                     .catch(function (e) {
-                      console.warn(
+                  console.warn(
                         "[NotificationSound] ❌ Fallback sound also failed:",
                         e.message
-                      );
-                    });
+                  );
+                });
                 } else {
                   // Fallback play() returned undefined - assume it worked (old browser)
                   console.log(

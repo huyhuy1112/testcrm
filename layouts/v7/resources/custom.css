@@ -38,135 +38,7 @@ html:not(:has(body[data-module="Calendar"])) {
     overflow-x: hidden !important;
 }
 
-/* ========== Schedule (Calendar) - CẢ TRANG SCROLL, BỎ BLOCK ========== */
-/* Dùng cả data-module và :has() để chắc chắn áp dụng (kể cả khi load pjax) */
-body[data-module="Calendar"],
-body:has(.CalendarViewPageDiv) {
-    overflow-x: hidden !important;
-    overflow-y: scroll !important;
-    min-height: 100vh !important;
-    height: auto !important;
-    max-height: none !important;
-}
-
-/* html cũng cho phép scroll (trình duyệt hỗ trợ :has()) */
-html:has(body[data-module="Calendar"]),
-html:has(.CalendarViewPageDiv) {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    height: auto !important;
-    min-height: 100% !important;
-}
-
-/* Header không fixed: cuộn theo trang */
-body[data-module="Calendar"] .navbar-fixed-top,
-body[data-module="Calendar"] nav.app-fixed-navbar,
-body[data-module="Calendar"] .app-fixed-navbar,
-body:has(.CalendarViewPageDiv) .navbar-fixed-top,
-body:has(.CalendarViewPageDiv) nav.app-fixed-navbar {
-    position: relative !important;
-    top: auto !important;
-}
-
-body[data-module="Calendar"] #page,
-body:has(.CalendarViewPageDiv) #page {
-    padding-top: 0 !important;
-    overflow: visible !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-}
-
-/* Wrapper chính (skin có overflow-y: auto ở đây → bỏ để scroll về body) */
-body[data-module="Calendar"] #content-wrapper,
-body[data-module="Calendar"] #sidebar-wrapper,
-body:has(.CalendarViewPageDiv) #content-wrapper,
-body:has(.CalendarViewPageDiv) #sidebar-wrapper {
-    overflow: visible !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-}
-
-/* Mọi wrapper: không overflow hidden, không ép height */
-body[data-module="Calendar"] .main-container,
-body[data-module="Calendar"] .viewContent,
-body[data-module="Calendar"] .content-area,
-body[data-module="Calendar"] .CalendarViewPageDiv,
-body:has(.CalendarViewPageDiv) .main-container,
-body:has(.CalendarViewPageDiv) .viewContent,
-body:has(.CalendarViewPageDiv) .content-area,
-body:has(.CalendarViewPageDiv) .CalendarViewPageDiv {
-    overflow: visible !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-}
-
-body[data-module="Calendar"] .main-container,
-body:has(.CalendarViewPageDiv) .main-container {
-    min-height: 0 !important;
-}
-
-body[data-module="Calendar"] .CalendarViewPageDiv,
-body:has(.CalendarViewPageDiv) .CalendarViewPageDiv {
-    padding-left: 15px;
-}
-
-/* Khung lịch */
-body[data-module="Calendar"] #mycalendar,
-body[data-module="Calendar"] .calendarview,
-body:has(.CalendarViewPageDiv) #mycalendar,
-body:has(.CalendarViewPageDiv) .calendarview {
-    min-height: 400px;
-    height: auto !important;
-}
-
-body[data-module="Calendar"] .fc,
-body:has(.CalendarViewPageDiv) .fc {
-    min-height: 400px;
-}
-
-/* Week/Day: cuộn bên trong */
-body[data-module="Calendar"] .fc-scroller,
-body[data-module="Calendar"] .fc-time-grid-container,
-body[data-module="Calendar"] .fc-scroller.fc-time-grid-container,
-body[data-module="Calendar"] .fc-agenda-body .fc-scroller,
-body:has(.CalendarViewPageDiv) .fc-scroller,
-body:has(.CalendarViewPageDiv) .fc-time-grid-container {
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    max-height: calc(100vh - 220px) !important;
-    min-height: 360px !important;
-}
-
-/* Scrollbar */
-body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar,
-body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar,
-body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar,
-body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar {
-    width: 10px;
-}
-body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-track,
-body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-track,
-body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-track,
-body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-thumb,
-body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-thumb,
-body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-thumb,
-body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-}
-body[data-module="Calendar"] .fc-scroller::-webkit-scrollbar-thumb:hover,
-body[data-module="Calendar"] .fc-time-grid-container::-webkit-scrollbar-thumb:hover,
-body:has(.CalendarViewPageDiv) .fc-scroller::-webkit-scrollbar-thumb:hover,
-body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
+/* Calendar (Schedule): toàn bộ style nằm trong layouts/v7/modules/Calendar/resources/calendar-google.css */
 
 .app-fixed-navbar{
     background: #fff;
@@ -760,7 +632,7 @@ body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb:
     background: rgba(255,255,255,0.08);
     color: #fff;
 }
-.modules-menu ul li:hover,
+.modules-menu ul li:hover, 
 .modules-menu ul li.active{
     background: rgba(255,255,255,0.06);
 }
@@ -775,38 +647,6 @@ body:has(.CalendarViewPageDiv) .fc-time-grid-container::-webkit-scrollbar-thumb:
     float:left;
     background: linear-gradient(180deg, #3d5a80 0%, #293241 100%);
     border-left: 1px solid rgba(255,255,255,0.08);
-}
-
-/* Sidebar Calendar: cùng style chỉ icon, không màu mè */
-body[data-module="Calendar"] .calendar-navigator .mod-switcher-container,
-body[data-module="Calendar"] .main-container .calendar-navigator.module-nav {
-    width: 56px !important;
-}
-body[data-module="Calendar"] .mod-switcher-container {
-    background: #2c3e50 !important;
-}
-body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a span { display: none !important; }
-body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a { border-left: none !important; text-align: center; }
-body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a:hover { background: rgba(255,255,255,0.08) !important; }
-body[data-module="Calendar"] .calendar-navigator .modules-menu ul li.active a { background: rgba(255,255,255,0.1) !important; font-weight: normal !important; }
-body[data-module="Calendar"] #sidebar-essentials.sidebar-essentials {
-    width: 170px !important;
-    min-width: 170px;
-    max-width: 170px;
-    background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%) !important;
-    border-left: 1px solid rgba(255,255,255,0.06);
-}
-body[data-module="Calendar"] .calendar-sidebar-tab .sidebar-widget-header,
-body[data-module="Calendar"] .sidebar-widget-header {
-    background: rgba(52,152,219,0.2) !important;
-    color: #ecf0f1 !important;
-    border-radius: 4px;
-    margin: 4px 6px;
-    padding: 8px 10px !important;
-}
-body[data-module="Calendar"] .calendar-navigator .modules-menu ul li a {
-    padding: 10px 10px;
-    font-size: 11px;
 }
 
 /* Trang Teams: sidebar chỉ icon, không che nút */
@@ -855,6 +695,114 @@ body[data-module="Teams"] .teams-header-right {
 body[data-module="Teams"] .teams-action-btn {
     position: relative !important;
     z-index: 3 !important;
+}
+
+/* ========== Sidebar Essentials: các trang khác (Leads, Contacts, Project, Reports, ...) ========== */
+/* Trừ Calendar và Teams đã có sidebar riêng */
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials.sidebar-essentials {
+    display: inline-block !important;
+    width: 240px !important;
+    min-width: 240px !important;
+    position: absolute !important;
+    left: 56px !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    min-height: 100% !important;
+    background: linear-gradient(180deg, #3d4f5c 0%, #2c3e50 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.06) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    z-index: 1 !important;
+    padding: 0 !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .sidebar-menu {
+    display: block !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 10px 0 24px !important;
+    min-height: 100% !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .sidebar-header,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .lists-header,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials h5.sidebar-header {
+    color: rgba(255,255,255,0.85) !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.04em !important;
+    margin: 12px 12px 6px !important;
+    padding: 0 !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .sidebar-container,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .module-filters .sidebar-container {
+    padding: 0 12px 12px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials hr {
+    border: 0 !important;
+    height: 1px !important;
+    background: rgba(255,255,255,0.1) !important;
+    margin: 6px 12px 10px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .sidebar-btn {
+    background: rgba(255,255,255,0.15) !important;
+    border: none !important;
+    color: #fff !important;
+    padding: 4px 8px !important;
+    border-radius: 4px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .sidebar-btn:hover {
+    background: rgba(255,255,255,0.25) !important;
+    color: #fff !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .search-list {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #ecf0f1 !important;
+    border-radius: 6px !important;
+    margin: 6px 12px 10px !important;
+    padding: 8px 10px !important;
+    width: calc(100% - 24px) !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .search-list::placeholder {
+    color: rgba(255,255,255,0.4) !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .lists-menu > li {
+    margin: 0 !important;
+    padding: 6px 10px !important;
+    border-radius: 4px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .lists-menu > li > a {
+    color: rgba(255,255,255,0.9) !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .lists-menu > li:hover,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .lists-menu > li.active {
+    background: rgba(255,255,255,0.08) !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .toggleFilterSize {
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 11px !important;
+    padding: 4px 12px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .listViewTagContainer .tag,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials .multiLevelTagList .tag {
+    background: rgba(255,255,255,0.15) !important;
+    color: #ecf0f1 !important;
+    border: none !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials::-webkit-scrollbar {
+    width: 6px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2) !important;
+    border-radius: 3px !important;
+}
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+/* Khi ẩn sidebar (nút thu gọn): content full-width */
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials.sidebar-essentials.hide + .listViewPageDiv.content-area,
+body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container #sidebar-essentials.sidebar-essentials.hide + .content-area {
+    padding-left: 72px !important;
 }
 
 

@@ -58,6 +58,12 @@ class Calendar_Save_Action extends Vtiger_Save_Action {
 				}
 			} else if ($request->get('returnmodule') && $request->get('returnview')){
 				$loadUrl = 'index.php?'.$request->getReturnURL();
+			} else if (($request->getModule() === 'Calendar' || $request->getModule() === 'Events') && !$request->get('relationOperation') && !$request->get('returnToList')) {
+				// Save từ Schedule (Calendar/Events): về lại giao diện Schedule
+				$loadUrl = 'index.php?module=Calendar&view=Calendar';
+				if ($request->get('app')) {
+					$loadUrl .= '&app=' . $request->get('app');
+				}
 			}
 			header("Location: $loadUrl");
 		} catch (DuplicateException $e) {

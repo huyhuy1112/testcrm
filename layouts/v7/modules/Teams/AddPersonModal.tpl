@@ -29,6 +29,11 @@
 			<input type="text" name="title" class="form-control" required placeholder="Enter job title" />
 		</div>
 
+		<div class="form-group">
+			<label class="control-label">{vtranslate('LBL_DATE_JOINED_COMPANY','Teams')}</label>
+			<input type="date" name="date_joined_company" class="form-control" placeholder="YYYY-MM-DD" />
+		</div>
+
 		<div class="teams-modal-grid">
 			<div class="form-group">
 				<label class="control-label">Access role *</label>

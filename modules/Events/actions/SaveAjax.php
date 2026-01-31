@@ -235,6 +235,13 @@ class Events_SaveAjax_Action extends Events_Save_Action {
 			$_REQUEST['set_reminder'] = 'No';
 		}
 
+		// All day: giống Calendar — khi tick "All day" lưu 00:00:00 / 23:59:59 để Feed hiển thị lên ô All-Day
+		$allday = $request->get('allday');
+		if ($allday == '1' || $allday === true) {
+			$recordModel->set('time_start', '00:00:00');
+			$recordModel->set('time_end', '23:59:59');
+		}
+
 		return $recordModel;
 	}
 

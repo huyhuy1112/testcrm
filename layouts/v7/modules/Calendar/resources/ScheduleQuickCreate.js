@@ -29,6 +29,9 @@
 			this.setupDurationDisplay();
 			this.setupTimeSync();
 			this.setupRepeatDropdown();
+			if (moduleName === 'Calendar') {
+				this.setupTaskDatetimeSummary();
+			}
 			
 			this.initialized = true;
 		},
@@ -193,6 +196,69 @@
 				
 				CalendarQuickCreate.updateDuration();
 			});
+		},
+
+		/**
+		 * Task form: cập nhật dòng "Thursday, January 1 8:45am - 4:45pm" khi đổi ngày/giờ
+		 */
+		setupTaskDatetimeSummary: function() {
+			var $container = $('#QuickCreate');
+			var $summary = $container.find('.calendar-qc-datetime-summary');
+			if (!$summary.length) return;
+
+			var update = function() {
+				CalendarQuickCreate.updateTaskDatetimeSummary();
+			};
+
+			$container.find('input[name="date_start"], input[name="time_start"], input[name="due_date"], input[name="time_end"]')
+				.on('change.calendar-qc-summary blur.calendar-qc-summary', update);
+
+			setTimeout(update, 800);
+		},
+
+		updateTaskDatetimeSummary: function() {
+			var $container = $('#QuickCreate');
+			var $summary = $container.find('.calendar-qc-datetime-summary');
+			if (!$summary.length) return;
+
+			var $dateStart = $container.find('input[name="date_start"]');
+			var $timeStart = $container.find('input[name="time_start"]');
+			var $dateEnd = $container.find('input[name="due_date"]');
+			var $timeEnd = $container.find('input[name="time_end"]');
+
+			var dateStartStr = $dateStart.val();
+			var timeStartStr = $timeStart.val();
+
+			if (!dateStartStr) {
+				$summary.text('—');
+				return;
+			}
+
+			var fmt = 'dddd, MMMM D h:mma';
+			try {
+				var mStart = null;
+				if (typeof moment !== 'undefined') {
+					var userFmt = $dateStart.data('date-format') || 'yyyy-mm-dd';
+					var mFmt = userFmt.replace(/yyyy/i, 'YYYY').replace(/dd/i, 'DD').replace(/mm/i, 'MM');
+					mStart = moment(dateStartStr + (timeStartStr ? ' ' + timeStartStr : ' 00:00'), mFmt + (timeStartStr ? ' HH:mm' : ''));
+					if (!mStart.isValid()) mStart = moment(dateStartStr + (timeStartStr ? ' ' + timeStartStr : ''));
+				}
+				if (!mStart || !mStart.isValid()) {
+					$summary.text(dateStartStr + (timeStartStr ? ' ' + timeStartStr : ''));
+					return;
+				}
+				var startText = mStart.format(fmt);
+				var dateEndStr = $dateEnd && $dateEnd.val ? $dateEnd.val() : '';
+				var timeEndStr = $timeEnd && $timeEnd.val ? $timeEnd.val() : '';
+				if (dateEndStr) {
+					var mEndFmt = ($dateEnd.data('date-format') || 'yyyy-mm-dd').replace(/yyyy/i, 'YYYY').replace(/dd/i, 'DD').replace(/mm/i, 'MM');
+					var mEnd = timeEndStr ? moment(dateEndStr + ' ' + timeEndStr, mEndFmt + ' HH:mm') : moment(dateEndStr, mEndFmt);
+					if (mEnd.isValid()) startText += ' – ' + (timeEndStr ? mEnd.format('h:mma') : mEnd.format('MMMM D'));
+				}
+				$summary.text(startText);
+			} catch (e) {
+				$summary.text(dateStartStr + (timeStartStr ? ' ' + timeStartStr : ''));
+			}
 		},
 
 		/**

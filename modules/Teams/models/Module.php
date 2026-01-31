@@ -84,6 +84,17 @@ class Teams_Module_Model extends Vtiger_Module_Model {
 	}
 
 	/**
+	 * Ensure vtiger_users has date_joined_company column (ngày vào công ty).
+	 */
+	public static function ensureDateJoinedCompanyColumn() {
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SHOW COLUMNS FROM vtiger_users LIKE ?", array('date_joined_company'));
+		if (!$res || $db->num_rows($res) === 0) {
+			$db->pquery("ALTER TABLE vtiger_users ADD COLUMN date_joined_company DATE NULL DEFAULT NULL", array());
+		}
+	}
+
+	/**
 	 * Ensure user presence table exists.
 	 */
 	public static function ensureUserActivitySchema() {

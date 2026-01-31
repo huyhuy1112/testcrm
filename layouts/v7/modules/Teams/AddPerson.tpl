@@ -70,14 +70,9 @@
 		<div class="row">
 			<div class="col-sm-6">
 				<div class="form-group">
-					<label class="control-label col-sm-4">Group *</label>
+					<label class="control-label col-sm-4">{vtranslate('LBL_DATE_JOINED_COMPANY','Teams')}</label>
 					<div class="col-sm-8">
-						<select name="team_groupid" class="form-control" required>
-							<option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
-							{foreach item=G from=$TEAM_GROUPS_LIST}
-								<option value="{$G.groupid|escape}">{$G.group_name|escape}</option>
-							{/foreach}
-						</select>
+						<input type="date" name="date_joined_company" class="form-control" />
 					</div>
 				</div>
 			</div>
@@ -89,6 +84,22 @@
 							<option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
 							{foreach item=R from=$ROLES}
 								<option value="{$R.roleid|escape}">{$R.rolename|escape}</option>
+							{/foreach}
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-6">
+				<div class="form-group">
+					<label class="control-label col-sm-4">Group *</label>
+					<div class="col-sm-8">
+						<select name="team_groupid" class="form-control" required>
+							<option value="">{vtranslate('LBL_SELECT_OPTION','Vtiger')}</option>
+							{foreach item=G from=$TEAM_GROUPS_LIST}
+								<option value="{$G.groupid|escape}">{$G.group_name|escape}</option>
 							{/foreach}
 						</select>
 					</div>

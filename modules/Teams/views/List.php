@@ -64,20 +64,53 @@ class Teams_List_View extends Vtiger_List_View {
 					array($currentUserId)
 				);
 			}
-			
-			$people = array();
-			$res = $db->pquery(
-				"SELECT u.id, u.first_name, u.last_name, u.user_name, u.email1 AS email, u.is_admin, u.status, ua.last_seen
-				 FROM vtiger_users u
-				 LEFT JOIN vtiger_user_activity ua ON ua.userid = u.id
-				 WHERE u.deleted = 0
-				 ORDER BY u.is_admin DESC, u.last_name ASC, u.first_name ASC",
+
+			// Groups for sidebar (ProofHub style)
+			$groupsForSidebar = array();
+			$grpRes = $db->pquery(
+				"SELECT g.groupid, g.group_name,
+					(SELECT COUNT(*) FROM vtiger_team_group_users gu
+					 INNER JOIN vtiger_users u ON u.id = gu.userid
+					 WHERE gu.groupid = g.groupid AND u.deleted = 0 AND u.status = 'Active') AS active_count
+				 FROM vtiger_team_groups g ORDER BY g.group_name",
 				array()
 			);
+			while ($grpRes && ($gRow = $db->fetchByAssoc($grpRes))) {
+				$groupsForSidebar[] = $gRow;
+			}
+			$selectedGroupId = (int) $request->get('groupid');
+			
+			$people = array();
+			$baseSql = "SELECT u.id, u.first_name, u.last_name, u.user_name, u.email1 AS email, u.is_admin, u.status, ua.last_seen
+				 FROM vtiger_users u
+				 LEFT JOIN vtiger_user_activity ua ON ua.userid = u.id
+				 WHERE u.deleted = 0";
+			$params = array();
+			if ($selectedGroupId > 0) {
+				$baseSql .= " AND u.id IN (SELECT userid FROM vtiger_team_group_users WHERE groupid = ?)";
+				$params[] = $selectedGroupId;
+			}
+			$baseSql .= " ORDER BY u.is_admin DESC, u.last_name ASC, u.first_name ASC";
+			$res = $db->pquery($baseSql, $params);
 			$userIds = array();
 			while ($res && ($row = $db->fetchByAssoc($res))) {
 				$userIds[] = (int)$row['id'];
 				$people[] = $row;
+			}
+
+			// Role per user (ProofHub: Access role)
+			$roleMap = array();
+			if (!empty($userIds)) {
+				$roleRes = $db->pquery(
+					"SELECT u2r.userid, r.rolename
+					 FROM vtiger_user2role u2r
+					 INNER JOIN vtiger_role r ON r.roleid = u2r.roleid
+					 WHERE u2r.userid IN (" . generateQuestionMarks($userIds) . ")",
+					$userIds
+				);
+				while ($roleRes && ($rRow = $db->fetchByAssoc($roleRes))) {
+					$roleMap[(int)$rRow['userid']] = $rRow['rolename'];
+				}
 			}
 
 			// Groups per user
@@ -173,12 +206,16 @@ class Teams_List_View extends Vtiger_List_View {
 						}
 					}
 				}
+				$fullName = trim($row['first_name'].' '.$row['last_name']);
+				$initial = $fullName !== '' ? strtoupper(mb_substr($fullName, 0, 1)) : '?';
 				$normalized[] = array(
 					'id' => $uid,
-					'full_name' => trim($row['first_name'].' '.$row['last_name']),
+					'full_name' => $fullName,
+					'initial' => $initial,
 					'user_name' => $row['user_name'],
 					'email' => $row['email'],
 					'groups' => isset($groupMap[$uid]) ? $groupMap[$uid] : array(),
+					'role_name' => isset($roleMap[$uid]) ? $roleMap[$uid] : '',
 					'project_count' => isset($projectCount[$uid]) ? $projectCount[$uid] : 0,
 					'projects' => isset($projectMap[$uid]) ? $projectMap[$uid] : array(),
 					'is_online' => $isOnline,
@@ -187,7 +224,26 @@ class Teams_List_View extends Vtiger_List_View {
 					'is_admin' => ($row['is_admin'] == 'on' || $row['is_admin'] == 1),
 				);
 			}
+			$allPeopleActiveCount = (int) $db->query_result(
+				$db->pquery("SELECT COUNT(*) FROM vtiger_users WHERE deleted = 0 AND status = 'Active'", array()), 0, 0
+			);
+			// ProofHub style: nhóm theo role (Owner, Normal User...)
+			$peopleByRole = array();
+			foreach ($normalized as $p) {
+				$role = trim($p['role_name']) !== '' ? $p['role_name'] : 'No role';
+				if (!isset($peopleByRole[$role])) $peopleByRole[$role] = array();
+				$peopleByRole[$role][] = $p;
+			}
+			uksort($peopleByRole, function ($a, $b) {
+				if (stripos($a, 'Owner') !== false || stripos($a, 'Admin') !== false) return -1;
+				if (stripos($b, 'Owner') !== false || stripos($b, 'Admin') !== false) return 1;
+				return strcasecmp($a, $b);
+			});
 			$viewer->assign('PEOPLE', $normalized);
+			$viewer->assign('PEOPLE_BY_ROLE', $peopleByRole);
+			$viewer->assign('GROUPS_SIDEBAR', $groupsForSidebar);
+			$viewer->assign('SELECTED_GROUP_ID', $selectedGroupId);
+			$viewer->assign('ALL_PEOPLE_ACTIVE_COUNT', $allPeopleActiveCount);
 			$viewer->assign('CAN_DEACTIVATE', $canDeactivate);
 		}
 

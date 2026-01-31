@@ -58,6 +58,15 @@ class Users_PreferenceDetail_View extends Vtiger_Detail_View {
 			$viewer = $this->getViewer($request);
 			$viewer->assign('RECORD', $recordModel);
 
+			// Ngày gia nhập công ty (date_joined_company) - from vtiger_users
+			if (class_exists('Teams_Module_Model')) {
+				Teams_Module_Model::ensureDateJoinedCompanyColumn();
+			}
+			$db = PearDatabase::getInstance();
+			$dateJoinedRes = $db->pquery("SELECT date_joined_company FROM vtiger_users WHERE id = ?", array($recordId));
+			$dateJoinedCompany = ($dateJoinedRes && $db->num_rows($dateJoinedRes) > 0) ? $db->query_result($dateJoinedRes, 0, 'date_joined_company') : '';
+			$viewer->assign('DATE_JOINED_COMPANY', $dateJoinedCompany);
+
 			$viewer->assign('MODULE_MODEL', $detailViewModel->getModule());
 			$viewer->assign('DETAILVIEW_LINKS', $detailViewLinks);
 

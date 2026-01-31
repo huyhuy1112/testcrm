@@ -143,4 +143,33 @@
 			<br>
 		{/if}
 	{/foreach}
+	{if $MODULE_NAME eq 'Users' && isset($DATE_JOINED_COMPANY)}
+		<div class="block block_custom" data-block="LBL_DATE_JOINED_COMPANY">
+			<div>
+				<h4>{vtranslate('LBL_DATE_JOINED_COMPANY','Teams')}</h4>
+			</div>
+			<hr>
+			<div class="blockData">
+				<table class="table detailview-table no-border">
+					<tbody>
+						<tr>
+							<td class="fieldLabel"><span class="muted">{vtranslate('LBL_DATE_JOINED_COMPANY','Teams')}</span></td>
+							<td class="fieldValue">
+								<span class="value textOverflowEllipsis">
+									{if $DATE_JOINED_COMPANY}
+										{$DATE_JOINED_COMPANY|decode_html}
+									{else}
+										<span class="muted">—</span>
+									{/if}
+								</span>
+							</td>
+							<td class="fieldLabel"></td>
+							<td class="fieldValue"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<br>
+		</div>
+	{/if}
 {/strip}

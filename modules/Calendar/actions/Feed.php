@@ -343,24 +343,36 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 				$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
 			}
 
+			// All-day: giống Task — time_start 00:00, time_end 23:59 → allDay true, start/end date-only
+			$timeStart = isset($record['time_start']) ? trim($record['time_start']) : '';
+			$timeEnd = isset($record['time_end']) ? trim($record['time_end']) : '';
+			$isAllDay = (empty($timeStart) || $timeStart === '00:00:00' || $timeStart === '00:00') && (empty($timeEnd) || $timeEnd === '23:59:59' || $timeEnd === '23:59:00' || $timeEnd === '23:59');
+
 			$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
 			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
 			$dateTimeComponents = explode(' ',$userDateTimeString);
-			$dateComponent = $dateTimeComponents[0];
-			//Conveting the date format in to Y-m-d.since full calendar expects in the same format
-			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$item['start'] = $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
+			$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
+			$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
+			$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
 
-			$dateTimeFieldInstance = new DateTimeField($record['due_date'].' '.$record['time_end']);
-			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
-			$dateTimeComponents = explode(' ',$userDateTimeString);
-			$dateComponent = $dateTimeComponents[0];
-			//Conveting the date format in to Y-m-d.since full calendar expects in the same format
-			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$item['end']   =  $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
+			$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
+			$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
+			$dateTimeComponentsEnd = explode(' ',$userDateTimeStringEnd);
+			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
+			$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
+			$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
+
+			if (!$isAllDay && $startTimePart !== '' && $endTimePart !== '') {
+				$item['start'] = $startDateYmd . ' ' . $startTimePart;
+				$item['end'] = $endDateYmd . ' ' . $endTimePart;
+				$item['allDay'] = false;
+			} else {
+				$item['start'] = $startDateYmd;
+				$item['end'] = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
+				$item['allDay'] = true;
+			}
 
 			$item['className'] = $cssClass;
-			$item['allDay'] = false;
 			$item['color'] = $color;
 			$item['textColor'] = $textColor;
 			$item['module'] = $moduleModel->getName();
@@ -424,20 +436,42 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$item['status'] = $record['status'];
 			$item['activitytype'] = $record['activitytype'];
 			$item['id'] = $crmid;
-			$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
-			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue();
-			$dateTimeComponents = explode(' ',$userDateTimeString);
-			$dateComponent = $dateTimeComponents[0];
-			//Conveting the date format in to Y-m-d.since full calendar expects in the same format
-			$dataBaseDateFormatedString = DateTimeField::__convertToDBFormat($dateComponent, $user->get('date_format'));
-			$item['start'] = $dataBaseDateFormatedString.' '. $dateTimeComponents[1];
+			// Dùng currentUser để timezone/giờ hiển thị khớp form và màu vẽ trên lịch
+			$timeStart = isset($record['time_start']) ? trim($record['time_start']) : '';
+			$timeEnd = isset($record['time_end']) ? trim($record['time_end']) : '';
+			$isAllDay = (empty($timeStart) || $timeStart === '00:00:00' || $timeStart === '00:00') && (empty($timeEnd) || $timeEnd === '23:59:59' || $timeEnd === '23:59:00' || $timeEnd === '23:59');
 
-			$item['end']   = $record['due_date'];
+			$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
+			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
+			$dateTimeComponents = explode(' ', $userDateTimeString);
+			$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
+			$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
+			$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
+
+			$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
+			$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
+			$dateTimeComponentsEnd = explode(' ', $userDateTimeStringEnd);
+			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
+			$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
+			$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
+
+			if (!$isAllDay && $startTimePart !== '' && $endTimePart !== '') {
+				// Task có giờ bắt đầu/kết thúc → hiển thị trên lưới giờ (allDay: false)
+				$item['start'] = $startDateYmd . ' ' . $startTimePart;
+				$item['end'] = $endDateYmd . ' ' . $endTimePart;
+				$item['allDay'] = false;
+			} else {
+				// Task all-day: start = ngày bắt đầu, end = ngày sau deadline (exclusive) → client parse YYYY-MM-DD local để không lệch timezone
+				$item['start'] = $startDateYmd;
+				$endExclusive = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
+				$item['end'] = $endExclusive;
+				$item['allDay'] = true;
+			}
+
 			$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
 			$item['color'] = $color;
 			$item['textColor'] = $textColor;
 			$item['module'] = $moduleModel->getName();
-			$item['allDay'] = true;
 			$item['fieldName'] = 'date_start,due_date';
 			$item['conditions'] = '';
 			$result[] = $item;

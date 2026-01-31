@@ -17,6 +17,7 @@ class Teams_SavePerson_Action extends Vtiger_Action_Controller {
 	public function process(Vtiger_Request $request) {
 		$db = PearDatabase::getInstance();
 		$currentUser = Users_Record_Model::getCurrentUserModel();
+		Teams_Module_Model::ensureDateJoinedCompanyColumn();
 
 		$first = trim($request->get('first_name'));
 		$last = trim($request->get('last_name'));
@@ -27,6 +28,7 @@ class Teams_SavePerson_Action extends Vtiger_Action_Controller {
 		$projectId = $request->get('projectid');
 		$timeZone = trim($request->get('time_zone'));
 		$password = $request->getRaw('password');
+		$dateJoinedCompany = trim($request->get('date_joined_company'));
 
 		if (empty($first) || empty($last) || empty($email) || empty($title) || empty($roleId) || empty($groupId) || empty($timeZone) || empty($password)) {
 			throw new AppException('LBL_REQUIRED_FIELDS_MISSING');
@@ -75,6 +77,14 @@ class Teams_SavePerson_Action extends Vtiger_Action_Controller {
 			array($groupId, $newUserId)
 		);
 
+		// Save ngày vào công ty (date joined company) if provided
+		if ($dateJoinedCompany !== '') {
+			$db->pquery(
+				"UPDATE vtiger_users SET date_joined_company = ? WHERE id = ?",
+				array($dateJoinedCompany, $newUserId)
+			);
+		}
+
 		// Regenerate privilege files for this user
 		require_once('modules/Users/CreateUserPrivilegeFile.php');
 		createUserPrivilegesfile($newUserId);
@@ -88,12 +98,12 @@ class Teams_SavePerson_Action extends Vtiger_Action_Controller {
 			return;
 		}
 
-		// Redirect for non-AJAX requests
+		// Redirect for non-AJAX requests: về lại Teams tab People
 		$teamId = (int)$request->get('teamid');
 		if ($teamId > 0) {
 			header('Location: index.php?module=Teams&view=Detail&record='.$teamId.'&tab=groups&app=Management');
 		} else {
-			header('Location: index.php?module=Teams&view=List&app=Management');
+			header('Location: index.php?module=Teams&view=List&tab=people&app=Management');
 		}
 		exit;
 	}

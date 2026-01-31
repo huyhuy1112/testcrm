@@ -19,6 +19,7 @@ class Teams_AddPerson_View extends Vtiger_Index_View {
 
 	public function process(Vtiger_Request $request) {
 		Teams_Module_Model::ensureGroupSchema();
+		Teams_Module_Model::ensureDateJoinedCompanyColumn();
 
 		$viewer = $this->getViewer($request);
 		$db = PearDatabase::getInstance();
