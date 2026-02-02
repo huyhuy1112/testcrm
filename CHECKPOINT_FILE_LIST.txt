@@ -2,6 +2,11 @@
 # Date: 2026-01-23 09:14:59 +07
 # Use this list to restore files if needed
 
+## CHECKPOINT 2026-02-02 – Calendar Google (lấp khoảng trắng Month/Week/Day)
+# Thư mục: checkpoints/checkpoint_20260202_101205/
+# File: RESTORE_INSTRUCTIONS.txt (lệnh khôi phục chi tiết)
+# File lưu: layouts/v7/modules/Calendar/resources/calendar-google.css, Calendar.js
+
 ## TEAMS MODULE - PHP FILES
 modules/Teams/actions/DeleteGroup.php
 modules/Teams/actions/SaveGroup.php
