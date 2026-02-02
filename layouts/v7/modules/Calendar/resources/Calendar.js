@@ -1208,40 +1208,67 @@ Vtiger.Class("Calendar_Calendar_Js", {
 	showCreateEventModal: function (startDateTime, endDateTime) {
 		this.showCreateModal('Events', startDateTime, endDateTime);
 	},
+	choiceDialogOpen: false,
 	showCreateTaskOrEventChoice: function (start, end) {
 		var thisInstance = this;
+		if (this.choiceDialogOpen) {
+			return;
+		}
+		this.choiceDialogOpen = true;
 		var message = app.vtranslate('JS_SELECT_TASK_OR_EVENT') || 'Bạn muốn tạo Task hay Event?';
-		bootbox.dialog({
+		var buttons = {
+			task: {
+				label: app.vtranslate('LBL_ADD_TASK', 'Calendar'),
+				className: 'btn-default',
+				callback: function () {
+					thisInstance.choiceDialogOpen = false;
+					thisInstance.performingDayClickOperation = false;
+					thisInstance.showCreateModal('Calendar', start, end);
+				}
+			},
+			event: {
+				label: app.vtranslate('LBL_ADD_EVENT', 'Calendar'),
+				className: 'btn-primary',
+				callback: function () {
+					thisInstance.choiceDialogOpen = false;
+					thisInstance.performingDayClickOperation = false;
+					thisInstance.showCreateModal('Events', start, end);
+				}
+			},
+			leave: {
+				label: app.vtranslate('LBL_LEAVE_REQUEST', 'Calendar') || 'Ngày nghỉ',
+				className: 'btn-default',
+				callback: function () {
+					thisInstance.choiceDialogOpen = false;
+					thisInstance.performingDayClickOperation = false;
+					Calendar_Calendar_Js.showLeaveRequestCreateModal(start);
+				}
+			},
+			cancel: {
+				label: app.vtranslate('LBL_CANCEL') || 'Hủy',
+				className: 'btn-default',
+				callback: function () {
+					thisInstance.choiceDialogOpen = false;
+					thisInstance.performingDayClickOperation = false;
+				}
+			}
+		};
+		var dlg = bootbox.dialog({
 			title: app.vtranslate('LBL_SELECT_TYPE') || 'Chọn loại',
 			message: message,
 			closeButton: true,
-			buttons: {
-				task: {
-					label: app.vtranslate('LBL_ADD_TASK', 'Calendar'),
-					className: 'btn-default',
-					callback: function () {
-						thisInstance.showCreateModal('Calendar', start, end);
-					}
-				},
-				event: {
-					label: app.vtranslate('LBL_ADD_EVENT', 'Calendar'),
-					className: 'btn-primary',
-					callback: function () {
-						thisInstance.showCreateModal('Events', start, end);
-					}
-				},
-				cancel: {
-					label: app.vtranslate('LBL_CANCEL') || 'Hủy',
-					className: 'btn-default',
-					callback: function () {
-						thisInstance.performingDayClickOperation = false;
-					}
-				}
-			},
+			buttons: buttons,
 			onEscape: function () {
+				thisInstance.choiceDialogOpen = false;
 				thisInstance.performingDayClickOperation = false;
 			}
 		});
+		if (dlg) {
+			jQuery(dlg).one('hidden.bs.modal', function () {
+				thisInstance.choiceDialogOpen = false;
+				thisInstance.performingDayClickOperation = false;
+			});
+		}
 	},
 	updateAllTasksOnCalendar: function () {
 		this._updateAllOnCalendar("Calendar");
@@ -1268,11 +1295,10 @@ Vtiger.Class("Calendar_Calendar_Js", {
 	performDayClickAction: function (date, jsEvent, view) {
 		if (!this.performingDayClickOperation) {
 			this.performingDayClickOperation = true;
-			if (date.hasTime() || view.type == 'month') {
-				this.showCreateEventModal(date);
-			} else {
-				this.showCreateTaskModal();
-			}
+			// Chỉ hiện bảng chọn loại (Task/Event); sau khi chọn mới mở form
+			var start = date;
+			var end = date.hasTime() ? date.clone().add(1, 'hour') : date.clone().endOf('day');
+			this.showCreateTaskOrEventChoice(start, end);
 		}
 	},
 	daysOfWeek: {
@@ -1559,7 +1585,12 @@ Vtiger.Class("Calendar_Calendar_Js", {
 
 		var generatePopoverContentHTML = function (eventObj) {
 			var timeString = '';
-			if (eventObj.activitytype === 'Task') {
+			if (eventObj.module === 'LeaveRequest') {
+				if (eventObj._start) timeString = eventObj._start.format(dateFormat);
+				if (eventObj._end && eventObj._end.format(dateFormat) !== timeString) {
+					timeString += ' → ' + eventObj._end.format(dateFormat);
+				}
+			} else if (eventObj.activitytype === 'Task') {
 				timeString = moment(eventObj._start._i, eventObj._start._f).format(timeFormat);
 			} else if (eventObj.module === "Events") {
 				if (eventObj._start && typeof eventObj._start != 'undefined') {
@@ -1580,6 +1611,10 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				timeString +
 			'</span>';
 
+			if (sourceModule === 'LeaveRequest') {
+				popOverHTML += ' <span class="text-muted">(' + (app.vtranslate('LBL_LEAVE_REQUEST', 'Calendar') || 'Nghỉ phép') + ')</span>';
+				return popOverHTML;
+			}
 			if (sourceModule === 'Calendar' || sourceModule == 'Events') {
 				popOverHTML += '' +
 						'<span class="pull-right cursorPointer" ' +
@@ -1702,6 +1737,11 @@ Vtiger.Class("Calendar_Calendar_Js", {
                             week: 'ddd '+dateFormat,
                             day: 'dddd '+dateFormat
                         },
+			/* Chiều cao = viewport - header (~50px) → khung month to ra lấp hết khoảng trắng phía dưới */
+			height: function () {
+				var h = jQuery(window).height();
+				return Math.max(400, (h - 50));
+			},
 			views: {
                             vtAgendaList: {
                                     duration: {days: Calendar_Calendar_Js.numberOfDaysInAgendaView}
@@ -1805,6 +1845,14 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				thisInstance.getCalendarViewContainer().fullCalendar('unselect');
 				thisInstance.performingDayClickOperation = true;
 				thisInstance.showCreateTaskOrEventChoice(start, end);
+			},
+			eventClick: function (calEvent, jsEvent, view) {
+				if (calEvent.module === 'LeaveRequest' || (calEvent.url && calEvent.url.indexOf('LeaveRequestDetail') !== -1)) {
+					var recordId = calEvent.id ? String(calEvent.id).replace('leaverequest_', '') : '';
+					thisInstance.showLeaveRequestDetailModal(recordId);
+					jsEvent.preventDefault();
+					return false;
+				}
 			},
 			dayClick: function (date, jsEvent, view) {
 				thisInstance.performDayClickAction(date, jsEvent, view);
@@ -2133,8 +2181,36 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		this.registerAgendaListView();
 		var calendarConfigs = this.getCalendarConfigs();
 		this.getCalendarViewContainer().fullCalendar(calendarConfigs);
+		this.addLeaveEventSourceToMainCalendar();
 		this.performPostRenderCustomizations();
 		this.performSidebarEssentialsRecognition();
+	},
+		addLeaveEventSourceToMainCalendar: function () {
+		var mainCal = this.getCalendarViewContainer();
+		mainCal.fullCalendar('addEventSource', function (start, end, timezone, callback) {
+			var params = {
+				module: app.getModuleName(),
+				action: 'FeedMiniLeave',
+				start: start.format('YYYY-MM-DD'),
+				end: end.format('YYYY-MM-DD'),
+				_t: Date.now()
+			};
+			app.request.get({ url: 'index.php', data: params }).then(function (err, data) {
+				var list = [];
+				if (!err && data) {
+					try {
+						list = typeof data === 'string' ? JSON.parse(data) : (data || []);
+						list = list.map(function (ev) {
+							ev.editable = false;
+							return ev;
+						});
+					} catch (e) {
+						list = [];
+					}
+				}
+				callback(list);
+			});
+		});
 	},
 	performSidebarEssentialsRecognition: function () {
 		app.event.on("Vtiger.Post.MenuToggle", function () {
@@ -2164,7 +2240,8 @@ Vtiger.Class("Calendar_Calendar_Js", {
 				header: { left: 'prev', center: 'title', right: 'next' },
 				defaultView: 'month',
 				height: 'auto',
-				contentHeight: 220,
+				contentHeight: 200,
+				fixedWeekCount: false,
 				editable: false,
 				eventLimit: false,
 				events: function (start, end, timezone, callback) {
@@ -2172,7 +2249,8 @@ Vtiger.Class("Calendar_Calendar_Js", {
 						module: app.getModuleName(),
 						action: 'FeedMiniLeave',
 						start: start.format('YYYY-MM-DD'),
-						end: end.format('YYYY-MM-DD')
+						end: end.format('YYYY-MM-DD'),
+						_t: Date.now() // tránh cache: user sale không thấy đơn của người khác (response cũ admin)
 					};
 					app.request.get({ url: 'index.php', data: params }).then(function (err, data) {
 						var list = [];
@@ -2219,19 +2297,53 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		var params = { module: app.getModuleName(), action: 'LeaveRequestDetail', record: recordId };
 		app.request.get({ url: 'index.php', data: params }).then(function (err, html) {
 			if (err || !html) return;
-			var $modal = jQuery(html).appendTo('body');
+			// Bọc trong 1 wrapper để khi đóng chỉ xóa wrapper, tránh màn hình trắng do xóa nhầm DOM
+			var $wrapper = jQuery('<div id="leave-request-detail-modal-wrapper"></div>');
+			$wrapper.html(html).appendTo('body');
+			var $modal = $wrapper.find('.modal').first();
+			if (!$modal.length) {
+				$wrapper.remove();
+				return;
+			}
 			$modal.modal('show');
-			$modal.on('hidden.bs.modal', function () { $modal.remove(); });
+			$modal.one('hidden.bs.modal', function () {
+				$wrapper.remove();
+				jQuery('body').children('.modal-backdrop').remove();
+			});
 			$modal.find('.btn-approve-leave').on('click', function () {
 				var record = jQuery(this).data('record');
 				var status = jQuery(this).data('status');
 				if (!record || !status) return;
 				var $btn = jQuery(this).prop('disabled', true);
 				app.request.post({ url: 'index.php', data: { module: app.getModuleName(), action: 'SaveLeaveRequest', leaverequestid: record, approval_status: status } }).then(function (err, res) {
-					if (!err && res && res.result && res.result.success) {
+					if (!err && res && res.success) {
 						var $mini = jQuery('#calendar-mini');
 						if ($mini.length && $mini.hasClass('fc')) $mini.fullCalendar('refetchEvents');
+						var $main = thisInstance.getCalendarViewContainer();
+						if ($main.length && $main.hasClass('fc')) $main.fullCalendar('refetchEvents');
 						$modal.modal('hide');
+					} else if (err && err.message) {
+						alert(err.message);
+					}
+					$btn.prop('disabled', false);
+				});
+			});
+			$modal.find('.btn-delete-leave').on('click', function () {
+				var record = jQuery(this).data('record');
+				if (!record) return;
+				var msg = app.vtranslate('LBL_LEAVE_DELETE_CONFIRM') || 'Bạn có chắc muốn xóa đơn nghỉ phép này?';
+				if (!confirm(msg)) return;
+				var $btn = jQuery(this).prop('disabled', true);
+				app.request.post({ url: 'index.php', data: { module: app.getModuleName(), action: 'DeleteLeaveRequest', leaverequestid: record } }).then(function (err, res) {
+					if (!err && res && res.success) {
+						var $mini = jQuery('#calendar-mini');
+						if ($mini.length && $mini.hasClass('fc')) $mini.fullCalendar('refetchEvents');
+						var $main = thisInstance.getCalendarViewContainer();
+						if ($main.length && $main.hasClass('fc')) $main.fullCalendar('refetchEvents');
+						$modal.modal('hide');
+					} else {
+						var m = (err && err.message) ? err.message : (res && res.error && res.error.message ? res.error.message : (app.vtranslate('LBL_ERROR') || 'Error'));
+						alert(m);
 					}
 					$btn.prop('disabled', false);
 				});
@@ -2242,11 +2354,13 @@ Vtiger.Class("Calendar_Calendar_Js", {
 		var thisInstance = this;
 		var L = function (key) { return app.vtranslate(key, 'Calendar') || key; };
 		// Form giống ảnh: Loại ngày nghỉ, Ngày (start–end), Nửa ngày, Đã đề nghị (ngày/giờ)?, Mô tả
+		var requesterName = (typeof _USERMETA !== "undefined" && _USERMETA.userlabel) ? _USERMETA.userlabel : '';
 		var modalHtml = '<div class="modal fade" tabindex="-1" role="dialog" id="leaveRequestCreateModal">' +
 			'<div class="modal-dialog"><div class="modal-content">' +
 			'<div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">' + L('LBL_LEAVE_REQUEST') + '</h4></div>' +
 			'<div class="modal-body">' +
 			'<div class="form-horizontal">' +
+			'<div class="form-group"><label class="control-label col-sm-4">' + L('LBL_LEAVE_REQUESTED_BY') + '</label><div class="col-sm-8"><p class="form-control-static leave-requester-name">' + (requesterName ? requesterName : '-') + '</p></div></div>' +
 			'<div class="form-group"><label class="control-label col-sm-4">' + L('LBL_LEAVE_TYPE_DAY') + '</label><div class="col-sm-8"><select class="form-control leave-type"><option value="paid">F-' + L('LBL_LEAVE_TYPE_PAID') + '</option><option value="unpaid">F-' + L('LBL_LEAVE_TYPE_UNPAID') + '</option></select></div></div>' +
 			'<div class="form-group"><label class="control-label col-sm-4">' + L('LBL_LEAVE_DATE') + '</label><div class="col-sm-8"><input type="text" class="form-control dateField leave-date-start" data-date-format="yyyy-mm-dd" placeholder="dd/mm/yyyy"> <span class="leave-date-arrow">→</span> <input type="text" class="form-control dateField leave-date-end" data-date-format="yyyy-mm-dd" placeholder="dd/mm/yyyy"></div></div>' +
 			'<div class="form-group"><label class="control-label col-sm-4">' + L('LBL_LEAVE_HALF_DAY') + '</label><div class="col-sm-8"><input type="checkbox" class="leave-half-day"></div></div>' +
@@ -2329,12 +2443,16 @@ Vtiger.Class("Calendar_Calendar_Js", {
 			var $btn = jQuery(this).prop('disabled', true);
 			app.request.post({ url: 'index.php', data: payload }).then(function (err, res) {
 				$btn.prop('disabled', false);
-				if (!err && res && res.result && res.result.success) {
+				// app.request unwraps result: callback nhận (err, innerResult) nên res = { success, id }
+				if (!err && res && res.success) {
 					var $mini = jQuery('#calendar-mini');
 					if ($mini.length && $mini.hasClass('fc')) $mini.fullCalendar('refetchEvents');
+					var $main = jQuery('#mycalendar');
+					if ($main.length && $main.hasClass('fc')) $main.fullCalendar('refetchEvents');
 					$modal.modal('hide');
 				} else {
-					alert(res && res.error && res.error.message ? res.error.message : (L('LBL_ERROR') || 'Error'));
+					var msg = (err && err.message) ? err.message : (res && res.error && res.error.message ? res.error.message : null);
+					alert(msg || (L('LBL_ERROR') || 'Error'));
 				}
 			});
 		});

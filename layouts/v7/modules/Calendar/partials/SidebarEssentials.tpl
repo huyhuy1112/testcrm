@@ -19,15 +19,19 @@
 			<ul class="dropdown-menu dropdown-menu-right">
 				<li><a href="javascript:void(0);" onclick="Calendar_Calendar_Js.showCreateEventModal();"><span class="fa fa-calendar-plus-o"></span> {vtranslate('LBL_ADD_EVENT', $MODULE)}</a></li>
 				<li><a href="javascript:void(0);" onclick="Calendar_Calendar_Js.showCreateTaskModal();"><span class="fa fa-tasks"></span> {vtranslate('LBL_ADD_TASK', $MODULE)}</a></li>
+				{if $SHOW_LEAVE_REQUEST}
 				<li><a href="javascript:void(0);" onclick="Calendar_Calendar_Js.showLeaveRequestCreateModal();"><span class="fa fa-calendar-minus-o"></span> {vtranslate('LBL_LEAVE_REQUEST', $MODULE)}</a></li>
+				{/if}
 			</ul>
 		</div>
 	</div>
 	{/if}
+	{if $SHOW_MINI_CALENDAR_LEAVE}
 	<div class="calendar-mini-wrap" id="calendar-mini-wrap" title="{vtranslate('LBL_MINI_CALENDAR','Calendar')}">
 		<div class="calendar-mini-label">{vtranslate('LBL_MINI_CALENDAR_LEAVE','Calendar')}</div>
 		<div id="calendar-mini"></div>
 	</div>
+	{/if}
 </div>
 <div class="sidebar-menu calendar-sidebar-mycalendars">
 	<div class="module-filters" id="module-filters">

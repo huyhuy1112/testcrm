@@ -85,6 +85,16 @@
 					window._PAGELOADREQSENT = true;
 				}
 			}
-		});{/literal}
+		});
+		// Online = đăng nhập: cập nhật last_seen mọi trang (không cần vào Teams) để hiển thị Online
+		(function() {
+			if (typeof _USERMETA !== 'undefined' && _USERMETA && _USERMETA.id) {
+				function pingHeartbeat() {
+					jQuery.ajax({ url: 'index.php', data: { module: 'Users', action: 'Heartbeat' }, type: 'GET', global: false });
+				}
+				pingHeartbeat();
+				setInterval(pingHeartbeat, 60000);
+			}
+		})();{/literal}
 	</script>
 {/strip}

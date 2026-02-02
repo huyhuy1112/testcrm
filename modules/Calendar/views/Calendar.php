@@ -19,6 +19,13 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 		$viewer->assign('IS_MODULE_EDITABLE', $moduleModel->isPermitted('EditView'));
 		$viewer->assign('IS_MODULE_DELETABLE', $moduleModel->isPermitted('Delete'));
 
+		// Mini calendar: mọi role đều thấy để đăng kí ngày nghỉ
+		$viewer->assign('SHOW_MINI_CALENDAR_LEAVE', true);
+		// Đơn nghỉ phép (menu + duyệt): chỉ Admin/CEO thấy
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$showLeaveRequest = $currentUser && ($currentUser->isAdminUser() || $this->isUserCEO($currentUser));
+		$viewer->assign('SHOW_LEAVE_REQUEST', $showLeaveRequest);
+
 		parent::preProcess($request, false);
 		if($display) {
 			$this->preProcessDisplay($request);
@@ -108,5 +115,22 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 		$viewer->view('CalendarSettings.tpl', $request->getModule());
 	}
 
-
+	/**
+	 * Kiểm tra user có role CEO (rolename đúng "CEO" hoặc chứa từ "ceo") — dùng cho hiển thị chức năng Ngày nghỉ
+	 * @param Users_Record_Model $userModel
+	 * @return bool
+	 */
+	protected function isUserCEO($userModel) {
+		$roleId = $userModel->get('roleid');
+		if (empty($roleId)) {
+			return false;
+		}
+		$adb = PearDatabase::getInstance();
+		$r = $adb->pquery('SELECT rolename FROM vtiger_role WHERE roleid = ?', array($roleId));
+		if ($r && $adb->num_rows($r) > 0) {
+			$name = strtolower(trim($adb->query_result($r, 0, 'rolename')));
+			return ($name === 'ceo' || preg_match('/\bceo\b/', $name));
+		}
+		return false;
+	}
 }

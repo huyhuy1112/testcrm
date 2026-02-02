@@ -93,6 +93,7 @@ $languageStrings = array(
 	// Leave request
 	'LBL_LEAVE_REQUEST' => 'Leave request',
 	'LBL_LEAVE_REQUEST_DETAIL' => 'Leave request detail',
+	'LBL_LEAVE_REQUESTED_BY' => 'Requested by',
 	'LBL_LEAVE_TYPE' => 'Leave type',
 	'LBL_LEAVE_TYPE_PAID' => 'Paid leave',
 	'LBL_LEAVE_TYPE_UNPAID' => 'Unpaid leave',
@@ -105,6 +106,8 @@ $languageStrings = array(
 	'LBL_LEAVE_HALF_DAY_NO' => 'No',
 	'LBL_LEAVE_APPROVE' => 'Approve',
 	'LBL_LEAVE_REJECT' => 'Reject',
+	'LBL_LEAVE_DELETE' => 'Delete',
+	'LBL_LEAVE_DELETE_CONFIRM' => 'Are you sure you want to delete this leave request?',
 	'LBL_TABLE_NOT_FOUND' => 'Table not found. Please run Install Leave Request Table (Admin).',
 	'LBL_RECORD_NOT_FOUND' => 'Record not found.',
 	'LBL_PLEASE_SELECT_DATE' => 'Please select start date.',

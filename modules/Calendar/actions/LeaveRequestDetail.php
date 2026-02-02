@@ -59,7 +59,17 @@ class Calendar_LeaveRequestDetail_Action extends Vtiger_Action_Controller {
 		$dueDate = $row['due_date'] ? DateTimeField::convertToUserFormat($row['due_date']) : '-';
 		$description = htmlspecialchars(decode_html($row['description'] ?: '-'));
 
+		// Người xin nghỉ (để chấm công)
+		$requesterName = '-';
+		if (!empty($row['created_user_id'])) {
+			$creatorModel = Users_Record_Model::getInstanceById($row['created_user_id'], 'Users');
+			if ($creatorModel) {
+				$requesterName = htmlspecialchars(decode_html($creatorModel->getName()));
+			}
+		}
+
 		$body = '<div class="form-horizontal">';
+		$body .= '<div class="form-group"><label class="control-label col-sm-4">' . vtranslate('LBL_LEAVE_REQUESTED_BY', 'Calendar') . '</label><div class="col-sm-8"><p class="form-control-static">' . $requesterName . '</p></div></div>';
 		$body .= '<div class="form-group"><label class="control-label col-sm-4">' . vtranslate('Subject', 'Calendar') . '</label><div class="col-sm-8"><p class="form-control-static">' . $subject . '</p></div></div>';
 		$body .= '<div class="form-group"><label class="control-label col-sm-4">' . vtranslate('LBL_LEAVE_TYPE', 'Calendar') . '</label><div class="col-sm-8"><p class="form-control-static">' . htmlspecialchars($leaveType) . '</p></div></div>';
 		$body .= '<div class="form-group"><label class="control-label col-sm-4">' . vtranslate('LBL_LEAVE_APPROVAL_STATUS', 'Calendar') . '</label><div class="col-sm-8"><p class="form-control-static">' . htmlspecialchars($approvalStatus) . '</p></div></div>';
@@ -73,6 +83,9 @@ class Calendar_LeaveRequestDetail_Action extends Vtiger_Action_Controller {
 		if ($canApprove && $status === 'pending') {
 			$footer = '<button type="button" class="btn btn-success btn-approve-leave" data-record="' . (int)$recordId . '" data-status="approved">' . vtranslate('LBL_LEAVE_APPROVE', 'Calendar') . '</button>';
 			$footer .= ' <button type="button" class="btn btn-danger btn-approve-leave" data-record="' . (int)$recordId . '" data-status="rejected">' . vtranslate('LBL_LEAVE_REJECT', 'Calendar') . '</button>';
+		}
+		if ($canApprove) {
+			$footer .= ' <button type="button" class="btn btn-default btn-delete-leave" data-record="' . (int)$recordId . '">' . vtranslate('LBL_LEAVE_DELETE', 'Calendar') . '</button>';
 		}
 		$footer .= ' <button type="button" class="btn btn-default" data-dismiss="modal">' . vtranslate('LBL_CLOSE', 'Vtiger') . '</button>';
 
@@ -93,8 +106,8 @@ class Calendar_LeaveRequestDetail_Action extends Vtiger_Action_Controller {
 		$adb = PearDatabase::getInstance();
 		$r = $adb->pquery("SELECT rolename FROM vtiger_role WHERE roleid = ?", array($roleId));
 		if ($adb->num_rows($r)) {
-			$name = strtolower($adb->query_result($r, 0, 'rolename'));
-			return (strpos($name, 'ceo') !== false || $name === 'ceo');
+			$name = strtolower(trim($adb->query_result($r, 0, 'rolename')));
+			return ($name === 'ceo' || preg_match('/\bceo\b/', $name));
 		}
 		return false;
 	}

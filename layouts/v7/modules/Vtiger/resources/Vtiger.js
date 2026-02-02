@@ -663,11 +663,24 @@ Vtiger.Class('Vtiger_Index_Js', {
 		var toggleAppMenu = function(type) {
 			var appMenu = jQuery('.app-menu');
 			var appNav = jQuery('.app-nav');
+			var navbar = jQuery('.app-fixed-navbar');
 			appMenu.appendTo('#page');
+			// Vị trí menu cố định trên mọi trang: dưới topbar + dòng app-nav (tránh menu nhảy khác nhau giữa Dashboard, Teams, Mail Manager...)
+			var topOffset = 0;
+			if (navbar.length) {
+				topOffset = navbar.outerHeight(true) || 64;
+			} else {
+				topOffset = 64;
+			}
+			if (appNav.length && appNav.is(':visible')) {
+				topOffset += appNav.outerHeight(true) || 50;
+			} else {
+				topOffset += 50;
+			}
 			appMenu.css({
 				'position' : 'fixed',
-				'top' : appNav.offset().top + appNav.height(),
-				'left' : 0,
+				'top' : topOffset + 'px',
+				'left' : '0',
 				'width' : '280px',
 				'max-width' : '300px'
 			});

@@ -13,8 +13,8 @@
 	{assign var=APP_IMAGE_MAP value=Vtiger_MenuStructure_Model::getAppIcons()}
 	<nav class="navbar navbar-inverse navbar-fixed-top app-fixed-navbar">
 		<div class="container-fluid global-nav">
-			<div class="row">
-				<div class="col-lg-3 col-md-3 col-sm-4 col-xs-8 app-navigator-container">
+			<div class="row global-nav-row">
+				<div class="global-nav-left app-navigator-container col-lg-3 col-md-3 col-sm-4 col-xs-8">
 					<div class="row">
 						<div id="appnavigator" class="col-sm-2 col-xs-2 cursorPointer app-switcher-container" data-app-class="{if $MODULE eq 'Home' || !$MODULE}fa-dashboard{else}{$APP_IMAGE_MAP[$SELECTED_MENU_CATEGORY]}{/if}">
 							<div class="row app-navigator">
@@ -27,7 +27,7 @@
 									<img src="{$COMPANY_LOGO->get('imagepath')}" alt="{$COMPANY_LOGO->get('alt')}"/>
 								</a>
 							</div>
-						</div>  
+						</div>
 					</div>
 				</div>
 				<div class="navbar-header paddingTop5">
@@ -38,7 +38,7 @@
 						<i class="fa fa-search"></i>
 					</button>
 				</div>
-				<div class="col-sm-3">
+				<div class="global-nav-center col-sm-3">
 					<div id="search-links-container" class="search-links-container collapse navbar-collapse">
 						<div class="search-link">
 							<span class="fa fa-search" aria-hidden="true"></span>
@@ -47,7 +47,7 @@
 						</div>
 					</div>
 				</div>
-				<div id="navbar" class="col-sm-6 col-xs-12 collapse navbar-collapse navbar-right global-actions">
+				<div id="navbar" class="global-nav-right col-sm-6 col-xs-12 collapse navbar-collapse navbar-right global-actions">
 					<ul class="nav navbar-nav">
 						<li>
 							<div class="dropdown pull-left">

@@ -1,12 +1,16 @@
 <?php
 /*+***********************************************************************************
  * Feed đơn nghỉ phép CHỈ cho mini calendar (không hiển thị trên full calendar).
- * CEO/Admin: thấy tất cả đơn; thành viên khác: chỉ thấy đơn của mình.
+ * Chỉ Admin và CEO thấy tất cả đơn; mọi role khác (kể cả Sales Manager) chỉ thấy đơn của mình.
  *************************************************************************************/
 
 class Calendar_FeedMiniLeave_Action extends Vtiger_BasicAjax_Action {
 
 	public function process(Vtiger_Request $request) {
+		// Tránh cache: user sale không được thấy response cũ của admin
+		header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+		header('Pragma: no-cache');
+
 		$start = $request->get('start');
 		$end = $request->get('end');
 		$result = array();
@@ -36,19 +40,27 @@ class Calendar_FeedMiniLeave_Action extends Vtiger_BasicAjax_Action {
 			}
 		}
 		$currentUser = Users_Record_Model::getCurrentUserModel();
-		$userId = $currentUser->getId();
-		$isAdmin = $currentUser->isAdminUser();
-		$isCEO = $this->isUserCEO($currentUser);
-
+		if (!$currentUser) {
+			echo json_encode($result);
+			return;
+		}
+		$userId = (int) $currentUser->getId();
 		$startDb = DateTimeField::convertToDBFormat($start);
 		$endDb = DateTimeField::convertToDBFormat($end);
+
+		// Chỉ Admin (is_admin trong DB) hoặc role CEO được xem tất cả đơn; mọi role khác CHỈ thấy đơn của mình (không thấy ngày nghỉ của nhau)
+		$canSeeAll = $this->userCanSeeAllLeaveRequests($adb, $userId);
 
 		$query = "SELECT leaverequestid, subject, leave_type, approval_status, half_day, date_start, due_date, created_user_id
 			FROM vtiger_leaverequest
 			WHERE (date_start BETWEEN ? AND ?) OR (due_date BETWEEN ? AND ?) OR (date_start <= ? AND due_date >= ?)";
 		$params = array($startDb, $endDb, $startDb, $endDb, $startDb, $endDb);
 
-		if (!$isAdmin && !$isCEO) {
+		if (!$canSeeAll) {
+			if ($userId <= 0) {
+				echo json_encode($result);
+				return;
+			}
 			$query .= " AND created_user_id = ?";
 			$params[] = $userId;
 		}
@@ -93,6 +105,25 @@ class Calendar_FeedMiniLeave_Action extends Vtiger_BasicAjax_Action {
 		echo json_encode($result);
 	}
 
+	/**
+	 * Kiểm tra user có được xem tất cả đơn nghỉ (chỉ Admin hoặc CEO). Dùng trực tiếp DB để tránh cache/session sai.
+	 */
+	protected function userCanSeeAllLeaveRequests($adb, $userId) {
+		if ($userId <= 0) {
+			return false;
+		}
+		$r = $adb->pquery("SELECT u.is_admin, r.rolename FROM vtiger_users u LEFT JOIN vtiger_role r ON r.roleid = u.roleid WHERE u.id = ?", array($userId));
+		if (!$adb->num_rows($r)) {
+			return false;
+		}
+		$isAdmin = $adb->query_result($r, 0, 'is_admin');
+		$rolename = strtolower(trim((string) $adb->query_result($r, 0, 'rolename')));
+		if ($isAdmin === 'on' || $isAdmin === 1 || $isAdmin === '1') {
+			return true;
+		}
+		return ($rolename === 'ceo' || preg_match('/\bceo\b/', $rolename));
+	}
+
 	protected function isUserCEO($userModel) {
 		$roleId = $userModel->get('roleid');
 		if (empty($roleId)) {
@@ -101,8 +132,8 @@ class Calendar_FeedMiniLeave_Action extends Vtiger_BasicAjax_Action {
 		$adb = PearDatabase::getInstance();
 		$r = $adb->pquery("SELECT rolename FROM vtiger_role WHERE roleid = ?", array($roleId));
 		if ($adb->num_rows($r)) {
-			$name = strtolower($adb->query_result($r, 0, 'rolename'));
-			return (strpos($name, 'ceo') !== false || $name === 'ceo');
+			$name = strtolower(trim($adb->query_result($r, 0, 'rolename')));
+			return ($name === 'ceo' || preg_match('/\bceo\b/', $name));
 		}
 		return false;
 	}

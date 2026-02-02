@@ -93,6 +93,7 @@ $languageStrings = array(
 	// Đơn nghỉ phép
 	'LBL_LEAVE_REQUEST' => 'Nghỉ phép',
 	'LBL_LEAVE_REQUEST_DETAIL' => 'Chi tiết đơn nghỉ phép',
+	'LBL_LEAVE_REQUESTED_BY' => 'Người xin nghỉ',
 	'LBL_LEAVE_TYPE' => 'Loại nghỉ',
 	'LBL_LEAVE_TYPE_PAID' => 'Nghỉ có lương',
 	'LBL_LEAVE_TYPE_UNPAID' => 'Nghỉ không lương',
@@ -105,6 +106,8 @@ $languageStrings = array(
 	'LBL_LEAVE_HALF_DAY_NO' => 'Không',
 	'LBL_LEAVE_APPROVE' => 'Duyệt',
 	'LBL_LEAVE_REJECT' => 'Từ chối',
+	'LBL_LEAVE_DELETE' => 'Xóa',
+	'LBL_LEAVE_DELETE_CONFIRM' => 'Bạn có chắc muốn xóa đơn nghỉ phép này?',
 	'LBL_TABLE_NOT_FOUND' => 'Bảng chưa tồn tại. Vui lòng chạy Tạo bảng đơn nghỉ phép (Admin).',
 	'LBL_RECORD_NOT_FOUND' => 'Không tìm thấy bản ghi.',
 	'LBL_PLEASE_SELECT_DATE' => 'Vui lòng chọn ngày bắt đầu.',

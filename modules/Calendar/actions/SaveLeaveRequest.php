@@ -89,8 +89,8 @@ class Calendar_SaveLeaveRequest_Action extends Vtiger_Action_Controller {
 		$adb = PearDatabase::getInstance();
 		$r = $adb->pquery("SELECT rolename FROM vtiger_role WHERE roleid = ?", array($roleId));
 		if ($adb->num_rows($r)) {
-			$name = strtolower($adb->query_result($r, 0, 'rolename'));
-			return (strpos($name, 'ceo') !== false || $name === 'ceo');
+			$name = strtolower(trim($adb->query_result($r, 0, 'rolename')));
+			return ($name === 'ceo' || preg_match('/\bceo\b/', $name));
 		}
 		return false;
 	}
