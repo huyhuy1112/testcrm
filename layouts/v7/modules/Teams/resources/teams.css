@@ -468,6 +468,22 @@ body[data-module="Teams"] .teams-people-more-icon {
   cursor: pointer;
 }
 
+body[data-module="Teams"] .teams-people-filter-dropdown {
+  display: inline-block;
+  vertical-align: middle;
+}
+body[data-module="Teams"] .teams-people-filter-dropdown .teams-people-filter-icon {
+  display: inline-block;
+}
+body[data-module="Teams"] .teams-people-filter-menu .teams-tenure-option.active {
+  font-weight: 600;
+  background-color: #f0f0f0;
+}
+body[data-module="Teams"] .teams-people-filter-menu .teams-filter-section {
+  font-weight: 600;
+  color: #333;
+}
+
 /* ProofHub: bảng People - checkbox, role groups, avatar */
 body[data-module="Teams"] .teams-people-th-checkbox,
 body[data-module="Teams"] .teams-people-checkbox-cell {

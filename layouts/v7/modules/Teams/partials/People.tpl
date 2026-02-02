@@ -8,7 +8,7 @@
 				</th>
 				<th>{vtranslate('LBL_NAME','Vtiger')}</th>
 				<th>{vtranslate('LBL_EMAIL','Vtiger')}</th>
-				<th>{vtranslate('LBL_ACCESS_ROLE','Users')}</th>
+				<th>{vtranslate('LBL_DATE_JOINED_COMPANY','Teams')}</th>
 				<th>{vtranslate('LBL_ASSIGNED_PROJECTS','Teams')}</th>
 				<th>{vtranslate('LBL_LAST_ACTIVE','Teams')}</th>
 				<th class="actions">{vtranslate('LBL_ACTIONS','Vtiger')}</th>
@@ -24,7 +24,7 @@
 					</td>
 				</tr>
 				{foreach item=ROW from=$ROLE_PEOPLE name=roleRows}
-					<tr data-userid="{$ROW.id}" class="teams-people-row teams-role-row" data-role="{$ROLE_NAME|escape}">
+					<tr data-userid="{$ROW.id}" class="teams-people-row teams-role-row" data-role="{$ROLE_NAME|escape}" data-date-joined="{$ROW.date_joined_company_raw|escape}">
 						<td class="teams-people-checkbox-cell">
 							<input type="checkbox" class="teams-people-row-select" value="{$ROW.id}" />
 						</td>
@@ -36,7 +36,7 @@
 							</div>
 						</td>
 						<td class="teams-people-email-cell">{$ROW.email|decode_html}</td>
-						<td class="teams-people-role-cell">{$ROW.role_name|decode_html}</td>
+						<td class="teams-people-role-cell">{$ROW.date_joined_company|decode_html}</td>
 						<td class="teams-people-projects-cell">
 							{if $ROW.project_count > 0}
 								<span class="teams-project-count"

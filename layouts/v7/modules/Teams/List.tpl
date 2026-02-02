@@ -107,7 +107,17 @@
 						</div>
 						{/if}
 						<input type="text" class="teams-people-search form-control" placeholder="{vtranslate('LBL_SEARCH_PEOPLE','Teams')}..." id="teams-people-search-input" />
-						<span class="teams-people-filter-icon" title="{vtranslate('LBL_FILTER','Vtiger')}"><i class="fa fa-filter"></i></span>
+						<div class="teams-people-filter-dropdown dropdown">
+							<span class="teams-people-filter-icon dropdown-toggle" id="teams-people-filter-toggle" data-toggle="dropdown" title="{vtranslate('LBL_FILTER','Vtiger')}"><i class="fa fa-filter"></i></span>
+							<ul class="dropdown-menu dropdown-menu-right teams-people-filter-menu" aria-labelledby="teams-people-filter-toggle">
+								<li class="dropdown-header teams-filter-section">{vtranslate('LBL_PEOPLE_JOINED_COMPANY','Teams')}</li>
+								<li><a href="#" class="teams-tenure-option" data-tenure="all">{vtranslate('LBL_TENURE_ALL','Teams')}</a></li>
+								<li><a href="#" class="teams-tenure-option" data-tenure="under1">{vtranslate('LBL_TENURE_UNDER_1','Teams')}</a></li>
+								<li><a href="#" class="teams-tenure-option" data-tenure="1-4">{vtranslate('LBL_TENURE_1_4','Teams')}</a></li>
+								<li><a href="#" class="teams-tenure-option" data-tenure="5-7">{vtranslate('LBL_TENURE_5_7','Teams')}</a></li>
+								<li><a href="#" class="teams-tenure-option" data-tenure="7-10">{vtranslate('LBL_TENURE_7_10','Teams')}</a></li>
+							</ul>
+						</div>
 						<span class="teams-people-more-icon" title="{vtranslate('LBL_MORE','Vtiger')}"><i class="fa fa-ellipsis-v"></i></span>
 					</div>
 					<div class="teams-people-content">
@@ -177,15 +187,54 @@ jQuery(document).ready(function($) {
 		$('.teams-project-count').popover('destroy');
 	});
 
-	// ProofHub: search people by name/email
-	$('#teams-people-search-input').on('keyup', function() {
-		var q = $(this).val().toLowerCase();
+	// Years from join date (YYYY-MM-DD) to today
+	function getYearsInCompany(dateStr) {
+		if (!dateStr || dateStr === '') return null;
+		var join = new Date(dateStr);
+		if (isNaN(join.getTime())) return null;
+		var now = new Date();
+		var years = (now - join) / (365.25 * 24 * 60 * 60 * 1000);
+		return years;
+	}
+	function passesTenureFilter(years, tenure) {
+		if (tenure === 'all') return true;
+		if (years === null) return false;
+		if (tenure === 'under1') return years >= 0 && years < 1;
+		if (tenure === '1-4') return years >= 1 && years < 5;
+		if (tenure === '5-7') return years >= 5 && years < 8;
+		if (tenure === '7-10') return years >= 7 && years <= 10;
+		return true;
+	}
+	var currentTenureFilter = 'all';
+	function applyPeopleFilters() {
+		var q = $('#teams-people-search-input').val().toLowerCase();
 		$('.teams-people-row').each(function() {
 			var $row = $(this);
+			var dateJoined = $row.attr('data-date-joined') || '';
+			var years = getYearsInCompany(dateJoined);
+			var passTenure = passesTenureFilter(years, currentTenureFilter);
 			var name = ($row.find('.teams-people-name-link').text() + ' ' + $row.find('.teams-people-email-cell').text()).toLowerCase();
-			$row.toggle(name.indexOf(q) !== -1);
+			var passSearch = q === '' || name.indexOf(q) !== -1;
+			$row.toggle(passTenure && passSearch);
 		});
+		$('.js-role-toggle').each(function() {
+			var role = $(this).data('role');
+			var $rows = $('.teams-role-row[data-role="' + role + '"]');
+			var anyVisible = $rows.filter(function() { return $(this).is(':visible'); }).length > 0;
+			$(this).toggle(anyVisible);
+		});
+	}
+	$('#teams-people-search-input').on('keyup', function() {
+		applyPeopleFilters();
 	});
+	$('.teams-tenure-option').on('click', function(e) {
+		e.preventDefault();
+		currentTenureFilter = $(this).data('tenure') || 'all';
+		$('.teams-tenure-option').removeClass('active');
+		$(this).addClass('active');
+		applyPeopleFilters();
+	});
+	$('.teams-tenure-option[data-tenure="all"]').addClass('active');
 
 	// ProofHub: collapse/expand role sections
 	$('.js-role-toggle').on('click', function() {

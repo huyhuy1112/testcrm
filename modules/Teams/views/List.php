@@ -81,7 +81,7 @@ class Teams_List_View extends Vtiger_List_View {
 			$selectedGroupId = (int) $request->get('groupid');
 			
 			$people = array();
-			$baseSql = "SELECT u.id, u.first_name, u.last_name, u.user_name, u.email1 AS email, u.is_admin, u.status, ua.last_seen
+			$baseSql = "SELECT u.id, u.first_name, u.last_name, u.user_name, u.email1 AS email, u.is_admin, u.status, ua.last_seen, u.date_joined_company
 				 FROM vtiger_users u
 				 LEFT JOIN vtiger_user_activity ua ON ua.userid = u.id
 				 WHERE u.deleted = 0";
@@ -208,6 +208,10 @@ class Teams_List_View extends Vtiger_List_View {
 				}
 				$fullName = trim($row['first_name'].' '.$row['last_name']);
 				$initial = $fullName !== '' ? strtoupper(mb_substr($fullName, 0, 1)) : '?';
+				$dateJoinedRaw = isset($row['date_joined_company']) && $row['date_joined_company'] !== '' && $row['date_joined_company'] !== null
+					? $row['date_joined_company']
+					: '';
+				$dateJoined = $dateJoinedRaw !== '' ? DateTimeField::convertToUserFormat($dateJoinedRaw) : '';
 				$normalized[] = array(
 					'id' => $uid,
 					'full_name' => $fullName,
@@ -216,6 +220,8 @@ class Teams_List_View extends Vtiger_List_View {
 					'email' => $row['email'],
 					'groups' => isset($groupMap[$uid]) ? $groupMap[$uid] : array(),
 					'role_name' => isset($roleMap[$uid]) ? $roleMap[$uid] : '',
+					'date_joined_company' => $dateJoined,
+					'date_joined_company_raw' => $dateJoinedRaw,
 					'project_count' => isset($projectCount[$uid]) ? $projectCount[$uid] : 0,
 					'projects' => isset($projectMap[$uid]) ? $projectMap[$uid] : array(),
 					'is_online' => $isOnline,
