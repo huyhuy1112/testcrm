@@ -1485,6 +1485,7 @@ $jsLanguageStrings = array(
 	'JS_MAP_MANDATORY_FIELDS' => 'Please map mandatory fields',
 	'JS_MAP_MERGE_CRITERIA_FIELDS' => 'Please map matching fields',
 	'JS_PLEASE_ENTER_SOME_VALUE' => 'Please enter some value to search',
+	'JS_PLEASE_FILL_REQUIRED_FIELDS' => 'Please fill in all required fields (*) before saving.',
 	'JS_VCF_FILE_IMPORT_WARNING' => 'You have selected a VCF file. Only Contacts can be imported from VCF file. To import this file, please initiate import from Contact module',
 	'JS_ICS_FILE_IMPORT_WARNING' => 'You have selected a ICS file. Only Calendar can be imported from ICS file. To import this file, please initiate import from Calendar module',
 	//Select2 elements validation message

@@ -665,18 +665,15 @@ Vtiger.Class('Vtiger_Index_Js', {
 			var appNav = jQuery('.app-nav');
 			var navbar = jQuery('.app-fixed-navbar');
 			appMenu.appendTo('#page');
-			// Vị trí menu cố định trên mọi trang: dưới topbar + dòng app-nav (tránh menu nhảy khác nhau giữa Dashboard, Teams, Mail Manager...)
-			var topOffset = 0;
-			if (navbar.length) {
-				topOffset = navbar.outerHeight(true) || 64;
-			} else {
-				topOffset = 64;
+			// Vị trí menu: dưới topbar + app-nav, dùng getBoundingClientRect() để tránh top sai (vd 1181px) do outerHeight() trên layout đặc biệt
+			var topOffset = 64 + 50;
+			var anchor = (appNav.length && appNav.is(':visible')) ? appNav[0] : (navbar.length ? navbar[0] : null);
+			if (anchor) {
+				var rect = anchor.getBoundingClientRect();
+				topOffset = rect.bottom;
 			}
-			if (appNav.length && appNav.is(':visible')) {
-				topOffset += appNav.outerHeight(true) || 50;
-			} else {
-				topOffset += 50;
-			}
+			// Giới hạn top để menu luôn trong viewport (tránh menu bị đẩy xuống dưới màn hình)
+			topOffset = Math.min(Math.max(0, topOffset), 200);
 			appMenu.css({
 				'position' : 'fixed',
 				'top' : topOffset + 'px',

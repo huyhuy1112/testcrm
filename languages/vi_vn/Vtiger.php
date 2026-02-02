@@ -770,6 +770,7 @@ $jsLanguageStrings = array(
 	'JS_PLEASE_ENTER_PRIMARY_EMAIL_VALUE_TO_ENABLE_PORTAL_USER' => 'Vui lòng nhập địa chỉ email chính để cho phép người sử dụng Cổng CSKH.',
 	'JS_PLEASE_ENTER_SOME_TEXT_FOR_COMMENT' => 'Vui lòng nhập nội dung comment',
 	'JS_PLEASE_ENTER_SOME_VALUE' => 'Vui lòng nhập giá trị để tìm kiếm',
+	'JS_PLEASE_FILL_REQUIRED_FIELDS' => 'Vui lòng điền đầy đủ các trường bắt buộc (*) trước khi lưu.',
 	'JS_PLEASE_ENTER_VALID_DATE' => 'Vui lòng nhập ngày hợp lệ',
 	'JS_PLEASE_ENTER_VALID_EMAIL_ADDRESS' => 'Vui lòng nhập một địa chỉ email hợp lệ',
 	'JS_PLEASE_ENTER_VALID_TIME' => 'Vui lòng nhập thời gian hợp lệ',

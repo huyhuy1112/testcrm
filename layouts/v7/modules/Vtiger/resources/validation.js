@@ -889,6 +889,27 @@ function calculateValidationRules(form,params,meta){
 		//Refer for explanation on ignore attrbute https://github.com/select2/select2/issues/215
 		//As element with class select2-input doesn't have name attribute is leading to issue
 		'ignore' : ":hidden,.ignore-validation,.select2-input",
+		invalidHandler: function(form, validator) {
+			var firstError = validator.errorList[0];
+			if (firstError && firstError.element) {
+				var el = jQuery(firstError.element);
+				if (el.length) {
+					try { el[0].scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) { el[0].scrollIntoView(true); }
+				}
+			}
+			var msg = (typeof app !== 'undefined' && app.vtranslate) ? (app.vtranslate('JS_PLEASE_FILL_REQUIRED_FIELDS') || 'Vui lòng điền đầy đủ các trường bắt buộc (*) trước khi lưu.') : 'Vui lòng điền đầy đủ các trường bắt buộc (*) trước khi lưu.';
+			if (typeof app !== 'undefined' && app.helper) {
+				if (app.helper.showErrorNotification) {
+					app.helper.showErrorNotification({ message: msg });
+				} else if (app.helper.showAlertBox) {
+					app.helper.showAlertBox({ message: msg });
+				} else {
+					alert(msg);
+				}
+			} else {
+				alert(msg);
+			}
+		},
 		errorPlacement: function(error, element) {
 			if($(error).text()) {
 
