@@ -2105,28 +2105,32 @@ body.mainpage {
 @media (min-width: 1200px) {
     .mainpage-grid {
         grid-template-columns: 1fr 1fr;
-        grid-template-rows: minmax(260px, 1fr) minmax(260px, 1fr) minmax(260px, 1fr);
+        /* Tất cả các hàng cùng chiều cao */
+        grid-template-rows: 1fr 1fr 1fr;
         grid-template-areas:
             "ann short"
             "proj agenda"
             "tasks time";
         align-items: stretch;
+        min-height: 0;
+        /* Chiều cao tối thiểu để 3 hàng chia đều */
+        min-height: 540px;
     }
     .area-ann { grid-area: ann; }
     .area-shortcuts { grid-area: short; }
     .area-projects { grid-area: proj; }
     .area-agenda { grid-area: agenda; }
     .area-time { grid-area: time; }
-    /* Đồng đều: mọi card cùng chiều cao trong hàng, nội dung dài thì cuộn */
+    /* Card lấp đầy ô, nội dung cuộn bên trong */
     .mainpage-grid .mainpage-card {
         display: flex;
         flex-direction: column;
         min-height: 0;
     }
     .mainpage-grid .mainpage-card .card-body {
-        overflow-y: auto;
         flex: 1;
         min-height: 0;
+        overflow-y: auto;
     }
 }
 .main-container .content-area[data-view="MainPage"],
@@ -2200,6 +2204,149 @@ body[data-module="Home"][data-view="MainPage"] .content-area {
 }
 .mainpage-card .card-body {
     padding: 6px 0;
+}
+
+/* Main Page: tăng chữ nhẹ (KHÔNG tăng kích thước ô/card) */
+.mainpage-card { font-size: 14px; }
+.mainpage-card .title { font-size: 16px; }
+.mainpage-table thead th { font-size: 12px; }
+.mainpage-table tbody td { font-size: 13px; }
+.shortcuts-grid .shortcut { font-size: 14px; }
+.ann-item-title { font-size: 14px; }
+.ann-item-time { font-size: 12px; }
+.agenda .tab-group { font-size: 13px; }
+.agenda-item .title { font-size: 14px; }
+.status-pill { font-size: 12px; }
+.login-history-item { font-size: 13px; }
+
+/* =========================
+   Main Page - Agenda card (modern)
+   Nội dung lấp đầy ô: panel + list giãn hết, list cuộn bên trong.
+   ========================= */
+.mainpage-card.area-agenda {
+    background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+}
+.mainpage-card.area-agenda .card-header.subtle {
+    padding-bottom: 10px;
+    border-bottom-color: rgba(226, 232, 240, 0.9);
+}
+.mainpage-card.area-agenda .card-body {
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: visible;
+}
+/* Panel hiện tại (Today/Upcoming) chiếm hết phần còn lại của ô */
+.mainpage-card.area-agenda .card-body .agenda-panel:not(.hide) {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+/* Danh sách lịch lấp đầy và cuộn bên trong → hết chỗ trống */
+.mainpage-card.area-agenda .agenda-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 14px;
+    padding: 2px 12px;
+    background: #fff;
+}
+.mainpage-card.area-agenda .card-body .agenda-panel .btn-default.btn-xs {
+    flex-shrink: 0;
+    margin-top: 4px;
+    font-size: 15px !important;
+    padding: 10px 16px;
+    font-weight: 600;
+}
+/* Khi không có lịch: khối empty giãn ra giữa ô cho đỡ trống */
+.mainpage-card.area-agenda .agenda-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    padding: 16px 8px;
+    text-align: center;
+    color: #64748b;
+}
+.mainpage-card.area-agenda .tab-group {
+    background: rgba(241, 245, 249, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 999px;
+    padding: 6px;
+    gap: 4px;
+}
+.mainpage-card.area-agenda .tab {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-weight: 600;
+    color: #475569;
+    line-height: 1;
+}
+.mainpage-card.area-agenda .tab.active {
+    background: #ffffff;
+    color: #4c1d95;
+    box-shadow: 0 6px 18px rgba(139, 92, 246, 0.16);
+    border: 1px solid rgba(139, 92, 246, 0.18);
+}
+.mainpage-card.area-agenda .tab:hover {
+    transform: none;
+    background: rgba(139, 92, 246, 0.10);
+    color: #5b21b6;
+}
+.mainpage-card.area-agenda .agenda-list {
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 14px;
+    padding: 2px 12px;
+    background: #fff;
+}
+.mainpage-card.area-agenda .agenda-item {
+    padding: 12px 0 12px 14px;
+    border-bottom: 1px dashed rgba(226, 232, 240, 0.9);
+}
+.mainpage-card.area-agenda .agenda-item:hover {
+    background: transparent;
+}
+.mainpage-card.area-agenda .agenda-item:last-child {
+    border-bottom: none;
+}
+.mainpage-card.area-agenda .agenda-item .dot {
+    width: 10px;
+    height: 10px;
+    margin-top: 2px;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.10);
+}
+.mainpage-card.area-agenda .agenda-item-row .agenda-date,
+.mainpage-card.area-agenda .agenda-item-row .agenda-time {
+    color: #64748b;
+    font-weight: 500;
+}
+.mainpage-card.area-agenda .agenda-item .label {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+    background: rgba(241, 245, 249, 0.8);
+    color: #334155;
+    font-weight: 700;
+}
+.mainpage-card.area-agenda .agenda-item .title {
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+.mainpage-card.area-agenda .btn-outline-primary {
+    border-color: rgba(139, 92, 246, 0.35);
+    color: #5b21b6;
+    background: rgba(237, 233, 254, 0.45);
+}
+.mainpage-card.area-agenda .btn-outline-primary:hover {
+    background: linear-gradient(135deg, #7c3aed, #6d28d9);
+    border-color: #6d28d9;
+    color: #fff;
 }
 .announcements .card-body {
     background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
@@ -2926,6 +3073,48 @@ body[data-module="Home"][data-view="MainPage"] .content-area {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+/* =========================
+   Time card: KHÔNG tăng kích thước ô
+   - Lịch sử: lấp đầy ô + cuộn bên trong
+   - Con số: nằm giữa nhưng lệch trái nhẹ + to hơn chút
+   ========================= */
+.mainpage-card.area-time { /* chỉ ảnh hưởng ô time */
+    display: flex;
+    flex-direction: column;
+}
+.mainpage-card.area-time .card-body.time-grid {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+.mainpage-card.area-time .logged-time-wrap {
+    flex: 0 0 auto;
+}
+.mainpage-card.area-time .logged-time-value {
+    font-size: 1.95rem; /* tăng nhẹ */
+    text-align: center;
+    transform: translateX(-10px); /* lệch trái nhẹ nhưng vẫn giữa */
+}
+.mainpage-card.area-time .logged-time-label {
+    text-align: center;
+    transform: translateX(-10px);
+}
+.mainpage-card.area-time .login-history-section {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+.mainpage-card.area-time .login-history-list {
+    /* Giữ ô time không bị cao quá: giới hạn chiều cao list và cuộn */
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-bottom: 0;
 }
 .logged-time-wrap {
     padding: 12px 0;
