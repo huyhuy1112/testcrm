@@ -1145,10 +1145,15 @@ body:not([data-module="Calendar"]):not([data-module="Teams"]) .main-container .e
     padding-left: 72px !important;
 }
 /* Project & ProjectTask: giữ padding đủ rộng, thêm chút khoảng */
-body[data-module="Project"] .main-container .editViewPageDiv .content-area,
+body[data-module="Project"] .main-container .editViewPageDiv .content-area {
+    padding-left: 300px !important;
+    padding-top: 140px !important;
+    padding-bottom: 40px !important;
+    min-width: 0;
+}
 body[data-module="ProjectTask"] .main-container .editViewPageDiv .content-area {
     padding-left: 300px !important;
-    padding-top: 28px !important;
+    padding-top: 140px !important;
     padding-bottom: 40px !important;
     min-width: 0;
 }
@@ -1458,6 +1463,11 @@ body[data-module="ProjectTask"] .app-nav {
     padding-left: 300px !important;
     box-sizing: border-box;
 }
+/* Project list: app-nav + list sát trái (bỏ khoảng trống bên trái) */
+body[data-module="Project"]:has(#listViewContent.list-view-sidebar-offset) .app-nav {
+    padding-left: 56px !important;
+    box-sizing: border-box;
+}
 body[data-module="Project"] .main-container .content-area,
 body[data-module="ProjectTask"] .main-container .content-area {
     padding-left: 300px !important;
@@ -1466,12 +1476,24 @@ body[data-module="ProjectTask"] .main-container .content-area {
 }
 /* ========== List view Project/ProjectTask: không bị sidebar che + giao diện mới ========== */
 /* Dùng margin-left để cả khối list (kể cả floatThead) dịch sang phải, không còn bị đè */
-body[data-module="Project"] .main-container .listViewPageDiv.content-area,
-body[data-module="Project"] .main-container #listViewContent.listViewPageDiv,
 body[data-module="ProjectTask"] .main-container .listViewPageDiv.content-area,
 body[data-module="ProjectTask"] .main-container #listViewContent.listViewPageDiv,
 .main-container #listViewContent.list-view-sidebar-offset {
     margin-left: 296px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+    min-width: 0;
+    box-sizing: border-box;
+    max-width: none;
+}
+/* Project list: kéo list ra trái ngoài cùng (bỏ khoảng trống trái), ẩn sidebar khi xem list */
+body[data-module="Project"] .main-container:has(#listViewContent.list-view-sidebar-offset) #sidebar-essentials.sidebar-essentials {
+    display: none !important;
+}
+body[data-module="Project"] .main-container .listViewPageDiv.content-area#listViewContent.list-view-sidebar-offset,
+body[data-module="Project"] .main-container #listViewContent.listViewPageDiv.list-view-sidebar-offset {
+    margin-left: 56px !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
     margin-right: 0 !important;
@@ -1626,10 +1648,85 @@ body[data-module="ProjectTask"] .main-container #listViewContent.listViewPageDiv
     border-bottom: 1px solid #e5e7eb;
 }
 
-body[data-module="Project"] .main-container .editViewPageDiv .content-area,
+/* ========== Project List View – giao diện đơn giản, hiện đại (kiểu Projects > All) ========== */
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset {
+    background: #fafbfc;
+    box-shadow: none;
+    border-radius: 10px;
+    padding: 24px 20px 32px;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-actions-container {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .table-container {
+    background: #fff;
+    border: 1px solid #e8eaed;
+    border-radius: 10px;
+    box-shadow: none;
+    padding-top: 0;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-table > thead > tr.listViewContentHeader > th {
+    background: #fff;
+    color: #5f6368;
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: none;
+    letter-spacing: 0;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e8eaed;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-table > tbody > tr.listViewEntries > td {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #202124;
+    border-bottom: 1px solid #f1f3f4;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-table > tbody > tr.listViewEntries:hover {
+    background: #f8f9fa;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-table td .fieldValue .value a {
+    color: #1a73e8;
+    font-weight: 500;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .listview-table td .fieldValue .value a:hover {
+    color: #1557b0;
+    text-decoration: underline;
+}
+body[data-module="Project"] .app-nav .addButton.module-buttons {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    border: none !important;
+    color: #fff !important;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(124, 58, 237, 0.3);
+}
+body[data-module="Project"] .app-nav .addButton.module-buttons:hover {
+    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%) !important;
+    color: #fff !important;
+    box-shadow: 0 2px 6px rgba(124, 58, 237, 0.4);
+}
+body[data-module="Project"] .app-nav .addButton .fa {
+    color: #fff !important;
+}
+body[data-module="Project"] #listViewContent.list-view-sidebar-offset .floatThead-table.listview-table > thead > tr > th {
+    background: #fff;
+    color: #5f6368;
+    border-bottom: 1px solid #e8eaed;
+}
+body[data-module="Project"] .main-container .editViewPageDiv .content-area {
+    padding-left: 300px !important;
+    padding-top: 140px !important;
+    padding-bottom: 40px !important;
+}
 body[data-module="ProjectTask"] .main-container .editViewPageDiv .content-area {
     padding-left: 300px !important;
-    padding-top: 28px !important;
+    padding-top: 140px !important;
     padding-bottom: 40px !important;
 }
 body[data-module="Project"] .main-container .editViewPageDiv .editViewContents,
@@ -1644,6 +1741,528 @@ body[data-module="ProjectTask"] .main-container .editViewPageDiv.content-area.fu
     padding-left: 72px !important;
 }
 
+/* ========== Project Add/Edit form – rộng rãi, hiệu ứng + màu sắc ========== */
+body[data-module="Project"] .editViewPageDiv .content-area {
+    background: linear-gradient(160deg, #f0fdf4 0%, #ecfdf5 25%, #f8fafc 50%, #f0f9ff 100%);
+    background-attachment: fixed;
+    padding-top: 140px !important;
+    padding-bottom: 56px !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+body[data-module="Project"] .editViewPageDiv .content-area form#EditView {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+body[data-module="Project"] .editViewPageDiv .editViewContents {
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+body[data-module="Project"] .editViewPageDiv .editViewHeader {
+    margin-bottom: 32px;
+    text-align: center;
+}
+body[data-module="Project"] .editViewPageDiv .editHeader {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px 0 !important;
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockContainer {
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 32px 32px;
+    margin-bottom: 28px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockContainer::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+    opacity: 0.9;
+    border-radius: 18px 0 0 18px;
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockContainer:hover {
+    border-color: #a7f3d0;
+    box-shadow: 0 12px 32px rgba(16, 185, 129, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockHeader {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #047857;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 20px 0 !important;
+    padding-bottom: 12px;
+    padding-left: 4px;
+    border-bottom: 2px solid #d1fae5;
+    transition: color 0.2s ease;
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockContainer:hover .fieldBlockHeader {
+    color: #065f46;
+}
+body[data-module="Project"] .editViewPageDiv .fieldBlockContainer hr {
+    display: none;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless {
+    margin: 0;
+    border: none;
+    width: 100%;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless tr {
+    border: none;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless td {
+    border: none;
+    padding: 16px 12px 18px;
+    vertical-align: middle;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless td.fieldLabel {
+    width: 32%;
+    max-width: 220px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    padding-right: 28px;
+    vertical-align: middle;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless td.fieldValue {
+    font-size: 14px;
+    min-width: 200px;
+    box-sizing: border-box;
+    padding-left: 4px;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless td.fieldValue > * {
+    max-width: 100%;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless input.form-control,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless input.inputElement,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless select.inputElement,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless textarea.form-control {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 12px 16px;
+    font-size: 15px;
+    min-height: 46px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
+    background: #fafafa;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless input:hover,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless select:hover,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless textarea:hover {
+    background: #fff;
+    border-color: #cbd5e1;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless input:focus,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless select:focus,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless textarea:focus {
+    border-color: #10b981;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15);
+    background: #fff;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group.inputElement .dateField,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group.inputElement input.dateField {
+    min-width: 150px !important;
+    flex: 1 1 auto;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) {
+    display: flex !important;
+    min-width: 0;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) .input-group-addon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    padding: 0;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) .input-group-addon .fa {
+    margin: 0;
+    vertical-align: middle;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .redColor {
+    color: #dc2626;
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fffe 100%);
+    border: 1px solid #a7f3d0;
+    padding: 28px 32px 32px;
+    margin-top: 32px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 8px 28px rgba(16, 185, 129, 0.12), 0 2px 8px rgba(0,0,0,0.04);
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease;
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer:hover {
+    box-shadow: 0 12px 36px rgba(16, 185, 129, 0.15), 0 4px 12px rgba(0,0,0,0.06);
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .textAlignCenter {
+    text-align: center;
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .saveButton {
+    background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+    border: none;
+    color: #fff;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+    transition: all 0.25s ease;
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .saveButton:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+    transform: translateY(-2px);
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .saveButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .cancelLink {
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 600;
+    margin-left: 16px;
+    text-decoration: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+body[data-module="Project"] .editViewPageDiv .modal-overlay-footer .cancelLink:hover {
+    background: #f0fdf4;
+    border-color: #a7f3d0;
+    color: #047857;
+}
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .select2-container,
+body[data-module="Project"] .editViewPageDiv .table.table-borderless .input-group {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+body[data-module="Project"] .editViewPageDiv .select2-container--default .select2-selection--single,
+body[data-module="Project"] .editViewPageDiv .select2-container--default .select2-selection--multiple {
+    border-radius: 12px !important;
+    border-color: #e2e8f0 !important;
+    min-height: 46px !important;
+    padding: 8px 14px !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    background: #fafafa !important;
+    transition: all 0.25s ease !important;
+}
+body[data-module="Project"] .editViewPageDiv .select2-container {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+body[data-module="Project"] .editViewPageDiv .select2-container--default.select2-container--focus .select2-selection--single,
+body[data-module="Project"] .editViewPageDiv .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.15) !important;
+    background: #fff !important;
+}
+body[data-module="Project"] .editViewPageDiv .duplicationMessageContainer {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(220, 38, 38, 0.08);
+}
+
+/* ========== ProjectTask Add/Edit form – cùng thiết kế, màu tím/violet ========== */
+body[data-module="ProjectTask"] .editViewPageDiv .content-area {
+    background: linear-gradient(160deg, #faf5ff 0%, #f5f3ff 25%, #f8fafc 50%, #faf5ff 100%);
+    background-attachment: fixed;
+    padding-top: 140px !important;
+    padding-bottom: 56px !important;
+    padding-left: 40px !important;
+    padding-right: 40px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .content-area form#EditView {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .editViewContents {
+    max-width: 960px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 12px;
+    box-sizing: border-box;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .editViewHeader {
+    margin-bottom: 32px;
+    text-align: center;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .editHeader {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px 0 !important;
+    letter-spacing: -0.02em;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockContainer {
+    background: #fff;
+    border-radius: 18px;
+    padding: 28px 32px 32px;
+    margin-bottom: 28px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.25s ease;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockContainer::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #8b5cf6 0%, #7c3aed 100%);
+    opacity: 0.9;
+    border-radius: 18px 0 0 18px;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockContainer:hover {
+    border-color: #ddd6fe;
+    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+    transform: translateY(-2px);
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockHeader {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #6d28d9;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin: 0 0 20px 0 !important;
+    padding-bottom: 12px;
+    padding-left: 4px;
+    border-bottom: 2px solid #ede9fe;
+    transition: color 0.2s ease;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockContainer:hover .fieldBlockHeader {
+    color: #5b21b6;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .fieldBlockContainer hr {
+    display: none;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless {
+    margin: 0;
+    border: none;
+    width: 100%;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless tr {
+    border: none;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless td {
+    border: none;
+    padding: 16px 12px 18px;
+    vertical-align: middle;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless td.fieldLabel {
+    width: 32%;
+    max-width: 220px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+    padding-right: 28px;
+    vertical-align: middle;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless td.fieldValue {
+    font-size: 14px;
+    min-width: 200px;
+    box-sizing: border-box;
+    padding-left: 4px;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless td.fieldValue > * {
+    max-width: 100%;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless input.form-control,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless input.inputElement,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless select.inputElement,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless textarea.form-control {
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 12px 16px;
+    font-size: 15px;
+    min-height: 46px;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.2s ease;
+    background: #fafafa;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless input:hover,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless select:hover,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless textarea:hover {
+    background: #fff;
+    border-color: #cbd5e1;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless input:focus,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless select:focus,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless textarea:focus {
+    border-color: #8b5cf6;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    background: #fff;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group.inputElement .dateField,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group.inputElement input.dateField {
+    min-width: 150px !important;
+    flex: 1 1 auto;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) {
+    display: flex !important;
+    min-width: 0;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) .input-group-addon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 46px;
+    padding: 0;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group.inputElement:has(.dateField) .input-group-addon .fa {
+    margin: 0;
+    vertical-align: middle;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer {
+    background: linear-gradient(180deg, #ffffff 0%, #faf5ff 100%);
+    border: 1px solid #ddd6fe;
+    padding: 28px 32px 32px;
+    margin-top: 32px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 960px;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 8px 28px rgba(139, 92, 246, 0.12), 0 2px 8px rgba(0,0,0,0.04);
+    box-sizing: border-box;
+    transition: box-shadow 0.3s ease;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer:hover {
+    box-shadow: 0 12px 36px rgba(139, 92, 246, 0.15), 0 4px 12px rgba(0,0,0,0.06);
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .saveButton {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+    border: none;
+    color: #fff;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+    transition: all 0.25s ease;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .saveButton:hover {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+    transform: translateY(-2px);
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .saveButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(139, 92, 246, 0.35);
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .cancelLink {
+    color: #64748b;
+    font-size: 15px;
+    font-weight: 600;
+    margin-left: 16px;
+    text-decoration: none;
+    padding: 12px 22px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .cancelLink:hover {
+    background: #f5f3ff;
+    border-color: #ddd6fe;
+    color: #6d28d9;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .modal-overlay-footer .textAlignCenter {
+    text-align: center;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .select2-container,
+body[data-module="ProjectTask"] .editViewPageDiv .table.table-borderless .input-group {
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .select2-container--default .select2-selection--single,
+body[data-module="ProjectTask"] .editViewPageDiv .select2-container--default .select2-selection--multiple {
+    border-radius: 12px !important;
+    min-height: 46px !important;
+    padding: 8px 14px !important;
+    max-width: 100% !important;
+    background: #fafafa !important;
+    transition: all 0.25s ease !important;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .select2-container--default.select2-container--focus .select2-selection--single,
+body[data-module="ProjectTask"] .editViewPageDiv .select2-container--default.select2-container--focus .select2-selection--multiple {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15) !important;
+    background: #fff !important;
+}
+body[data-module="ProjectTask"] .editViewPageDiv .duplicationMessageContainer {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 10px rgba(220, 38, 38, 0.08);
+}
 
 /** Lists Menu in Side bar */
 .module-filters .sidebar-container{
@@ -3178,9 +3797,48 @@ body[data-module="Home"][data-view="MainPage"] .content-area {
 .time-empty {
     padding: 10px 0;
 }
-/* ========== Popup: Related To / lookup cleanup ========== */
+/* ========== Popup: Related To / lookup – bảng làm lại đẹp, rộng rãi, hiệu ứng ========== */
+.modal-content:has(#popupPageContainer) {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 28px 56px rgba(0,0,0,0.14), 0 12px 28px rgba(99, 102, 241, 0.08);
+    overflow: hidden;
+}
+.modal-content:has(#popupPageContainer) .modal-header {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+    color: #fff;
+    border: none;
+    padding: 20px 28px;
+    border-radius: 20px 20px 0 0;
+}
+.modal-content:has(#popupPageContainer) .modal-header h4 {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.35rem;
+    margin: 0;
+    letter-spacing: 0.02em;
+}
+.modal-content:has(#popupPageContainer) .modal-header .close {
+    color: #fff;
+    opacity: 0.95;
+    text-shadow: none;
+    margin-top: -4px;
+    font-size: 1.5rem;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+.modal-content:has(#popupPageContainer) .modal-header .close:hover {
+    opacity: 1;
+    color: #fff;
+    background: rgba(255,255,255,0.15);
+}
+.modal-content:has(#popupPageContainer) .modal-body {
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 24px 28px 28px;
+}
 #popupPageContainer {
-    padding: 0 8px !important;
+    padding: 0 !important;
 }
 #popupPageContainer .row,
 #popupPageContainer .row-fluid {
@@ -3191,25 +3849,177 @@ body[data-module="Home"][data-view="MainPage"] .content-area {
 #popupPageContainer .contentsDiv {
     width: 100% !important;
 }
+#popupPageContainer .popupEntriesTableContainer {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 0 0 1px rgba(99, 102, 241, 0.04);
+}
 #popupPageContainer .listViewEntriesTable {
     width: 100% !important;
     table-layout: auto !important;
+    margin: 0 !important;
+    border: none !important;
 }
-#popupPageContainer .listViewEntriesTable th,
-#popupPageContainer .listViewEntriesTable td {
-    padding: 6px 8px !important;
+#popupPageContainer .listViewEntriesTable thead tr.listViewHeaders th {
+    background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+    color: #475569;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 16px 20px !important;
+    border: none !important;
+    border-bottom: 3px solid #cbd5e1;
     vertical-align: middle !important;
-    white-space: nowrap;
 }
-#popupPageContainer .searchRow input[type="text"],
-#popupPageContainer .searchRow select,
-#popupPageContainer .searchRow .select2-container {
+#popupPageContainer .listViewEntriesTable thead .listViewContentHeaderValues {
+    color: #475569;
+    transition: color 0.2s ease;
+}
+#popupPageContainer .listViewEntriesTable thead .listViewContentHeaderValues:hover {
+    color: #6366f1;
+}
+#popupPageContainer .listViewEntriesTable tr.searchRow td {
+    background: linear-gradient(180deg, #fafbfc 0%, #f8fafc 100%);
+    padding: 16px 20px !important;
+    border-bottom: 2px solid #e2e8f0;
+    vertical-align: middle !important;
+}
+#popupPageContainer .listViewEntriesTable tr.searchRow input[type="text"],
+#popupPageContainer .listViewEntriesTable tr.searchRow select,
+#popupPageContainer .listViewEntriesTable tr.searchRow .select2-container .select2-selection {
     min-width: 160px;
+    min-height: 42px;
+    border-radius: 12px !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 10px 14px !important;
+    font-size: 14px;
+    background: #fff !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+#popupPageContainer .listViewEntriesTable tr.searchRow input:focus,
+#popupPageContainer .listViewEntriesTable tr.searchRow select:focus {
+    border-color: #6366f1 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+#popupPageContainer .listViewEntriesTable tr.searchRow .btn-success {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border: none;
+    color: #fff;
+    padding: 10px 22px;
+    min-height: 42px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+#popupPageContainer .listViewEntriesTable tr.searchRow .btn-success:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.45);
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries {
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries:nth-child(even) {
+    background: #fafbfc;
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries:hover {
+    background: #eef2ff !important;
+    box-shadow: inset 3px 0 0 #6366f1;
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries td {
+    padding: 14px 20px !important;
+    vertical-align: middle !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    font-size: 14px;
+    color: #334155;
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries td a {
+    color: #6366f1;
+    font-weight: 600;
+    transition: color 0.2s ease, text-decoration 0.2s ease;
+}
+#popupPageContainer .listViewEntriesTable tbody tr.listViewEntries td a:hover {
+    color: #4338ca;
+    text-decoration: underline;
 }
 #popupPageContainer .select2-container {
-    width: auto !important;
+    width: 100% !important;
+    max-width: 220px;
 }
 #popupPageContainer .paginationDiv {
-    padding-right: 0 !important;
+    padding: 18px 0 0 !important;
+    margin-top: 16px;
+}
+#popupPageContainer .paginationDiv .pagination ul li a,
+#popupPageContainer .paginationDiv .pagination ul li span {
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-weight: 500;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+#popupPageContainer .paginationDiv .pagination ul li.active a {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border-color: #6366f1;
+    color: #fff;
+}
+#popupPageContainer .paginationDiv .pagination ul li a:hover {
+    background: #eef2ff;
+    color: #4338ca;
+}
+
+/* Ô Related To trên form: input + nút search/add đẹp, đồng bộ với popup */
+.editViewContents .referencefield-wrapper .input-group {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    background: #fafafa;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.editViewContents .referencefield-wrapper .input-group:focus-within {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    background: #fff;
+}
+.editViewContents .referencefield-wrapper .input-group input.autoComplete,
+.editViewContents .referencefield-wrapper .input-group input.inputElement {
+    border: none !important;
+    background: transparent !important;
+    padding: 12px 14px !important;
+    font-size: 14px !important;
+    min-height: 46px !important;
+}
+.editViewContents .referencefield-wrapper .input-group .input-group-addon {
+    border: none !important;
+    background: #f1f5f9 !important;
+    padding: 0 14px !important;
+    min-width: 46px;
+    min-height: 46px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.editViewContents .referencefield-wrapper .input-group .input-group-addon.relatedPopup:hover,
+.editViewContents .referencefield-wrapper .input-group .input-group-addon.createReferenceRecord:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #fff !important;
+}
+.editViewContents .referencefield-wrapper .input-group .input-group-addon .fa {
+    font-size: 14px;
+}
+.editViewContents .referencefield-wrapper .input-group .clearReferenceSelection {
+    padding: 10px 12px;
+    border-radius: 0 12px 12px 0;
+    background: #f1f5f9;
+    transition: background 0.2s ease;
+}
+.editViewContents .referencefield-wrapper .input-group .clearReferenceSelection:hover {
+    background: #e2e8f0;
 }
 
