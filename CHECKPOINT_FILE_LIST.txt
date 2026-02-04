@@ -2,6 +2,13 @@
 # Date: 2026-01-23 09:14:59 +07
 # Use this list to restore files if needed
 
+## CHECKPOINT 2026-02-02 16:39 – Layout & List View (huy-dev push)
+# Thư mục: checkpoints/checkpoint_20260202_163916/
+# File: RESTORE_INSTRUCTIONS.txt (lệnh khôi phục chi tiết)
+# Commit: 9cbd6bf – nav không che form, list Project sít trái, validation toast, calendar height
+# File lưu: languages (en_us, vi_vn Vtiger.php), calendar-google.css, ListViewPreProcess.tpl,
+#   ModernNotifications.css, Vtiger.js, validation.js, custom.css, project/style.css
+
 ## CHECKPOINT 2026-02-02 – Calendar Google (lấp khoảng trắng Month/Week/Day)
 # Thư mục: checkpoints/checkpoint_20260202_101205/
 # File: RESTORE_INSTRUCTIONS.txt (lệnh khôi phục chi tiết)

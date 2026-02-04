@@ -306,6 +306,17 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		if(empty($searchParams)) {
 			$searchParams = array();
 		}
+		// Debug: log search_params from request (xem storage/logs/search_params.log)
+		$rawSearchParams = $request->get('search_params');
+		if ($rawSearchParams !== null && $rawSearchParams !== '') {
+			$toLog = is_string($rawSearchParams) ? $rawSearchParams : json_encode($rawSearchParams);
+			$logDir = dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'logs';
+			if (is_dir($logDir) || @mkdir($logDir, 0755, true)) {
+				$logFile = $logDir . DIRECTORY_SEPARATOR . 'search_params.log';
+				$line = date('Y-m-d H:i:s') . ' module=' . $moduleName . ' raw=' . $toLog . "\n";
+				@file_put_contents($logFile, $line, FILE_APPEND);
+			}
+		}
 		if(php7_count($searchParams) == 2 && empty($searchParams[1])) {
 			unset($searchParams[1]);
 		}

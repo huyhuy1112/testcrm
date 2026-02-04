@@ -157,7 +157,7 @@
 							<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
 								<label class="checkbox-inline">
 									<input type="checkbox" name="allday" id="calendar_allday" value="1" />
-									<strong>All Day</strong>
+									<strong>{vtranslate('LBL_ALL_DAY','Calendar')}</strong>
 								</label>
 								<span id="calendar-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span>
 							</div>

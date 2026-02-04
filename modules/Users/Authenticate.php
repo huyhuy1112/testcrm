@@ -60,6 +60,8 @@ if($focus->is_authenticated()) {
 	$_SESSION['authenticated_user_id'] = $focus->id;
 	$_SESSION['AUTHUSERID'] = $focus->id;
 	$_SESSION['app_unique_key'] = $application_unique_key;
+	// Thời điểm đăng nhập (để tính "My logged time" trên Main Page)
+	$_SESSION['user_login_time'] = time();
 
 	global $upload_badext;
 	//Enabled session variable for KCFINDER

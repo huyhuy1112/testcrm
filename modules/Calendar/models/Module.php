@@ -383,6 +383,13 @@ class Calendar_Module_Model extends Vtiger_Module_Model {
 		$result = $db->pquery($query, array($id));
 		$rows = $db->num_rows($result);
 
+		// Nếu user chưa có cấu hình activity types → seed mặc định (Events + Calendar) để Schedule có feed hiển thị
+		if ($rows <= 0) {
+			Vtiger_Util_Helper::setCalendarDefaultActivityTypesForUser($id);
+			$result = $db->pquery($query, array($id));
+			$rows = $db->num_rows($result);
+		}
+
 		$calendarViewTypes = Array();
 		for($i=0; $i<$rows; $i++){
 			$activityTypes = $db->query_result_rowdata($result, $i);

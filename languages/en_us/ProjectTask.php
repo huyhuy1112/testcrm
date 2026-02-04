@@ -18,7 +18,11 @@ $languageStrings = array(
 	'LBL_PROJECTS_LIST' => 'Projects List',
 	'LBL_TASKS_LIST' => 'Tasks List',
     'LBL_MILESTONES_LIST' => 'Milestones List',
-	
+	'LBL_TEAM_GROUPS' => 'Team Groups',
+	'LBL_ADDITIONAL_ASSIGNEES' => 'Additional assignees',
+	'LBL_ADDITIONAL_ASSIGNEES_HELP' => 'Select one or more users to assign alongside the main owner. They will also see this record.',
+	'LBL_SELECT_USERS' => 'Select users',
+
 	//Field Labels
 	'Project Task Name' => 'Project Task Name',
     'Project Task No' => 'Project Task No',

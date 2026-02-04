@@ -56,7 +56,11 @@ body:has(.CalendarViewPageDiv) #sidebar-wrapper {
     max-height: none !important;
 }
 
-/* ========== 2. LAYOUT: BẬT MENU SCHEDULE (app-nav Schedule bar hiện) → Topbar + Schedule bar rồi Nav | Sidebar | Full calendar ========== */
+/* ========== 2. LAYOUT THEO HÌNH: ẨN APP-NAV (Schedule bar) → Topbar rồi Nav | Sidebar | Full calendar ========== */
+body[data-module="Calendar"] .app-nav.app-nav-Schedule,
+body:has(.CalendarViewPageDiv) .app-nav.app-nav-Schedule {
+    display: none !important;
+}
 body[data-module="Calendar"] .main-container,
 body:has(.CalendarViewPageDiv) .main-container {
     overflow: visible !important;

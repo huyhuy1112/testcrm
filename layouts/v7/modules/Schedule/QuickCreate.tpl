@@ -1,10 +1,5 @@
 {*+**********************************************************************************
-* The contents of this file are subject to the vtiger CRM Public License Version 1.1
-* ("License"); You may not use this file except in compliance with the License
-* The Original Code is: vtiger CRM Open Source
-* The Initial Developer of the Original Code is vtiger.
-* Portions created by vtiger are Copyright (C) vtiger.
-* All Rights Reserved.
+* Schedule Quick Create Task - Form giống hình: Add title, Date/Time, All day, Repeat, Deadline, Description, Assigned To, Status
 ************************************************************************************}
 
 {strip}
@@ -47,76 +42,92 @@
 							<input type="hidden" name="picklistDependency" value='{Vtiger_Util_Helper::toSafeHTML($PICKIST_DEPENDENCY_DATASOURCE_TODO)}' />
 						{/if}
 
-						{* Subject Field *}
+						{* 1. Add title *}
 						<div>
 							{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['subject']}
 							<div style="margin-left: 14px;width: 95%;">
 								{assign var="FIELD_INFO" value=$FIELD_MODEL->getFieldInfo()}
 								{assign var="SPECIAL_VALIDATOR" value=$FIELD_MODEL->getValidator()}
-								<input id="{$MODULE}_editView_fieldName_{$FIELD_MODEL->get('name')}" type="text" class="inputElement {if $FIELD_MODEL->isNameField()}nameField{/if}" name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}"
-									   {if $FIELD_MODEL->get('uitype') eq '3' || $FIELD_MODEL->get('uitype') eq '4'|| $FIELD_MODEL->isReadOnly()} readonly {/if} {if !empty($SPECIAL_VALIDATOR)}data-validator="{Zend_Json::encode($SPECIAL_VALIDATOR)}"{/if}  
+								<input id="{$MODULE}_editView_fieldName_{$FIELD_MODEL->get('name')}" type="text" class="inputElement nameField" name="{$FIELD_MODEL->getFieldName()}" value="{$FIELD_MODEL->get('fieldvalue')}"
+									   {if !empty($SPECIAL_VALIDATOR)}data-validator="{Zend_Json::encode($SPECIAL_VALIDATOR)}"{/if}
 									   {if $FIELD_INFO["mandatory"] eq true} data-rule-required="true" {/if}
 									   {foreach item=VALIDATOR from=$FIELD_INFO["validator"]}
 										   {assign var=VALIDATOR_NAME value=$VALIDATOR["name"]}
-										   data-rule-{$VALIDATOR_NAME} = "true" 
+										   data-rule-{$VALIDATOR_NAME} = "true"
 									   {/foreach}
-									   placeholder="{vtranslate($FIELD_MODEL->get('label'), $MODULE)} *" style="width: 100%;"/>
+									   placeholder="{vtranslate('LBL_ADD_TITLE','Calendar')}" style="width: 100%; font-size: 14px;"/>
 							</div>
 						</div>
 
-						{* Date/Time Section with All Day Toggle *}
-						<div class="row" style="padding-top: 2%;">
-							<div class="col-sm-12">
-								<div class="col-sm-5 schedule-date-time-group">
-									<label class="control-label" style="font-size: 12px; color: #666;">Start</label>
-									<div>
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
-									</div>
-									<div class="schedule-time-field" style="margin-top: 8px;">
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['time_start']}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
-									</div>
+						{* 2. Date and Time - icon + summary line + date + time *}
+						<div class="schedule-qc-datetime-row" style="margin-top: 16px; display: flex; align-items: flex-start;">
+							<span class="fa fa-clock-o" style="width: 24px; margin-right: 12px; color: #5f6368; margin-top: 6px;"></span>
+							<div style="flex: 1;">
+								<div class="calendar-qc-datetime-summary" style="font-size: 14px; color: #202124; margin-bottom: 8px; min-height: 22px;">—</div>
+								<div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+									{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['date_start']}
+									{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
 								</div>
-								<div class="muted col-sm-1" style="line-height: 67px;left: 20px; padding-right: 7%; text-align: center;">
-									{vtranslate('LBL_TO','Calendar')}
-								</div>
-								<div class="col-sm-5 schedule-date-time-group">
-									<label class="control-label" style="font-size: 12px; color: #666;">End</label>
-									<div>
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
-									</div>
-									<div class="schedule-time-field" style="margin-top: 8px;">
-										{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['time_end']}
-										{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
-									</div>
-								</div>
-							</div>
-							{* All Day Toggle *}
-							<div class="col-sm-12" style="margin-top: 10px; padding-left: 14px;">
-								<label class="checkbox-inline">
-									<input type="checkbox" name="allday" id="schedule_allday" value="1" data-schedule-allday="1" />
-									<strong>All Day</strong>
-								</label>
-								<span id="schedule-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;"></span>
 							</div>
 						</div>
 
-						{* Other Fields *}
+						{* 3. All Day *}
+						<div style="margin-top: 10px; padding-left: 36px;">
+							<label class="checkbox-inline">
+								<input type="checkbox" name="allday" id="schedule_allday" value="1" data-schedule-allday="1" />
+								<strong>{vtranslate('LBL_ALL_DAY','Calendar')}</strong>
+							</label>
+							<span id="schedule-duration-display" style="margin-left: 15px; color: #666; font-size: 12px;">({vtranslate('LBL_ALL_DAY_HINT','Calendar')})</span>
+						</div>
+
+						{* 4. Repeat *}
+						<div class="schedule-qc-repeat" style="margin-top: 12px; margin-bottom: 12px; padding: 10px 15px; padding-left: 36px; background: #f9f9f9; border-radius: 4px;">
+							<label class="control-label" style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">{vtranslate('Recurrence','Calendar')}</label>
+							<select name="calendar_repeat_type" id="schedule_repeat_type" class="form-control" style="font-size: 13px; max-width: 280px;">
+								<option value="">{vtranslate('LBL_DOES_NOT_REPEAT','Calendar')}</option>
+								<option value="Daily">Daily</option>
+								<option value="Weekly">Weekly</option>
+								<option value="Monthly">Monthly</option>
+								<option value="Yearly">Yearly</option>
+							</select>
+							<input type="hidden" name="recurringtype" id="schedule_recurringtype_hidden" value="" />
+						</div>
+
+						{* 5. Deadline - Add deadline + HH:mm *}
+						<div style="display: flex; align-items: center; margin-bottom: 12px;">
+							<span class="fa fa-bullseye" style="width: 24px; margin-right: 12px; color: #5f6368;"></span>
+							<div style="flex: 1; display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
+								{assign var="FIELD_MODEL" value=$RECORD_STRUCTURE['due_date']}
+								{include file=vtemplate_path($FIELD_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
+								{if isset($RECORD_STRUCTURE['time_end'])}
+									{assign var="TIME_END_MODEL" value=$RECORD_STRUCTURE['time_end']}
+									{include file=vtemplate_path($TIME_END_MODEL->getUITypeModel()->getTemplateName(),'Calendar')}
+								{/if}
+							</div>
+						</div>
+
+						{* 6. Add description *}
+						<div style="display: flex; align-items: flex-start; margin-bottom: 12px;">
+							<span class="fa fa-align-left" style="width: 24px; margin-right: 12px; color: #5f6368; margin-top: 8px;"></span>
+							<div style="flex: 1;">
+								<textarea name="description" class="form-control" rows="3" placeholder="{vtranslate('LBL_ADD_DESCRIPTION','Calendar')}" style="resize: vertical; font-size: 13px;"></textarea>
+							</div>
+						</div>
+
+						{* 7. Assigned To + Status (table) *}
 						<div class="container-fluid paddingTop15">
 							<table class="massEditTable table no-border">
 								<tr>
 									{foreach key=FIELD_NAME item=FIELD_MODEL from=$RECORD_STRUCTURE name=blockfields}
-									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'time_start' || $FIELD_NAME eq 'time_end'}
-								</tr>{continue}
-								{/if}
-								{assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
-								{assign var="referenceList" value=$FIELD_MODEL->getReferenceList()}
-								{assign var="referenceListCount" value=php7_count($referenceList)}
-								{if $FIELD_MODEL->get('uitype') eq "19"}
-								{if $COUNTER eq '1'}
-								<td></td><td></td></tr><tr>
+									{if $FIELD_NAME eq 'subject' || $FIELD_NAME eq 'date_start' || $FIELD_NAME eq 'due_date' || $FIELD_NAME eq 'time_start' || $FIELD_NAME eq 'time_end' || $FIELD_NAME eq 'description' || $FIELD_NAME eq 'recurringtype'}
+									{continue}
+									{/if}
+									{assign var="isReferenceField" value=$FIELD_MODEL->getFieldDataType()}
+									{assign var="referenceList" value=$FIELD_MODEL->getReferenceList()}
+									{assign var="referenceListCount" value=php7_count($referenceList)}
+									{if $FIELD_MODEL->get('uitype') eq "19"}
+									{if $COUNTER eq '1'}
+									<td></td><td></td></tr><tr>
 									{assign var=COUNTER value=0}
 									{/if}
 									{/if}

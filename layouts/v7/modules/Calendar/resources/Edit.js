@@ -347,7 +347,10 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 
 			vtUtils.registerEventForDateFields(endDateElement);
 			vtUtils.registerEventForTimeFields(endTimeElement);
-			endDateElement.valid();
+			var form = endDateElement.closest('form');
+			if (form.length && form.data('validator')) {
+				try { endDateElement.valid(); } catch (e) {}
+			}
 		});
 	},
 
@@ -490,7 +493,11 @@ Vtiger_Edit_Js("Calendar_Edit_Js",{
 			var m2 = moment(startDateElement.val() + ' ' + startTimeElement.val(), momentFormat);
 			var newDiff = (m1.unix() - m2.unix())/60;
 			Calendar_Edit_Js.userChangedTimeDiff = newDiff;
-			container.find('[name="due_date"]').valid();
+			var dueDateEl = container.find('[name="due_date"]');
+			var form = dueDateEl.closest('form');
+			if (form.length && form.data('validator')) {
+				try { dueDateEl.valid(); } catch (e) {}
+			}
 		});
 		if(container.find('[name="record"]')!==''){
 			container.find('[name="time_end"]').trigger('changeTime');

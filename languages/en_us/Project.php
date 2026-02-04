@@ -13,6 +13,10 @@ $languageStrings = array(
 	'SINGLE_Project' => 'Project',
 	'LBL_ADD_RECORD' => 'Add Project',
 	'LBL_RECORDS_LIST' => 'Projects List',
+	'LBL_TEAM_GROUPS' => 'Team Groups',
+	'LBL_ADDITIONAL_ASSIGNEES' => 'Additional assignees',
+	'LBL_ADDITIONAL_ASSIGNEES_HELP' => 'Select one or more users to assign alongside the main owner. They will also see this record.',
+	'LBL_SELECT_USERS' => 'Select users',
 
 	// Blocks
 	'LBL_PROJECT_INFORMATION' => 'Project Details',

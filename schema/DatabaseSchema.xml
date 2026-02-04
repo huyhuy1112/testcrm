@@ -5073,17 +5073,40 @@
 	</table>
 
 	<table name="vtiger_announcement">
-		<field name="creatorid" type="I" size="19">
+		<field name="id" type="I" size="19">
+			<notnull />
 			<key />
+			<autoincrement />
 		</field>
+		<field name="creatorid" type="I" size="19" />
 		<field name="announcement" type="X" />
 		<field name="title" type="C" size="255" />
 		<field name="time" type="T">
 			<deftimestamp />
 		</field>
+		<field name="subscriber_ids" type="X" />
+		<field name="subscriber_group_ids" type="X" />
 
 		<index name="announcement_creatorid_idx">
 			<col>creatorid</col>
+		</index>
+		<opt platform="mysql">Engine=InnoDB DEFAULT CHARSET utf8</opt>
+	</table>
+
+	<table name="vtiger_announcement_comments">
+		<field name="id" type="I" size="19">
+			<notnull />
+			<key />
+			<autoincrement />
+		</field>
+		<field name="announcement_id" type="I" size="19" />
+		<field name="userid" type="I" size="19" />
+		<field name="comment_text" type="X" />
+		<field name="createdtime" type="T">
+			<deftimestamp />
+		</field>
+		<index name="ann_comment_announcement_idx">
+			<col>announcement_id</col>
 		</index>
 		<opt platform="mysql">Engine=InnoDB DEFAULT CHARSET utf8</opt>
 	</table>

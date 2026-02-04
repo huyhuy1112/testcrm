@@ -185,7 +185,10 @@ class Home_Module_Model extends Vtiger_Module_Model {
 
 		$nowInUserFormat = Vtiger_Datetime_UIType::getDisplayDateTimeValue(date('Y-m-d H:i:s'));
 		$nowInDBFormat = Vtiger_Datetime_UIType::getDBDateTimeValue($nowInUserFormat);
-		list($currentDate, $currentTime) = explode(' ', $nowInDBFormat);
+		list($currentDate, $currentTime) = array_pad(explode(' ', $nowInDBFormat, 2), 2, '');
+		if (strlen($currentDate) > 10) {
+			$currentDate = substr($currentDate, 0, 10);
+		}
 
 		$query = "SELECT vtiger_crmentity.crmid, vtiger_crmentity.smownerid, vtiger_crmentity.setype, vtiger_activity.* FROM vtiger_activity
 					INNER JOIN vtiger_crmentity ON vtiger_crmentity.crmid = vtiger_activity.activityid
@@ -210,6 +213,10 @@ class Home_Module_Model extends Vtiger_Module_Model {
 			$query .= " AND CASE WHEN vtiger_activity.activitytype='Task' THEN due_date >= '$currentDate' ELSE CONCAT(due_date,' ',time_end) >= '$nowInDBFormat' END";
 		} elseif ($mode === 'overdue') {
 			$query .= " AND CASE WHEN vtiger_activity.activitytype='Task' THEN due_date < '$currentDate' ELSE CONCAT(due_date,' ',time_end) < '$nowInDBFormat' END";
+		} elseif ($mode === 'today') {
+			// Events/tasks that fall on today: Task => due_date = today; Event => date_start <= today <= due_date
+			$query .= " AND ( (vtiger_activity.activitytype='Task' AND vtiger_activity.due_date = '$currentDate')";
+			$query .= " OR (vtiger_activity.activitytype != 'Task' AND vtiger_activity.date_start <= '$currentDate' AND vtiger_activity.due_date >= '$currentDate') )";
 		}
 
 		$params = array();
@@ -261,7 +268,7 @@ class Home_Module_Model extends Vtiger_Module_Model {
 			$model->setData($newRow);
 			$model->setId($newRow['crmid']);
 			$activities[$newRow['crmid']] = $model;
-			if(!$currentUser->isAdminUser() && $newRow['activitytype'] == 'Task' && isToDoPermittedBySharing($newRow['crmid']) == 'no') { 
+			if(!$currentUser->isAdminUser() && $newRow['activitytype'] == 'Task' && $ownerId != $currentUser->getId() && isToDoPermittedBySharing($newRow['crmid']) == 'no') { 
 				$recordsToUnset[] = $newRow['crmid'];
 			}
 		}

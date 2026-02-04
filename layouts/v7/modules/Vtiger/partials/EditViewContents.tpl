@@ -123,4 +123,24 @@
     {/literal}
 {/if}
 {* End Viet *}
+{* Project / ProjectTask: Additional assignees (multiple users) *}
+{if ($MODULE eq 'Project' || $MODULE eq 'ProjectTask') && isset($ASSIGNABLE_USERS)}
+	<div class="fieldBlockContainer" data-block="LBL_ASSIGNEE">
+		<h4 class="fieldBlockHeader">{vtranslate('LBL_ADDITIONAL_ASSIGNEES', $MODULE)}</h4>
+		<hr>
+		<table class="table table-borderless">
+			<tr>
+				<td class="fieldLabel alignMiddle">{vtranslate('LBL_ADDITIONAL_ASSIGNEES', $MODULE)}</td>
+				<td class="fieldValue">
+					<select class="inputElement select2" name="additional_assignees[]" multiple data-placeholder="{vtranslate('LBL_SELECT_USERS', $MODULE)}" style="min-width: 220px;">
+						{foreach key=UID item=UNAME from=$ASSIGNABLE_USERS}
+							<option value="{$UID}" {if isset($ADDITIONAL_ASSIGNEES) && in_array($UID, $ADDITIONAL_ASSIGNEES)} selected {/if}>{$UNAME}</option>
+						{/foreach}
+					</select>
+					<span class="muted">{vtranslate('LBL_ADDITIONAL_ASSIGNEES_HELP', $MODULE)}</span>
+				</td>
+			</tr>
+		</table>
+	</div>
+{/if}
 {/strip}

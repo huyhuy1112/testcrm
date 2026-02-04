@@ -14,7 +14,16 @@ class Settings_Vtiger_AnnouncementSaveAjax_Action extends Settings_Vtiger_Basic_
     public function process(Vtiger_Request $request) {
         $currentUser = Users_Record_Model::getCurrentUserModel();
         $annoucementModel = Settings_Vtiger_Announcement_Model::getInstanceByCreator($currentUser);
-        $annoucementModel->set('announcement',$request->get('announcement'));
+        $annoucementModel->set('announcement', $request->get('announcement'));
+        if ($request->has('title')) {
+            $annoucementModel->set('title', $request->get('title'));
+        }
+        if ($request->has('subscriber_ids')) {
+            $annoucementModel->set('subscriber_ids', $request->get('subscriber_ids'));
+        }
+        if ($request->has('subscriber_group_ids')) {
+            $annoucementModel->set('subscriber_group_ids', $request->get('subscriber_group_ids'));
+        }
         $annoucementModel->save();
         $responce = new Vtiger_Response();
         $responce->setResult(array('success'=>true));

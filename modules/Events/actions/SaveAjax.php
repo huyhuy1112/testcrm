@@ -184,31 +184,57 @@ class Events_SaveAjax_Action extends Events_Save_Action {
 			}
 		}
 
-		$startDate = $request->get('date_start');
-		if (!empty($startDate)) {
-			//Start Date and Time values
-			$startTime = Vtiger_Time_UIType::getTimeValueWithSeconds($request->get('time_start'));
-			$startDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($request->get('date_start') . " " . $startTime);
-			list($startDate, $startTime) = explode(' ', $startDateTime);
+		$allday = $request->get('allday');
+		$isAllDay = ($allday == '1' || $allday === true);
 
-			$recordModel->set('date_start', $startDate);
-			$recordModel->set('time_start', $startTime);
-		}
+		if ($isAllDay) {
+			// All-day: chỉ chuyển đổi ngày (format), không dùng getDBDateTimeValue để tránh timezone làm lùi 1 ngày
+			$currentUser = Users_Record_Model::getCurrentUserModel();
+			$userDateFormat = $currentUser->get('date_format');
+			$startDate = $request->get('date_start');
+			if (!empty($startDate)) {
+				$startDateOnly = trim(explode(' ', $startDate)[0]);
+				$startDateOnly = trim(explode('T', $startDateOnly)[0]);
+				$recordModel->set('date_start', DateTimeField::__convertToDBFormat($startDateOnly, $userDateFormat));
+				$recordModel->set('time_start', '00:00:00');
+			}
+			$endDateReq = $request->get('due_date');
+			if (!empty($endDateReq)) {
+				$endDateOnly = trim(explode(' ', $endDateReq)[0]);
+				$endDateOnly = trim(explode('T', $endDateOnly)[0]);
+				$recordModel->set('due_date', DateTimeField::__convertToDBFormat($endDateOnly, $userDateFormat));
+				$recordModel->set('time_end', '23:59:59');
+			} else {
+				$recordModel->set('due_date', $recordModel->get('date_start'));
+				$recordModel->set('time_end', '23:59:59');
+			}
+		} else {
+			$startDate = $request->get('date_start');
+			if (!empty($startDate)) {
+				//Start Date and Time values
+				$startTime = Vtiger_Time_UIType::getTimeValueWithSeconds($request->get('time_start'));
+				$startDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($request->get('date_start') . " " . $startTime);
+				list($startDate, $startTime) = explode(' ', $startDateTime);
 
-		$endDate = $request->get('due_date');
-		if (!empty($endDate)) {
-			//End Date and Time values
-			$endTime = $request->get('time_end');
-			$endDate = Vtiger_Date_UIType::getDBInsertedValue($request->get('due_date'));
-
-			if ($endTime) {
-				$endTime = Vtiger_Time_UIType::getTimeValueWithSeconds($endTime);
-				$endDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($request->get('due_date') . " " . $endTime);
-				list($endDate, $endTime) = explode(' ', $endDateTime);
+				$recordModel->set('date_start', $startDate);
+				$recordModel->set('time_start', $startTime);
 			}
 
-			$recordModel->set('time_end', $endTime);
-			$recordModel->set('due_date', $endDate);
+			$endDate = $request->get('due_date');
+			if (!empty($endDate)) {
+				//End Date and Time values
+				$endTime = $request->get('time_end');
+				$endDate = Vtiger_Date_UIType::getDBInsertedValue($request->get('due_date'));
+
+				if ($endTime) {
+					$endTime = Vtiger_Time_UIType::getTimeValueWithSeconds($endTime);
+					$endDateTime = Vtiger_Datetime_UIType::getDBDateTimeValue($request->get('due_date') . " " . $endTime);
+					list($endDate, $endTime) = explode(' ', $endDateTime);
+				}
+
+				$recordModel->set('time_end', $endTime);
+				$recordModel->set('due_date', $endDate);
+			}
 		}
 
 		$activityType = $request->get('activitytype');
@@ -233,13 +259,6 @@ class Events_SaveAjax_Action extends Events_Save_Action {
 			$_REQUEST['set_reminder'] = 'Yes';
 		} else {
 			$_REQUEST['set_reminder'] = 'No';
-		}
-
-		// All day: giống Calendar — khi tick "All day" lưu 00:00:00 / 23:59:59 để Feed hiển thị lên ô All-Day
-		$allday = $request->get('allday');
-		if ($allday == '1' || $allday === true) {
-			$recordModel->set('time_start', '00:00:00');
-			$recordModel->set('time_end', '23:59:59');
 		}
 
 		return $recordModel;

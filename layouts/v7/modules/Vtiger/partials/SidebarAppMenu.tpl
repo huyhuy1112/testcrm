@@ -49,6 +49,15 @@
 							</div>
 						</div>
 						<ul class="dropdown-menu app-modules-dropdown" aria-labelledby="{$APP_NAME}_modules_dropdownMenu">
+							{* Custom: Main Page shortcut on Management *}
+							{if $APP_NAME eq 'MANAGEMENT'}
+								<li>
+									<a href="index.php?module=Home&view=MainPage&app=MANAGEMENT" title="Main Page">
+										<span class="module-icon fa fa-home"></span>
+										<span class="module-name textOverflowEllipsis"> Main Page</span>
+									</a>
+								</li>
+							{/if}
 							{foreach item=moduleModel key=moduleName from=$APP_GROUPED_MENU[$APP_NAME]}
 								{assign var='translatedModuleLabel' value=vtranslate($moduleModel->get('label'),$moduleName )}
 								{* Calendar: MANAGEMENT = Schedule, SUPPORT = Activities *}

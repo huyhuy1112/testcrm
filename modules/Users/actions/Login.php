@@ -31,6 +31,9 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 			$userid = $user->retrieve_user_id($username);
 			Vtiger_Session::set('AUTHUSERID', $userid);
 
+			// Thời điểm đăng nhập (để tính "My logged time" trên Main Page)
+			$_SESSION['user_login_time'] = time();
+
 			// For Backward compatability
 			// TODO Remove when switch-to-old look is not needed
 			$_SESSION['authenticated_user_id'] = $userid;

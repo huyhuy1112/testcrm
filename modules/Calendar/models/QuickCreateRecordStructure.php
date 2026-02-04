@@ -55,6 +55,23 @@ class Calendar_QuickCreateRecordStructure_Model extends Vtiger_QuickCreateRecord
 					$fieldValue = $fieldModel->getDefaultFieldValue();
 				}
 				$fieldModel->set('fieldvalue', $fieldValue);
+			} else if ($fieldName == 'taskstatus') {
+				// Task Quick Create: mặc định Status = Planned để form Schedule không để "Select an Option"
+				$currentUserModel = Users_Record_Model::getCurrentUserModel();
+				$defaulttaskstatus = $currentUserModel->get('defaulttaskstatus');
+				$fieldValue = $defaulttaskstatus;
+				if (!$fieldValue || $fieldValue == 'Select an Option') {
+					$fieldValue = $fieldModel->getDefaultFieldValue();
+				}
+				if (!$fieldValue) {
+					$picklist = $fieldModel->getPicklistValues();
+					$fieldValue = 'Planned';
+					if (is_array($picklist) && !empty($picklist)) {
+						$keys = array_keys($picklist);
+						$fieldValue = $keys[0];
+					}
+				}
+				$fieldModel->set('fieldvalue', $fieldValue);
 			} else {
 				$defaultValue = $fieldModel->getDefaultFieldValue();
 				if ($defaultValue) {

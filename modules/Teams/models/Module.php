@@ -84,6 +84,41 @@ class Teams_Module_Model extends Vtiger_Module_Model {
 	}
 
 	/**
+	 * Tables for Project/ProjectTask: assign to team group or multiple users.
+	 * - vtiger_project_team_groups: projectid -> team_groupid (assign project to a team group)
+	 * - vtiger_project_assignees: projectid -> userid (additional assignees)
+	 * - vtiger_projecttask_team_groups: projecttaskid -> team_groupid (assign task to a team group)
+	 * - vtiger_projecttask_assignees: projecttaskid -> userid (additional assignees)
+	 */
+	public static function ensureProjectAssignSchema() {
+		$db = PearDatabase::getInstance();
+		$db->pquery("CREATE TABLE IF NOT EXISTS vtiger_project_team_groups (
+			projectid INT NOT NULL,
+			team_groupid INT NOT NULL,
+			PRIMARY KEY (projectid),
+			KEY idx_team_groupid (team_groupid)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
+		$db->pquery("CREATE TABLE IF NOT EXISTS vtiger_project_assignees (
+			projectid INT NOT NULL,
+			userid INT NOT NULL,
+			PRIMARY KEY (projectid, userid),
+			KEY idx_userid (userid)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
+		$db->pquery("CREATE TABLE IF NOT EXISTS vtiger_projecttask_team_groups (
+			projecttaskid INT NOT NULL,
+			team_groupid INT NOT NULL,
+			PRIMARY KEY (projecttaskid),
+			KEY idx_team_groupid (team_groupid)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
+		$db->pquery("CREATE TABLE IF NOT EXISTS vtiger_projecttask_assignees (
+			projecttaskid INT NOT NULL,
+			userid INT NOT NULL,
+			PRIMARY KEY (projecttaskid, userid),
+			KEY idx_userid (userid)
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
+	}
+
+	/**
 	 * Ensure vtiger_users has date_joined_company column (ngày vào công ty).
 	 */
 	public static function ensureDateJoinedCompanyColumn() {

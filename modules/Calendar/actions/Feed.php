@@ -61,6 +61,15 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$userid = $request['userid'];
 			$color = $request['color'];
 			$textColor = $request['textColor'];
+			// Màu mặc định để calendar luôn hiện khung màu khi feed không cấu hình màu
+			if (empty($color) && $type === 'Calendar') {
+				$color = '#2e7d32';
+				if (empty($textColor)) { $textColor = '#ffffff'; }
+			}
+			if (empty($color) && $type === 'Events') {
+				$color = '#3f51b5';
+				if (empty($textColor)) { $textColor = '#ffffff'; }
+			}
 			$targetModule = $request['targetModule'];
 			$fieldName = $request['fieldname'];
 			$isGroupId = $request['group'];
@@ -367,14 +376,15 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 				$item['end'] = $endDateYmd . ' ' . $endTimePart;
 				$item['allDay'] = false;
 			} else {
+				// All-day: gửi end inclusive (due_date) để tránh client hiển thị thêm 1 ngày
 				$item['start'] = $startDateYmd;
-				$item['end'] = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
+				$item['end'] = $endDateYmd;
 				$item['allDay'] = true;
 			}
 
 			$item['className'] = $cssClass;
-			$item['color'] = $color;
-			$item['textColor'] = $textColor;
+			$item['color'] = !empty($color) ? $color : '#3f51b5';
+			$item['textColor'] = !empty($textColor) ? $textColor : '#ffffff';
 			$item['module'] = $moduleModel->getName();
 			$recurringCheck = false;
 			if($record['recurringtype'] != '' && $record['recurringtype'] != '--None--') {
@@ -412,12 +422,13 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 		$queryGenerator->setFields(array('activityid','subject', 'taskstatus','activitytype', 'date_start','time_start','due_date','time_end','id'));
 		$query = $queryGenerator->getQuery();
 
-		$query.= " AND vtiger_activity.activitytype = 'Task' AND ";
 		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$query.= " AND vtiger_activity.activitytype = 'Task' AND ";
 		$hideCompleted = $currentUser->get('hidecompletedevents');
 		if($hideCompleted)
-			$query.= "vtiger_activity.status != 'Completed' AND ";
-		$query.= " ((date_start >= ? AND due_date < ? ) OR ( due_date >= ? ))";
+			$query.= "(vtiger_activity.status IS NULL OR vtiger_activity.status != 'Completed') AND ";
+		// Bao gồm task có due_date NULL (chỉ có date_start) hoặc trong khoảng ngày
+		$query.= " ((date_start >= ? AND (due_date IS NULL OR due_date < ?)) OR (due_date IS NOT NULL AND due_date >= ?))";
 
 		//+angelo
 		$start = DateTimeField::__convertToDBFormat($start, $user->get('date_format'));
@@ -432,8 +443,10 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 		while($record = $db->fetchByAssoc($queryResult)){
 			$item = array();
 			$crmid = $record['activityid'];
-			$item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($record['status'],'Calendar')).')';
-			$item['status'] = $record['status'];
+			// DB có thể trả về 'status' hoặc 'taskstatus' tùy QueryGenerator
+			$taskStatus = isset($record['status']) ? $record['status'] : (isset($record['taskstatus']) ? $record['taskstatus'] : '');
+			$item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($taskStatus,'Calendar')).')';
+			$item['status'] = $taskStatus;
 			$item['activitytype'] = $record['activitytype'];
 			$item['id'] = $crmid;
 			// Dùng currentUser để timezone/giờ hiển thị khớp form và màu vẽ trên lịch
@@ -448,10 +461,12 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
 			$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
 
-			$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
+			$dueDate = isset($record['due_date']) ? $record['due_date'] : $record['date_start'];
+			$timeEndVal = isset($record['time_end']) ? $record['time_end'] : $record['time_start'];
+			$dateTimeFieldInstanceEnd = new DateTimeField($dueDate.' '.$timeEndVal);
 			$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
 			$dateTimeComponentsEnd = explode(' ', $userDateTimeStringEnd);
-			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
+			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $dueDate;
 			$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
 			$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
 
@@ -461,16 +476,15 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 				$item['end'] = $endDateYmd . ' ' . $endTimePart;
 				$item['allDay'] = false;
 			} else {
-				// Task all-day: start = ngày bắt đầu, end = ngày sau deadline (exclusive) → client parse YYYY-MM-DD local để không lệch timezone
+				// Task all-day: gửi end inclusive (due_date), client sẽ +1 ngày cho FullCalendar (exclusive)
 				$item['start'] = $startDateYmd;
-				$endExclusive = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
-				$item['end'] = $endExclusive;
+				$item['end'] = $endDateYmd;
 				$item['allDay'] = true;
 			}
 
 			$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
-			$item['color'] = $color;
-			$item['textColor'] = $textColor;
+			$item['color'] = !empty($color) ? $color : '#2e7d32';
+			$item['textColor'] = !empty($textColor) ? $textColor : '#ffffff';
 			$item['module'] = $moduleModel->getName();
 			$item['fieldName'] = 'date_start,due_date';
 			$item['conditions'] = '';
