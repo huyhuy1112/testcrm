@@ -38,7 +38,13 @@
 		{/if}
 		<div id="table-content" class="table-container">
 			<form name='list' id='listedit' action='' onsubmit="return false;">
-				<table id="listview-table"  class="table {if $LISTVIEW_ENTRIES_COUNT eq '0'}listview-table-norecords {/if} listview-table">
+				<table id="listview-table"  class="table {if $LISTVIEW_ENTRIES_COUNT eq '0'}listview-table-norecords {/if} listview-table reports-listview-table">
+					<colgroup>
+						<col class="col-actions">
+						{foreach item=LISTVIEW_HEADER key=LISTVIEW_HEADER_KEY from=$LISTVIEW_HEADERS}
+							<col class="col-{$LISTVIEW_HEADER_KEY}">
+						{/foreach}
+					</colgroup>
 					<thead>
 						<tr class="listViewContentHeader">
 							<th>
@@ -54,7 +60,6 @@
 									{vtranslate('LBL_ACTIONS',$MODULE)}
 								{/if}
 							</th>
-							{assign var="LISTVIEW_HEADERS" value=$LISTVIEW_MODEL->getListViewHeadersForVtiger7({$VIEWNAME})}
 							{foreach item=LISTVIEW_HEADER key=LISTVIEW_HEADER_KEY from=$LISTVIEW_HEADERS}
 								<th {if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY} nowrap="nowrap" {/if}>
 									<a href="#" class="listViewContentHeaderValues" data-nextsortorderval="{if $COLUMN_NAME eq $LISTVIEW_HEADER_KEY}{$NEXT_SORT_ORDER}{else}ASC{/if}" data-columnname="{$LISTVIEW_HEADER_KEY}">
