@@ -327,6 +327,12 @@
 
 <script type="text/javascript">
 (function() {
+	/* Chuyển modal ra body để tránh backdrop che modal (stacking context) */
+	var addModal = document.getElementById('mainpage-announcement-modal');
+	var detailModalEl = document.getElementById('mainpage-announcement-detail-modal');
+	if (addModal && addModal.parentNode !== document.body) document.body.appendChild(addModal);
+	if (detailModalEl && detailModalEl.parentNode !== document.body) document.body.appendChild(detailModalEl);
+
 	var addBtn = document.getElementById('mainpage-announcement-add');
 	var modal = document.getElementById('mainpage-announcement-modal');
 	var submitBtn = document.getElementById('mainpage-announcement-submit');

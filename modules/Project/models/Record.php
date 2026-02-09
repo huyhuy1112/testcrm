@@ -107,6 +107,73 @@
 	}
 
 	/**
+	 * Function to get project tasks for board view
+	 * @return <Array>
+	 */
+	public function getProjectTasksForBoard() {
+		$recordId  = $this->getId();
+		$db = PearDatabase::getInstance();
+
+		$sql = "SELECT vtiger_projecttask.projecttaskid AS recordid,
+				vtiger_projecttask.projecttaskname AS name,
+				vtiger_projecttask.projectid,
+				vtiger_projecttask.startdate,
+				vtiger_projecttask.enddate,
+				vtiger_projecttask.projecttaskstatus,
+				vtiger_projecttask.projecttaskprogress,
+				vtiger_crmentity.smownerid,
+				vtiger_crmentity.description,
+				vtiger_crmentity.createdtime
+				FROM vtiger_projecttask
+				INNER JOIN vtiger_crmentity ON vtiger_projecttask.projecttaskid = vtiger_crmentity.crmid
+				WHERE vtiger_projecttask.projectid = ? AND vtiger_crmentity.deleted = 0
+				ORDER BY vtiger_projecttask.projecttaskid DESC";
+
+		$result = $db->pquery($sql, array($recordId));
+		$tasks = array();
+		while ($record = $db->fetchByAssoc($result)) {
+			$record['name'] = decode_html(textlength_check($record['name']));
+			$record['owner_name'] = getOwnerName($record['smownerid']);
+			$record['progress'] = $record['projecttaskprogress'];
+			$record['description'] = decode_html($record['description']);
+			$record['createdtime_display'] = $this->getTimeAgoDisplay($record['createdtime']);
+			$record['comment_count'] = $this->getCommentCount($record['recordid']);
+			$tasks[] = $record;
+		}
+
+		return $tasks;
+	}
+
+	/**
+	 * Format createdtime as time ago (e.g. 2d, 1h, 5m)
+	 * @param string $datetime
+	 * @return string
+	 */
+	protected function getTimeAgoDisplay($datetime) {
+		if (empty($datetime)) return '';
+		$ts = strtotime($datetime);
+		$diff = time() - $ts;
+		if ($diff < 60) return $diff . 'm';
+		if ($diff < 3600) return floor($diff / 60) . 'm';
+		if ($diff < 86400) return floor($diff / 3600) . 'h';
+		if ($diff < 604800) return floor($diff / 86400) . 'd';
+		if ($diff < 2592000) return floor($diff / 604800) . 'w';
+		return date('M j', $ts);
+	}
+
+	/**
+	 * Get comment count for a task
+	 * @param int $taskId
+	 * @return int
+	 */
+	protected function getCommentCount($taskId) {
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SELECT COUNT(*) AS cnt FROM vtiger_modcomments WHERE related_to = ?", array($taskId));
+		$row = $db->fetchByAssoc($res);
+		return (int)$row['cnt'];
+	}
+
+	/**
 	 * Function to get the duration
 	 * @param <string> $startDate,$endDate
 	 * @return $duration

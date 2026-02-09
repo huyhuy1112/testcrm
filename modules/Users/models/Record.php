@@ -623,7 +623,7 @@ class Users_Record_Model extends Vtiger_Record_Model {
 	 */
 	public static function getUserGroups($userId){
         self::getAllUserGroups();
-        return self::$allUserGroups[$userId];
+        return isset(self::$allUserGroups[$userId]) ? self::$allUserGroups[$userId] : array();
 	}
     
     /**
@@ -633,12 +633,13 @@ class Users_Record_Model extends Vtiger_Record_Model {
     static $allUserGroups;
     public static function getAllUserGroups() {
         if (empty(self::$allUserGroups)) {
+            self::$allUserGroups = array();
             $db = PearDatabase::getInstance();
             $query = "SELECT * FROM vtiger_users2group";
             $result = $db->pquery($query, array());
             for ($i = 0; $i < $db->num_rows($result); $i++) {
                 $userId = $db->query_result($result, $i, 'userid');
-                $userGroups = self::$allUserGroups[$userId];
+                $userGroups = isset(self::$allUserGroups[$userId]) ? self::$allUserGroups[$userId] : array();
                 $userGroups[] = $db->query_result($result, $i, 'groupid');
                 self::$allUserGroups[$userId] = $userGroups;
             }

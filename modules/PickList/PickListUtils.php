@@ -120,7 +120,7 @@ function getAllPickListValues($fieldName,$lang = Array() ){
 		$arr = array();
 		for($i=0;$i<$count;$i++){
 			$pick_val = decode_html($adb->query_result($result, $i, $fieldName));
-			if(is_array($lang) && $lang[$pick_val] != ''){
+			if(is_array($lang) && isset($lang[$pick_val]) && $lang[$pick_val] != ''){
 				$arr[$pick_val] = $lang[$pick_val];
 			}
 			else{
@@ -151,7 +151,7 @@ function getEditablePicklistValues($fieldName, $lang= array(), $adb = null){
 	if($RowCount > 0){
 		for($i=0;$i<$RowCount;$i++){
 			$pick_val = $adb->query_result($res,$i,$fieldName);
-			if($lang[$pick_val] != ''){
+			if(isset($lang[$pick_val]) && $lang[$pick_val] != ''){
 				$values[$pick_val]=$lang[$pick_val];
 			}else{
 				$values[$pick_val]=$pick_val;
@@ -177,7 +177,7 @@ function getNonEditablePicklistValues($fieldName, $lang=array(), $adb = null){
 	$count = $adb->num_rows($result);
 	for($i=0;$i<$count;$i++){
 		$non_val = $adb->query_result($result,$i,$fieldName);
-		if($lang[$non_val] != ''){
+		if(isset($lang[$non_val]) && $lang[$non_val] != ''){
 			$values[]=$lang[$non_val];
 		}else{
 			$values[]=$non_val;
@@ -230,7 +230,7 @@ function getAssignedPicklistValues($tableName, $roleid, $adb, $lang=array()){
 					 *  "test1 &amp;$amp; test2" which we should decode two time to get result
 					 */
 					$pick_val = trim(decode_html(decode_html($resultrow[$tableName])));
-					if($lang[$pick_val] != '') {
+					if(isset($lang[$pick_val]) && $lang[$pick_val] != '') {
 						$arr[$pick_val] = $lang[$pick_val];
 					}
 					else {

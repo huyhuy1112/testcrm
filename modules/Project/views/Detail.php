@@ -14,6 +14,7 @@ class Project_Detail_View extends Vtiger_Detail_View {
 		parent::__construct();
 		$this->exposeMethod('showRelatedRecords');
         $this->exposeMethod('showChart');
+		$this->exposeMethod('showTaskBoard');
 	}
 
 	public function showModuleSummaryView($request) {
@@ -133,6 +134,65 @@ class Project_Detail_View extends Vtiger_Detail_View {
 		$viewer->assign('STATUS_FIELD_MODEL', Vtiger_Field_Model::getInstance('projecttaskstatus', $projectTaskModel));
 
 		return $viewer->view('ShowChart.tpl', $moduleName, 'true');
+	}
+
+	/**
+	 * Function to show Project Task board
+	 * @param Vtiger_Request $request
+	 */
+	public function showTaskBoard(Vtiger_Request $request) {
+		$recordId = $request->get('record');
+		$moduleName = $request->getModule();
+		$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+
+		$tasks = array();
+		if (method_exists($recordModel, 'getProjectTasksForBoard')) {
+			$tasks = $recordModel->getProjectTasksForBoard();
+		}
+
+		$columns = array(
+			'Backlog' => array(),
+			'In Progress' => array(),
+			'Completed' => array(),
+		);
+		foreach ($tasks as $task) {
+			$status = $task['projecttaskstatus'];
+			if ($status === 'In Progress') {
+				$columns['In Progress'][] = $task;
+			} elseif ($status === 'Completed') {
+				$columns['Completed'][] = $task;
+			} else {
+				$columns['Backlog'][] = $task;
+			}
+		}
+
+		$createTaskUrl = 'index.php?module=ProjectTask&view=Edit&sourceModule=Project&sourceRecord='
+			.$recordId.'&relationOperation=true';
+		$statusMap = array(
+			'Backlog' => 'Open',
+			'In Progress' => 'In Progress',
+			'Completed' => 'Completed',
+		);
+
+		$currentUserModel = Users_Record_Model::getCurrentUserModel();
+		$taskStatus = Vtiger_Util_Helper::getRoleBasedPicklistValues('projecttaskstatus', $currentUserModel->get('roleid'));
+		$users = Users_Record_Model::getAll(true);
+		$userOptions = array();
+		foreach ($users as $userId => $userModel) {
+			$userOptions[$userId] = $userModel->getName();
+		}
+
+		$viewer = $this->getViewer($request);
+		$viewer->assign('MODULE', $moduleName);
+		$viewer->assign('RECORD_ID', $recordId);
+		$viewer->assign('TASK_COLUMNS', $columns);
+		$viewer->assign('CREATE_TASK_URL', $createTaskUrl);
+		$viewer->assign('STATUS_MAP', $statusMap);
+		$viewer->assign('TASK_STATUS', $taskStatus);
+		$viewer->assign('TASK_USERS', $userOptions);
+		$viewer->assign('SCRIPTS', $this->getHeaderScripts($request));
+
+		return $viewer->view('TaskBoard.tpl', $moduleName, true);
 	}
 
 	/**

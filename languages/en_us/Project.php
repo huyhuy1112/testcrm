@@ -24,6 +24,8 @@ $languageStrings = array(
 	//Field Labels
 	'Project Name' => 'Project Name',
 	'Start Date' => 'Start Date',
+	'End Date' => 'End Date',
+	'Customer' => 'Customer',
 	'Target End Date' => 'Target End Date',
 	'Actual End Date' => 'Actual End Date',
 	'Project No' => 'Project Number',

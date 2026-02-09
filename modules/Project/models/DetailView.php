@@ -85,12 +85,28 @@ class Project_DetailView_Model extends Vtiger_DetailView_Model {
 
 	/**
 	 * Function to get the detail view related links
+	 * Ẩn tab Tasks cũ (related list dạng bảng), chỉ giữ Task Board (Kanban) và Chart
 	 * @return <array> - list of links parameters
 	 */
 	public function getDetailViewRelatedLinks() {
 		$relatedLinks = parent::getDetailViewRelatedLinks();
 		$recordModel = $this->getRecord();
 		$moduleName = $recordModel->getModuleName();
+
+		/* Bỏ tab ProjectTask cũ (related list bảng) – đã thay bằng Task Board */
+		$relatedLinks = array_filter($relatedLinks, function($link) {
+			if (isset($link['relatedModuleName']) && $link['relatedModuleName'] === 'ProjectTask') {
+				return false;
+			}
+			return true;
+		});
+
+		$relatedLinks[] = array(
+			'linktype' => 'DETAILVIEWTAB',
+			'linklabel' => vtranslate('LBL_TASKS', $moduleName),
+			'linkurl' => $recordModel->getDetailViewUrl().'&mode=showTaskBoard',
+			'linkicon' => ''
+			);
 		$relatedLinks[] = array(
 			'linktype' => 'DETAILVIEWTAB',
 			'linklabel' => vtranslate('LBL_CHART', $moduleName),
@@ -98,6 +114,6 @@ class Project_DetailView_Model extends Vtiger_DetailView_Model {
 			'linkicon' => ''
 			);
 
-		return $relatedLinks;
+		return array_values($relatedLinks);
 	}
 }

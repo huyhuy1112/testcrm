@@ -39,20 +39,23 @@ class Project extends CRMEntity {
      * Mandatory for Listing (Related listview)
      */
     var $list_fields = Array (
-    /* Format: Field Label => Array(tablename, columnname) */
+    /* Format: Field Label => Array(tablename, columnname) - Theo spec: Tên, Khách hàng, Ngày BĐ/KT, Trạng thái, Người quản lý */
     // tablename should not have prefix 'vtiger_'
 		'Project Name'=> Array('project', 'projectname'),
 		'Start Date'=> Array('project', 'startdate'),
+		'End Date'=> Array('project', 'targetenddate'),
 		'Status'=>Array('project','projectstatus'),
 		'Type'=>Array('project','projecttype'),
+		'Customer'=> Array('project', 'linktoaccountscontacts'),
 		'Assigned To' => Array('crmentity','smownerid')
     );
     var $list_fields_name = Array(
-    /* Format: Field Label => fieldname */
 		'Project Name'=> 'projectname',
 		'Start Date'=> 'startdate',
+		'End Date'=> 'targetenddate',
 		'Status'=>'projectstatus',
 		'Type'=>'projecttype',
+		'Customer'=> 'linktoaccountscontacts',
 		'Assigned To' => 'assigned_user_id'
 	);
 

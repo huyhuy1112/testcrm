@@ -230,9 +230,8 @@ class Teams_List_View extends Vtiger_List_View {
 					'is_admin' => ($row['is_admin'] == 'on' || $row['is_admin'] == 1),
 				);
 			}
-			$allPeopleActiveCount = (int) $db->query_result(
-				$db->pquery("SELECT COUNT(*) FROM vtiger_users WHERE deleted = 0 AND status = 'Active'", array()), 0, 0
-			);
+			$activeResult = $db->pquery("SELECT COUNT(*) FROM vtiger_users WHERE deleted = 0 AND status = 'Active'", array());
+			$allPeopleActiveCount = (int) $db->query_result($activeResult, 0, 0);
 			// ProofHub style: nhóm theo role (Owner, Normal User...)
 			$peopleByRole = array();
 			foreach ($normalized as $p) {

@@ -180,7 +180,7 @@ class Reports_List_View extends Vtiger_Index_View {
 		$viewer->assign('LISTVIEW_MASSACTIONS', $listViewMassActionModels);
 
 		if(!$this->listViewHeaders){
-			$this->listViewHeaders = $listViewModel->getListViewHeaders($folderId);
+			$this->listViewHeaders = $listViewModel->getListViewHeadersForVtiger7($folderId);
 		}
 		if(!$this->listViewEntries){
 			$this->listViewEntries = $listViewModel->getListViewEntries($pagingModel);
