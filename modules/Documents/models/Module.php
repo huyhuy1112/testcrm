@@ -35,19 +35,59 @@ class Documents_Module_Model extends Vtiger_Module_Model {
 	}
 
 	/**
-	 * Function returns list of folders
+	 * Trả về folderid thực tế của folder Default trong DB.
+	 * Default có thể có folderid=0 hoặc 1 tùy cách cài đặt.
+	 */
+	public static function getDefaultFolderId() {
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SELECT folderid FROM vtiger_attachmentsfolder WHERE foldername = ? LIMIT 1", array('Default'));
+		if ($db->num_rows($res) > 0) {
+			return $db->query_result($res, 0, 'folderid');
+		}
+		return 0;
+	}
+
+	/**
+	 * Function returns list of folders (chỉ folder user được phép xem)
 	 * @return <Array> folder list
 	 */
 	public static function getAllFolders() {
-		$db = PearDatabase::getInstance();
-		$result = $db->pquery('SELECT * FROM vtiger_attachmentsfolder ORDER BY sequence', array());
+		return Documents_Folder_Model::getAccessibleFolders();
+	}
 
-		$folderList = array();
-		for($i=0; $i<$db->num_rows($result); $i++) {
-			$row = $db->query_result_rowdata($result, $i);
-			$folderList[] = Documents_Folder_Model::getInstanceByArray($row);
+	/**
+	 * Trả về danh sách owner id (user/group) mà user hiện tại được phép xem document theo quản lý – nhân sự, phòng ban.
+	 * Admin xem tất cả; user thường chỉ xem: bản thân + cùng phòng ban + nhân viên báo cáo (reports_to).
+	 * @return array|null Null nếu không áp dụng lọc (admin), ngược lại array id.
+	 */
+	public static function getAccessibleOwnerIdsForDocuments() {
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		if ($currentUser->isAdminUser()) {
+			return null;
 		}
-		return $folderList;
+		$db = PearDatabase::getInstance();
+		$uid = (int) $currentUser->getId();
+		$userRow = $db->pquery("SELECT department, reports_to_id FROM vtiger_users WHERE id = ? AND status = 'Active'", array($uid));
+		if (!$db->num_rows($userRow)) {
+			return array($uid);
+		}
+		$department = $db->query_result($userRow, 0, 'department');
+		$reportsToId = $db->query_result($userRow, 0, 'reports_to_id');
+		$ownerIds = array($uid);
+		if ($department !== null && trim($department) !== '') {
+			$res = $db->pquery("SELECT id FROM vtiger_users WHERE status = 'Active' AND TRIM(COALESCE(department,'')) = ?", array(trim($department)));
+			for ($i = 0; $i < $db->num_rows($res); $i++) {
+				$ownerIds[] = (int) $db->query_result($res, $i, 'id');
+			}
+		}
+		if ($reportsToId) {
+			$res = $db->pquery("SELECT id FROM vtiger_users WHERE status = 'Active' AND reports_to_id = ?", array($uid));
+			for ($i = 0; $i < $db->num_rows($res); $i++) {
+				$ownerIds[] = (int) $db->query_result($res, $i, 'id');
+			}
+		}
+		$ownerIds = array_unique($ownerIds);
+		return array_values($ownerIds);
 	}
 
 	/**

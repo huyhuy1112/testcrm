@@ -29,16 +29,19 @@
                                 {if $smarty.session.lvs.$MODULE.viewname}
 					{assign var=VIEWID value=$smarty.session.lvs.$MODULE.viewname}
 				{/if}
-				{if $VIEWID}
+				{if $VIEWID && isset($CUSTOM_VIEWS) && $CUSTOM_VIEWS}
+					{assign var=CVNAME value=""}
 					{foreach item=FILTER_TYPES from=$CUSTOM_VIEWS}
 						{foreach item=FILTERS from=$FILTER_TYPES}
-							{if $FILTERS->get('cvid') eq $VIEWID}
+							{if $FILTERS && is_object($FILTERS) && $FILTERS->get('cvid') eq $VIEWID}
 								{assign var=CVNAME value=$FILTERS->get('viewname')}
 								{break}
 							{/if}
 						{/foreach}
 					{/foreach}
+					{if $CVNAME neq ""}
 					<p  class="current-filter-name filter-name pull-left cursorPointer" title="{$CVNAME}">&nbsp;<span class="fa fa-angle-right pull-left" aria-hidden="true"></span><a  href='{$MODULE_MODEL->getListViewUrl()}&viewname={$VIEWID}'>&nbsp;{$CVNAME}&nbsp;</a> </p>
+					{/if}
 				{/if}
 				{assign var=SINGLE_MODULE_NAME value='SINGLE_'|cat:$MODULE}
 				{if isset($RECORD) and $RECORD and $REQ->get('view') eq 'Edit'}

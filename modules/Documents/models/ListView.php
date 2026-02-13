@@ -24,28 +24,35 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
 
 		$createPermission = Users_Privileges_Model::isPermitted($moduleModel->getName(), 'CreateView');
 		if($createPermission) {
+			$folderId = $this->get('folder_id');
+			$folderValue = $this->get('folder_value');
+			$folderParam = '';
+			if ($folderId !== '' && $folderId !== null) {
+				$folderParam = '&folder_id=' . urlencode($folderId) . '&folder_value=' . urlencode($folderValue !== null ? $folderValue : '');
+			}
             $vtigerDocumentTypes = array(
                 array(
                     'type' => 'I',
                     'label' => 'LBL_INTERNAL_DOCUMENT_TYPE',
-                    'url' => 'index.php?module=Documents&view=EditAjax&type=I'
+                    'url' => 'index.php?module=Documents&view=EditAjax&type=I' . $folderParam
                 ),
                 array(
                     'type' => 'E',
                     'label' => 'LBL_EXTERNAL_DOCUMENT_TYPE',
-                    'url' => 'index.php?module=Documents&view=EditAjax&type=E'
+                    'url' => 'index.php?module=Documents&view=EditAjax&type=E' . $folderParam
                 ),
                 array(
                     'type' => 'W',
                     'label' => 'LBL_WEBDOCUMENT_TYPE',
-                    'url' => 'index.php?module=Documents&view=EditAjax&type=W'
+                    'url' => 'index.php?module=Documents&view=EditAjax&type=W' . $folderParam
                 )
             );
+			$createUrl = $moduleModel->getCreateRecordUrl() . $folderParam;
 			$basicLinks = array(
 					array(
 							'linktype' => 'LISTVIEWBASIC',
 							'linklabel' => 'Vtiger',
-							'linkurl' => $moduleModel->getCreateRecordUrl(),
+							'linkurl' => $createUrl,
 							'linkicon' => 'Vtiger.png',
                             'linkdropdowns' => $vtigerDocumentTypes,
                             'linkclass' => 'addDocumentToVtiger',
@@ -129,6 +136,22 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
 	}
 
     /**
+	 * Function to get the list view header - thêm cột Folder để hiển thị document thuộc folder nào
+	 */
+	public function getListViewHeaders() {
+		$headers = parent::getListViewHeaders();
+		$module = $this->getModule();
+		if (!isset($headers['folderid'])) {
+			$folderField = Vtiger_Field_Model::getInstance('folderid', $module);
+			if ($folderField) {
+				$folderField->set('listViewRawFieldName', $folderField->get('column'));
+				$headers['folderid'] = $folderField;
+			}
+		}
+		return $headers;
+	}
+
+	/**
 	 * Function to get the list view entries
 	 * @param Vtiger_Paging_Model $pagingModel
 	 * @return <Array> - Associative array of record id mapped to Vtiger_Record_Model instance.
@@ -142,18 +165,28 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
 		$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
 
 		$queryGenerator = $this->get('query_generator');
+		// Đảm bảo query lấy folderid (để hiển thị cột Folder)
+		$currentFields = $queryGenerator->getFields();
+		if (!in_array('folderid', $currentFields)) {
+			$queryGenerator->setFields(array_merge($currentFields, array('folderid')));
+		}
 		$listViewContoller = $this->get('listview_controller');
 
-        $folderKey = $this->get('folder_id');
+        $folderId = $this->get('folder_id');
         $folderValue = $this->get('folder_value');
-        if(!empty($folderValue)) {
-            // added to check if there are filter conditions already there then we need to add a glue between them
-            $glue = "";
-            if(php7_count($queryGenerator->getWhereFields()) > 0) {
-                $glue = QueryGenerator::$AND;
+        // Resolve folder_id từ folder_value nếu chưa có (khi load qua Ajax/pjax)
+        if (($folderId === '' || $folderId === null) && !empty($folderValue)) {
+            if ((string)$folderValue === 'Default') {
+                $folderId = Documents_Module_Model::getDefaultFolderId();
+            } else {
+                $db = PearDatabase::getInstance();
+                $r = $db->pquery("SELECT folderid FROM vtiger_attachmentsfolder WHERE foldername = ? LIMIT 1", array($folderValue));
+                $folderId = ($db->num_rows($r) > 0) ? $db->query_result($r, 0, 'folderid') : null;
             }
-            $queryGenerator->addCondition($folderKey,$folderValue,'e',$glue);
         }
+        $hasFolderFilter = ($folderId !== '' && $folderId !== null);
+        // KHÔNG dùng addCondition: folderid là reference field, QueryGenerator so sánh theo foldername thay vì id.
+        // Sẽ thêm điều kiện vtiger_notes.folderid trực tiếp vào SQL sau getQuery().
 
         $searchParams = $this->get('search_params');
         if(empty($searchParams)) {
@@ -186,12 +219,28 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
             }
         }
         //Document source required in list view for managing delete 
-        $listViewFields = $queryGenerator->getFields(); 
-        if(!in_array('document_source', $listViewFields)){ 
-            $listViewFields[] = 'document_source'; 
+		$listViewFields = $queryGenerator->getFields();
+        if(!in_array('document_source', $listViewFields)){
+            $listViewFields[] = 'document_source';
         }
         $queryGenerator->setFields($listViewFields);
 		$listQuery = $this->getQuery();
+
+		// Lọc theo folder: thêm trực tiếp vtiger_notes.folderid (vì folderid là reference field, addCondition so sánh sai)
+		if ($hasFolderFilter) {
+			$listQuery .= ' AND vtiger_notes.folderid = ' . (int)$folderId;
+		}
+
+		// Phân quyền theo owner: chỉ áp dụng khi KHÔNG xem theo folder.
+		// Khi xem theo folder: quyền đã kiểm tra ở userCanAccessFolder; hiển thị tất cả document trong folder.
+		$folderId = $this->get('folder_id');
+		if ($folderId === '' || $folderId === null) {
+			$accessibleOwnerIds = Documents_Module_Model::getAccessibleOwnerIdsForDocuments();
+			if ($accessibleOwnerIds !== null && php7_count($accessibleOwnerIds) > 0) {
+				$idsSql = implode(',', array_map('intval', $accessibleOwnerIds));
+				$listQuery .= ' AND vtiger_crmentity.smownerid IN (' . $idsSql . ')';
+			}
+		}
 
 		$sourceModule = $this->get('src_module');
 		if(!empty($sourceModule)) {
@@ -251,6 +300,88 @@ class Documents_ListView_Model extends Vtiger_ListView_Model {
 			$listViewRecordModels[$recordId] = $moduleModel->getRecordFromArray($record, $rawData);
 		}
 		return $listViewRecordModels;
+	}
+
+	/**
+	 * Override: thêm lọc folder trực tiếp vào SQL (vtiger_notes.folderid) thay vì addCondition,
+	 * vì folderid là reference field và QueryGenerator so sánh theo foldername, không phải id.
+	 */
+	public function getListViewCount() {
+		$db = PearDatabase::getInstance();
+		$queryGenerator = $this->get('query_generator');
+		$searchParams = $this->get('search_params');
+		if (empty($searchParams)) {
+			$searchParams = array();
+		}
+
+		// Resolve folder_id giống getListViewEntries
+		$folderId = $this->get('folder_id');
+		$folderValue = $this->get('folder_value');
+		if (($folderId === '' || $folderId === null) && !empty($folderValue)) {
+			if ((string)$folderValue === 'Default') {
+				$folderId = Documents_Module_Model::getDefaultFolderId();
+			} else {
+				$r = $db->pquery("SELECT folderid FROM vtiger_attachmentsfolder WHERE foldername = ? LIMIT 1", array($folderValue));
+				$folderId = ($db->num_rows($r) > 0) ? $db->query_result($r, 0, 'folderid') : null;
+			}
+		}
+		$hasFolderFilter = ($folderId !== '' && $folderId !== null);
+		// KHÔNG dùng addCondition cho folderid – xem getListViewEntries
+
+		$glue = "";
+		if (php7_count($queryGenerator->getWhereFields()) > 0 && (php7_count($searchParams)) > 0) {
+			$glue = QueryGenerator::$AND;
+		}
+		$queryGenerator->parseAdvFilterList($searchParams, $glue);
+
+		$searchKey = $this->get('search_key');
+		$searchValue = $this->get('search_value');
+		$operator = $this->get('operator');
+		if (!empty($searchKey)) {
+			$queryGenerator->addUserSearchConditions(array('search_field' => $searchKey, 'search_text' => $searchValue, 'operator' => $operator));
+		}
+
+		$moduleModel = Vtiger_Module_Model::getInstance($this->getModule()->get('name'));
+		$listQuery = $this->getQuery();
+
+		// Lọc folder trực tiếp vào SQL
+		if ($hasFolderFilter) {
+			$listQuery .= ' AND vtiger_notes.folderid = ' . (int)$folderId;
+		}
+
+		// Phân quyền owner: chỉ áp dụng khi KHÔNG xem theo folder (giống getListViewEntries)
+		if (!$hasFolderFilter) {
+			$accessibleOwnerIds = Documents_Module_Model::getAccessibleOwnerIdsForDocuments();
+			if ($accessibleOwnerIds !== null && php7_count($accessibleOwnerIds) > 0) {
+				$listQuery .= ' AND vtiger_crmentity.smownerid IN (' . implode(',', array_map('intval', $accessibleOwnerIds)) . ')';
+			}
+		}
+
+		$sourceModule = $this->get('src_module');
+		if (!empty($sourceModule)) {
+			if (method_exists($moduleModel, 'getQueryByModuleField')) {
+				$overrideQuery = $moduleModel->getQueryByModuleField($sourceModule, $this->get('src_field'), $this->get('src_record'), $listQuery);
+				if (!empty($overrideQuery)) {
+					$listQuery = $overrideQuery;
+				}
+			}
+		}
+
+		$position = stripos($listQuery, ' from ');
+		if ($position) {
+			$split = preg_split('/ from /i', $listQuery);
+			$splitCount = php7_count($split);
+			$meta = $queryGenerator->getMeta($this->getModule()->getName());
+			$columnIndex = $meta->getObectIndexColumn();
+			$baseTable = $meta->getEntityBaseTable();
+			$listQuery = "SELECT count(distinct($baseTable.$columnIndex)) AS count ";
+			for ($i = 1; $i < $splitCount; $i++) {
+				$listQuery = $listQuery . ' FROM ' . $split[$i];
+			}
+		}
+
+		$listResult = $db->pquery($listQuery, array());
+		return $db->query_result($listResult, 0, 'count');
 	}
 
 }

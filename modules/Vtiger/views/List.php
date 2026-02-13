@@ -528,10 +528,11 @@ class Vtiger_List_View extends Vtiger_Index_View {
 		$listViewModel->set('operator', $request->get('operator'));
 
 		// for Documents folders we should filter with folder id as well
+		$folder_id = $request->get('folder_id');
 		$folder_value = $request->get('folder_value');
-		if(!empty($folder_value)){
-			$listViewModel->set('folder_id',$request->get('folder_id'));
-			$listViewModel->set('folder_value',$folder_value);
+		if($folder_id !== '' && $folder_id !== null || !empty($folder_value)){
+			$listViewModel->set('folder_id', $folder_id);
+			$listViewModel->set('folder_value', $folder_value);
 		}
 
 		$count = $listViewModel->getListViewCount();

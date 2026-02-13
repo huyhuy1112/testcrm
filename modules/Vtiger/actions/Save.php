@@ -139,6 +139,15 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 			}
 		}
 		$recordModel->save();
+		// Documents: ghi lịch sử tạo mới / chỉnh sửa
+		if ($request->getModule() === 'Documents') {
+			if (!class_exists('Documents_History_Helper')) {
+				require_once 'modules/Documents/DocumentHistory.php';
+			}
+			$notesId = $recordModel->getId();
+			$action = $request->get('record') ? Documents_History_Helper::ACTION_EDIT : Documents_History_Helper::ACTION_CREATE;
+			Documents_History_Helper::log($notesId, $action, '');
+		}
 		if($request->get('relationOperation')) {
 			$parentModuleName = $request->get('sourceModule');
 			$parentModuleModel = Vtiger_Module_Model::getInstance($parentModuleName);
@@ -199,6 +208,18 @@ class Vtiger_Save_Action extends Vtiger_Action_Controller {
 				}
                                 $fieldValue = Vtiger_Util_Helper::validateFieldValue($fieldValue, $fieldModel);
 				$recordModel->set($fieldName, $fieldValue);
+			}
+		}
+		// Documents: folderid = folder_id từ request (khi tạo từ folder) HOẶC folder chọn trong form, nếu rỗng → Default
+		if ($moduleName === 'Documents') {
+			$folderIdReq = $request->get('folder_id');
+			if ($folderIdReq !== '' && $folderIdReq !== null) {
+				$recordModel->set('folderid', $folderIdReq);
+			} else {
+				$currentFolderId = $recordModel->get('folderid');
+				if ($currentFolderId === '' || $currentFolderId === null) {
+					$recordModel->set('folderid', Documents_Module_Model::getDefaultFolderId());
+				}
 			}
 		}
 		return $recordModel;

@@ -111,16 +111,9 @@
                                 <span class="foldername">{if {$FOLDERNAME|strlen} > 40 } {$FOLDERNAME|substr:0:40|@escape:'html'}..{else}{$FOLDERNAME|@escape:'html'}{/if}</span>
                             </a>
                             {if $FOLDER->getName() neq 'Default' && $FOLDER->getName() neq 'Google Drive' && $FOLDER->getName() neq 'Dropbox'}
-                                <div class="dropdown pull-right">
-                                    <span class="fa fa-caret-down dropdown-toggle" data-toggle="dropdown" aria-expanded="true"></span>
-                                    <ul class="dropdown-menu dropdown-menu-right vtDropDown" role="menu">
-                                        <li class="editFolder " data-folder-id="{$FOLDER->get('folderid')}">
-                                            <a role="menuitem" ><i class="fa fa-pencil-square-o"></i>&nbsp;Edit</a>
-                                        </li>
-                                        <li class="deleteFolder " data-deletable="{!$FOLDER->hasDocuments()}" data-folder-id="{$FOLDER->get('folderid')}">
-                                            <a role="menuitem" ><i class="fa fa-trash"></i>&nbsp;Delete</a>
-                                        </li>
-                                    </ul>
+                                <div class="pull-right" style="margin-left:4px;">
+                                    <span class="fa fa-pencil-square-o editFolder cursorPointer" data-folder-id="{$FOLDER->get('folderid')}" title="Edit" style="margin-right:6px;"></span>
+                                    <span class="fa fa-trash deleteFolder cursorPointer" data-deletable="{if !$FOLDER->hasDocuments()}1{else}0{/if}" data-folder-id="{$FOLDER->get('folderid')}" title="Delete"></span>
                                 </div>
                             {/if}
                         </li>

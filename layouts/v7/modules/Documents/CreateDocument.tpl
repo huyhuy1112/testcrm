@@ -22,6 +22,9 @@
 					<input type="hidden" name="module" value="{$MODULE}" />
 					<input type="hidden" name="action" value="SaveAjax" />
 					<input type="hidden" name="document_source" value="Vtiger" />
+					{if isset($DOCUMENTS_FOLDER_ID) && $DOCUMENTS_FOLDER_ID !== ''}
+					<input type="hidden" name="folder_id" value="{$DOCUMENTS_FOLDER_ID}" />
+					{/if}
 				<input type="hidden" name='service' value="{if isset($STORAGE_SERVICE)}{$STORAGE_SERVICE}{/if}" />
 					<input type="hidden" name='type' value="{$FILE_LOCATION_TYPE}" />
 					{if isset($RELATION_OPERATOR) && $RELATION_OPERATOR eq 'true'}

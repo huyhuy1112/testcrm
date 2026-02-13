@@ -57,7 +57,25 @@ class Documents_Folder_Action extends Vtiger_Action_Controller {
 			}
 
 			$folderModel->save();
+			$sharedUserIds = $request->get('shared_user_ids');
+			$sharedGroupIds = $request->get('shared_group_ids');
+			if (is_array($sharedUserIds) || is_array($sharedGroupIds)) {
+				$folderModel->saveSharing(
+					is_array($sharedUserIds) ? $sharedUserIds : array(),
+					is_array($sharedGroupIds) ? $sharedGroupIds : array()
+				);
+			}
 			$result = array('success'=>true, 'message'=>vtranslate('LBL_FOLDER_SAVED', $moduleName), 'info'=>$folderModel->getInfoArray());
+
+			// Nếu submit thường (không AJAX): redirect về trang Documents list thay vì trả JSON
+			if (!$request->isAjax()) {
+				$returnUrl = $request->get('return_url');
+				if (empty($returnUrl) || strpos($returnUrl, 'index.php') !== 0) {
+					$returnUrl = 'index.php?module=Documents&view=List';
+				}
+				header('Location: ' . $returnUrl);
+				exit;
+			}
 
 			$response = new Vtiger_Response();
 			$response->setResult($result);
@@ -69,17 +87,57 @@ class Documents_Folder_Action extends Vtiger_Action_Controller {
 	public function delete($request) {
 		$moduleName = $request->getModule();
 		$folderId = $request->get('folderid');
-		$result = array();
+		$result = array('success' => false, 'message' => '');
 
-		if (!empty ($folderId)) {
-			$folderModel = Documents_Folder_Model::getInstanceById($folderId);
-			if (!($folderModel->hasDocuments())) {
-				$folderModel->delete();
-				$result = array('success'=>true, 'message'=>vtranslate('LBL_FOLDER_DELETED', $moduleName));
-			} else {
-				$result = array('success'=>false, 'message'=>vtranslate('LBL_FOLDER_HAS_DOCUMENTS', $moduleName));
+		if (empty($folderId)) {
+			$result['message'] = vtranslate('LBL_FOLDER_NOT_FOUND', $moduleName);
+			$response = new Vtiger_Response();
+			$response->setResult($result);
+			$response->emit();
+			return;
+		}
+
+		$folderModel = Documents_Folder_Model::getInstanceById($folderId);
+		$folderIdVal = $folderModel->getId();
+		if (empty($folderIdVal)) {
+			$result['message'] = vtranslate('LBL_FOLDER_NOT_FOUND', $moduleName);
+			$response = new Vtiger_Response();
+			$response->setResult($result);
+			$response->emit();
+			return;
+		}
+
+		$folderName = $folderModel->getName();
+		if ($folderName === 'Default' || $folderName === 'Google Drive' || $folderName === 'Dropbox') {
+			$result['message'] = vtranslate('LBL_FOLDER_CANNOT_DELETE_SYSTEM', $moduleName);
+			$response = new Vtiger_Response();
+			$response->setResult($result);
+			$response->emit();
+			return;
+		}
+
+		$currentUser = Users_Record_Model::getCurrentUserModel();
+		if (!$currentUser->isAdminUser()) {
+			$createdBy = $folderModel->get('createdby');
+			if ((int)$createdBy !== (int)$currentUser->getId()) {
+				$result['message'] = vtranslate('LBL_NO_PERMISSION_TO_DELETE_FOLDER', $moduleName);
+				$response = new Vtiger_Response();
+				$response->setResult($result);
+				$response->emit();
+				return;
 			}
 		}
+
+		if ($folderModel->hasDocuments()) {
+			$result['message'] = vtranslate('LBL_FOLDER_HAS_DOCUMENTS', $moduleName);
+			$response = new Vtiger_Response();
+			$response->setResult($result);
+			$response->emit();
+			return;
+		}
+
+		$folderModel->delete();
+		$result = array('success' => true, 'message' => vtranslate('LBL_FOLDER_DELETED', $moduleName));
 
 		$response = new Vtiger_Response();
 		$response->setResult($result);

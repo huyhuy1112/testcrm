@@ -40,6 +40,11 @@ class Documents_EditAjax_View extends Vtiger_QuickCreateAjax_View {
 		if($request->get('relationOperation')=='true'){
 				$requestFieldList = array_intersect_key($request->getAll(), $allFields);
 		}
+		// Documents: khi mở từ list với folder, gán folderid từ folder_id
+		$folderId = $request->get('folder_id');
+		if ($folderId !== '' && $folderId !== null) {
+			$recordModel->set('folderid', $folderId);
+		}
 		$recordStructureInstance = Vtiger_RecordStructure_Model::getInstanceFromRecordModel($recordModel, Vtiger_RecordStructure_Model::RECORD_STRUCTURE_MODE_EDIT);
 		$recordStructure = $recordStructureInstance->getStructure();
 		foreach($recordStructure as $blocks) {
@@ -47,6 +52,9 @@ class Documents_EditAjax_View extends Vtiger_QuickCreateAjax_View {
 				if($requestFieldList && array_key_exists($fieldLabel, $requestFieldList)) {
 					$relationFieldName = $fieldLabel;
 					$fieldValue->set('fieldvalue', $request->get($fieldLabel));
+				}
+				if ($fieldLabel === 'folderid' && $folderId !== '' && $folderId !== null) {
+					$fieldValue->set('fieldvalue', $folderId);
 				}
 				if(in_array($fieldLabel,$fieldNames)) $fieldModel[] = $fieldValue;
 			}
@@ -76,6 +84,7 @@ class Documents_EditAjax_View extends Vtiger_QuickCreateAjax_View {
 
 		$viewer->assign('MAX_UPLOAD_LIMIT_MB', Vtiger_Util_Helper::getMaxUploadSize());
 		$viewer->assign('MAX_UPLOAD_LIMIT_BYTES', Vtiger_Util_Helper::getMaxUploadSizeInBytes());
+		$viewer->assign('DOCUMENTS_FOLDER_ID', $folderId !== '' && $folderId !== null ? $folderId : '');
 		echo $viewer->view('AjaxEdit.tpl',$moduleName,true);
 
 	}

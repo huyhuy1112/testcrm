@@ -34,6 +34,7 @@ class Documents_List_View extends Vtiger_List_View {
 
 		$viewer->assign('DEFAULT_CUSTOM_FILTER_ID', $defaultCustomFilter);
 		$viewer->assign('FOLDERS', $folderList);
+		$viewer->assign('ADD_FOLDER_URL', $documentModuleModel->getAddFolderUrl());
 
 		parent::preProcess($request);
 	}
@@ -44,6 +45,10 @@ class Documents_List_View extends Vtiger_List_View {
 	 */
 	public function initializeListViewContents(Vtiger_Request $request, Vtiger_Viewer $viewer) {
 		$moduleName = $request->getModule();
+		// Đảm bảo FOLDERS luôn được gán (cả khi load qua Ajax, preProcess có thể không chạy)
+		$folderList = Documents_Module_Model::getAllFolders();
+		$viewer->assign('FOLDERS', $folderList);
+		$viewer->assign('ADD_FOLDER_URL', Vtiger_Module_Model::getInstance($moduleName)->getAddFolderUrl());
 		$cvId = $request->get('viewname');
 		$pageNumber = $request->get('page');
 		$orderBy = $request->get('orderby');
@@ -205,10 +210,37 @@ class Documents_List_View extends Vtiger_List_View {
 
 		$folderId = $request->get('folder_id');
 		$folderValue = $request->get('folder_value');
-		$listViewModel->set('folder_id',$folderId);
-		$listViewModel->set('folder_value',$folderValue);
+		// Chuẩn hóa: folder_id phải là số (folderid thực tế). Default folder có thể là 0 hoặc 1 tùy cài đặt – luôn lấy từ DB khi folder_value=Default
+		if ((string)$folderValue === 'Default') {
+			$folderId = Documents_Module_Model::getDefaultFolderId();
+		} elseif ($folderId === '' || $folderId === null || $folderId === 'folderid' || !is_numeric($folderId)) {
+			if (!empty($folderValue)) {
+				$db = PearDatabase::getInstance();
+				$r = $db->pquery("SELECT folderid FROM vtiger_attachmentsfolder WHERE foldername = ? LIMIT 1", array($folderValue));
+				$folderId = ($db->num_rows($r) > 0) ? $db->query_result($r, 0, 'folderid') : null;
+			} else {
+				$folderId = null;
+			}
+		} else {
+			$folderId = (int) $folderId;
+		}
+		// Kiểm tra quyền xem folder - nếu không có quyền thì bỏ filter
+		if ($folderId !== '' && $folderId !== null) {
+			$currentUser = Users_Record_Model::getCurrentUserModel();
+			if (!Documents_Folder_Model::userCanAccessFolder($folderId, $currentUser->getId())) {
+				$folderId = null;
+				$folderValue = null;
+			}
+		}
+		$listViewModel->set('folder_id', $folderId);
+		$listViewModel->set('folder_value', $folderValue);
 		$viewer->assign('FOLDER_ID', $folderId);
 		$viewer->assign('FOLDER_VALUE', $folderValue);
+		$docListUrl = 'index.php?module=Documents&view=List';
+		if ($folderId !== '' && $folderId !== null) {
+			$docListUrl .= '&folder_id=' . urlencode($folderId) . '&folder_value=' . urlencode($folderValue);
+		}
+		$viewer->assign('DOCUMENTS_LIST_URL', $docListUrl);
 
 		if(!$this->listViewHeaders){
 			$this->listViewHeaders = $listViewModel->getListViewHeaders();
@@ -283,6 +315,11 @@ class Documents_List_View extends Vtiger_List_View {
 		}
 
 		$viewer->assign('IS_CREATE_PERMITTED', $listViewModel->getModule()->isPermitted('CreateView'));
+		$createUrl = $listViewModel->getModule()->getCreateRecordUrl();
+		if ($folderId !== '' && $folderId !== null) {
+			$createUrl .= (strpos($createUrl, '?') !== false ? '&' : '?') . 'folder_id=' . urlencode($folderId);
+		}
+		$viewer->assign('CREATE_DOCUMENT_URL', $createUrl);
 		$viewer->assign('IS_MODULE_EDITABLE', $listViewModel->getModule()->isPermitted('EditView'));
 		$viewer->assign('IS_MODULE_DELETABLE', $listViewModel->getModule()->isPermitted('Delete'));
 		$viewer->assign('SEARCH_DETAILS', $searchParams);

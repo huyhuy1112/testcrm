@@ -13,6 +13,13 @@ class Documents_Detail_View extends Vtiger_Detail_View {
 	function preProcess(Vtiger_Request $request, $display=true) {
 		$viewer = $this->getViewer($request);
 		$viewer->assign('NO_SUMMARY', true);
+		$recordId = $request->get('record');
+		if ($recordId && (class_exists('Documents_History_Helper') || file_exists('modules/Documents/DocumentHistory.php'))) {
+			require_once 'modules/Documents/DocumentHistory.php';
+			$viewer->assign('DOCUMENT_HISTORY', Documents_History_Helper::getHistory($recordId));
+		} else {
+			$viewer->assign('DOCUMENT_HISTORY', array());
+		}
 		parent::preProcess($request);
 	}
 	

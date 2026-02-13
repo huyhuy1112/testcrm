@@ -112,6 +112,15 @@ Class Vtiger_Edit_View extends Vtiger_Index_View {
 		$fieldList = $moduleModel->getFields();
 		$requestFieldList = array_intersect_key($request->getAllPurified(), $fieldList);
 
+		// Documents: khi tạo mới từ list (URL có folder_id), gán folder vào form để lưu đúng folder
+		if ($moduleName == 'Documents' && empty($record)) {
+			$folderId = $request->get('folder_id');
+			if ($folderId !== '' && $folderId !== null) {
+				$requestFieldList['folderid'] = $folderId;
+				$viewer->assign('DOCUMENTS_FOLDER_ID', $folderId);
+			}
+		}
+
 		$relContactId = $request->get('contact_id');
 		if ($relContactId && $moduleName == 'Calendar') {
 			$contactRecordModel = Vtiger_Record_Model::getInstanceById($relContactId);

@@ -33,6 +33,10 @@ class Documents_MoveDocuments_Action extends Vtiger_Mass_Action {
 					$documentModel->set('folderid', $folderId);
 					$documentModel->set('mode', 'edit');
 					$documentModel->save();
+					if (class_exists('Documents_History_Helper') || file_exists('modules/Documents/DocumentHistory.php')) {
+						require_once 'modules/Documents/DocumentHistory.php';
+						Documents_History_Helper::log($documentId, Documents_History_Helper::ACTION_MOVE, 'folderid=' . $folderId);
+					}
 				} else {
 					$documentsMoveDenied[] = $documentModel->getName();
 				}

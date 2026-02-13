@@ -8,9 +8,9 @@
  ************************************************************************************}
 
 {strip}
-	<div class="modal-dialog modelContainer">
+	<div class="modal-dialog modelContainer document-upload-modal">
 		{assign var=HEADER_TITLE value={vtranslate('LBL_UPLOAD_TO_VTIGER', $MODULE)}}
-		<div class="modal-content" style="width:675px;">
+		<div class="modal-content document-upload-modal-content">
 			<form class="form-horizontal recordEditView" name="upload" method="post" action="index.php">
 				{include file="ModalHeader.tpl"|vtemplate_path:$MODULE TITLE=$HEADER_TITLE}
 				<div class="modal-body">
@@ -23,6 +23,9 @@
 								<input type="hidden" name="module" value="{$MODULE}" />
 								<input type="hidden" name="action" value="SaveAjax" />
 								<input type="hidden" name="document_source" value="Vtiger" />
+								{if isset($DOCUMENTS_FOLDER_ID) && $DOCUMENTS_FOLDER_ID !== ''}
+								<input type="hidden" name="folder_id" value="{$DOCUMENTS_FOLDER_ID}" />
+								{/if}
 								{if isset($RELATION_OPERATOR) && $RELATION_OPERATOR eq 'true'}
 									<input type="hidden" name="relationOperation" value="{$RELATION_OPERATOR}" />
 									<input type="hidden" name="sourceModule" value="{$PARENT_MODULE}" />
@@ -35,21 +38,24 @@
 								<input type="hidden" name="max_upload_limit" value="{$MAX_UPLOAD_LIMIT_BYTES}" />
 								<input type="hidden" name="max_upload_limit_mb" value="{$MAX_UPLOAD_LIMIT_MB}" />
 
-								<div id="dragandrophandler" class="dragdrop-dotted">
-									<div style="font-size:175%;">
+								<div id="dragandrophandler" class="dragdrop-dotted document-upload-dragarea">
+									<div class="document-upload-drag-title">
 										<span class="fa fa-upload"></span>&nbsp;&nbsp;
 										{vtranslate('LBL_DRAG_&_DROP_FILE_HERE', $MODULE)}
 									</div>
-									<div style="margin-top: 1%;text-transform: uppercase;margin-bottom: 2%;">
+									<div class="document-upload-or">
 										{vtranslate('LBL_OR', $MODULE)}
 									</div>
-									<div>
-										<div class="fileUploadBtn btn btn-primary">
+									<div class="document-upload-select-row">
+										<div class="fileUploadBtn btn btn-primary btn-lg">
 											<span><i class="fa fa-laptop"></i> {vtranslate('LBL_SELECT_FILE_FROM_COMPUTER', $MODULE)}</span>
 											{assign var=FIELD_MODEL value=$FIELD_MODELS['filename']}
-							<input type="file" name="{$FIELD_MODEL->getFieldName()}" value="{if isset($FIELD_VALUE)}{$FIELD_VALUE}{/if}" data-rule-required="true" />
+											<input type="file" name="{$FIELD_MODEL->getFieldName()}" value="{if isset($FIELD_VALUE)}{$FIELD_VALUE}{/if}" data-rule-required="true" accept=".pdf,.doc,.docx,.xls,.xlsx,image/*" />
 										</div>
-										&nbsp;&nbsp;&nbsp;<i class="fa fa-info-circle cursorPointer" data-toggle="tooltip" title="{vtranslate('LBL_MAX_UPLOAD_SIZE', $MODULE)} {$MAX_UPLOAD_LIMIT_MB}{vtranslate('MB', $MODULE)}"></i>
+										<i class="fa fa-info-circle cursorPointer document-upload-info-icon" data-toggle="tooltip" title="{vtranslate('LBL_MAX_UPLOAD_SIZE', $MODULE)} {$MAX_UPLOAD_LIMIT_MB}{vtranslate('MB', $MODULE)}"></i>
+									</div>
+									<div class="document-upload-formats">
+										Upload nhiều định dạng: PDF, Doc, Docx, Xls, Xlsx, hình ảnh (jpg, png, gif...)
 									</div>
 									<div class="fileDetails"></div>
 								</div>

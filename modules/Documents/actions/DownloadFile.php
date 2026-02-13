@@ -27,5 +27,9 @@ class Documents_DownloadFile_Action extends Vtiger_Action_Controller {
 		$documentRecordModel->downloadFile();
 		//Update the Download Count
 		$documentRecordModel->updateDownloadCount();
+		if (class_exists('Documents_History_Helper') || file_exists('modules/Documents/DocumentHistory.php')) {
+			require_once 'modules/Documents/DocumentHistory.php';
+			Documents_History_Helper::log($request->get('record'), Documents_History_Helper::ACTION_DOWNLOAD, '');
+		}
 	}
 }

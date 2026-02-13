@@ -48,6 +48,11 @@ class Documents_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 		$relationOperation = $request->get('relationOperation');
 		$fieldList = $moduleModel->getFields();
 		$requestFieldList = array_intersect_key($request->getAll(), $fieldList);
+		// Documents: khi mở từ list với folder, gán folderid từ folder_id
+		$folderId = $request->get('folder_id');
+		if ($folderId !== '' && $folderId !== null) {
+			$recordModel->set('folderid', $folderId);
+		}
         foreach($requestFieldList as $requestFieldName => $requestFieldValue) {
             if(array_key_exists($requestFieldName, $fieldList)) {
                 $moduleFieldModel = $fieldList[$requestFieldName];
@@ -88,6 +93,7 @@ class Documents_QuickCreateAjax_View extends Vtiger_IndexAjax_View {
 
 		$viewer->assign('MAX_UPLOAD_LIMIT_MB', Vtiger_Util_Helper::getMaxUploadSize());
 		$viewer->assign('MAX_UPLOAD_LIMIT_BYTES', Vtiger_Util_Helper::getMaxUploadSizeInBytes());
+		$viewer->assign('DOCUMENTS_FOLDER_ID', $folderId !== '' && $folderId !== null ? $folderId : '');
 		echo $viewer->view('QuickCreate.tpl',$moduleName,true);
 	}
 

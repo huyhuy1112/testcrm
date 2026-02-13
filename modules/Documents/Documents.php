@@ -516,8 +516,8 @@ class Documents extends CRMEntity {
 		if(!empty($fresult) && $adb->num_rows($fresult)) {
 			$folderid = $adb->query_result($fresult, 0, 'folderid');
 			if(!$this->isFolderPresent($folderid)) {
-				// Re-link to default folder
-				$adb->pquery("UPDATE vtiger_notes set folderid = 1 WHERE notesid = ?", array($id));
+				$defaultFolderId = Documents_Module_Model::getDefaultFolderId();
+				$adb->pquery("UPDATE vtiger_notes set folderid = ? WHERE notesid = ?", array($defaultFolderId, $id));
 			}
 		}
 	}

@@ -154,7 +154,19 @@ class Vtiger_SaveAjax_Action extends Vtiger_Save_Action {
                                         $fieldValue = Vtiger_Util_Helper::validateFieldValue($fieldValue, $fieldModel);
 					$recordModel->set($fieldName, $fieldValue);
 				}
-			} 
+			}
+			// Documents: folderid = folder_id từ request HOẶC folder chọn trong form, nếu rỗng → Default
+			if ($moduleName === 'Documents') {
+				$folderIdReq = $request->get('folder_id');
+				if ($folderIdReq !== '' && $folderIdReq !== null) {
+					$recordModel->set('folderid', $folderIdReq);
+				} else {
+					$currentFolderId = $recordModel->get('folderid');
+					if ($currentFolderId === '' || $currentFolderId === null) {
+						$recordModel->set('folderid', Documents_Module_Model::getDefaultFolderId());
+					}
+				}
+			}
 		}
 
 		return $recordModel;
