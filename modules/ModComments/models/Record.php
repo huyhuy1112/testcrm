@@ -58,9 +58,59 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 	 * @param type $recordId
 	 * @return type
 	 */
+	/**
+	 * Override so attachment is found by comment id (crmid = modcommentsid).
+	 * If parent returns empty, fallback: get attachment by filename field (stores attachment id(s)).
+	 */
+	public function getFileDetails($attachmentId = false) {
+		$commentId = $this->getId();
+		if (empty($commentId)) {
+			$commentId = $this->get('id');
+		}
+		if (empty($commentId)) {
+			$commentId = $this->get('modcommentsid');
+		}
+		if (empty($commentId)) {
+			return array();
+		}
+		$this->set('id', $commentId);
+		$fileDetails = parent::getFileDetails($attachmentId);
+		if (!empty($fileDetails)) {
+			return $fileDetails;
+		}
+		// Fallback: vtiger_modcomments.filename may store attachment id(s) comma-separated
+		$filenameField = $this->get('filename');
+		if (empty($filenameField)) {
+			return array();
+		}
+		$ids = is_array($filenameField) ? $filenameField : preg_split('/\s*,\s*/', trim($filenameField), -1, PREG_SPLIT_NO_EMPTY);
+		$ids = array_filter(array_map('intval', $ids));
+		if (empty($ids)) {
+			return array();
+		}
+		$db = PearDatabase::getInstance();
+		$q = 'SELECT vtiger_attachments.*, vtiger_seattachmentsrel.attachmentsid AS attachmentsid
+			FROM vtiger_attachments
+			INNER JOIN vtiger_seattachmentsrel ON vtiger_seattachmentsrel.attachmentsid = vtiger_attachments.attachmentsid
+			WHERE vtiger_seattachmentsrel.crmid = ? AND vtiger_attachments.attachmentsid IN (' . generateQuestionMarks($ids) . ')';
+		$params = array_merge(array($commentId), $ids);
+		$result = $db->pquery($q, $params);
+		$fileDetails = array();
+		while ($row = $db->fetch_array($result)) {
+			if (!empty($row)) {
+				$fileDetails[] = $row;
+			}
+		}
+		return $fileDetails;
+	}
+
 	public function getFileNameAndDownloadURL($recordId = false,$attachmentId = false){
 		if(empty($recordId))
 			$recordId = $this->get('modcommentsid');
+		if(empty($recordId))
+			$recordId = $this->get('id');
+		if(empty($recordId))
+			$recordId = $this->getId();
 		$this->set('id',$recordId);
 		$fileDetails = $this->getFileDetails($attachmentId);
 		$attachmentDetails = array();
@@ -234,7 +284,7 @@ class ModComments_Record_Model extends Vtiger_Record_Model {
 		$listView = Vtiger_ListView_Model::getInstance('ModComments');
 		$queryGenerator = $listView->get('query_generator');
 		$queryGenerator->setFields(array('parent_comments', 'createdtime', 'modifiedtime', 'related_to', 'assigned_user_id',
-			'commentcontent', 'creator', 'id', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'from_mailroom', 'is_private', 'customer_email', 'related_email_id', 'filename'));
+			'commentcontent', 'creator', 'id', 'modcommentsid', 'customer', 'reasontoedit', 'userid', 'from_mailconverter', 'from_mailroom', 'is_private', 'customer_email', 'related_email_id', 'filename'));
 
 		$query = $queryGenerator->getQuery();
 		$query = $query ." AND related_to = ? ORDER BY vtiger_crmentity.createdtime DESC";

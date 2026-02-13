@@ -413,6 +413,35 @@ class Home_MainPage_View extends Vtiger_Index_View {
 		$mainPageLoginHistory = self::getLoginHistoryForUser($currentUser->get('user_name'), 15);
 		$viewer->assign('MAINPAGE_LOGIN_HISTORY', $mainPageLoginHistory);
 
+		// Team Status: chỉ CEO/Admin xem danh sách thành viên (online/offline/ngày nghỉ) + bộ lọc
+		$canSeeTeamStatus = self::isUserCEOOrAdmin($currentUser);
+		$mainPageTeamStatus = array();
+		$teamFilterOptions = array('users' => array(), 'departments' => array());
+		if ($canSeeTeamStatus) {
+			$filterUser = $request->get('team_filter_user');
+			$filterDept = $request->get('team_filter_department');
+			$filterDate = $request->get('team_filter_date');
+			$mainPageTeamStatus = self::getTeamStatusForCEO($filterUser, $filterDept, $filterDate);
+			$teamFilterOptions = self::getTeamStatusFilterOptions();
+			$mainPageTeamStatusLeaveOnly = array_filter($mainPageTeamStatus, function ($m) { return isset($m['status']) && $m['status'] === 'leave'; });
+			$teamFilterDateDisplay = !empty($filterDate) ? date('d/m/Y', strtotime($filterDate)) : date('d/m/Y');
+		} else {
+			$mainPageTeamStatusLeaveOnly = array();
+			$teamFilterDateDisplay = date('d/m/Y');
+		}
+		$viewer->assign('MAINPAGE_CAN_SEE_TEAM_STATUS', $canSeeTeamStatus);
+		$viewer->assign('MAINPAGE_TEAM_STATUS', $mainPageTeamStatus);
+		$viewer->assign('MAINPAGE_TEAM_STATUS_LEAVE_ONLY', $mainPageTeamStatusLeaveOnly);
+		$viewer->assign('MAINPAGE_TEAM_FILTER_DATE_DISPLAY', $teamFilterDateDisplay);
+		$viewer->assign('MAINPAGE_TEAM_FILTER_USER', $request->get('team_filter_user'));
+		$viewer->assign('MAINPAGE_TEAM_FILTER_DEPARTMENT', $request->get('team_filter_department'));
+		$teamFilterDate = $request->get('team_filter_date');
+		if (empty($teamFilterDate)) {
+			$teamFilterDate = date('Y-m-d');
+		}
+		$viewer->assign('MAINPAGE_TEAM_FILTER_DATE', $teamFilterDate);
+		$viewer->assign('MAINPAGE_TEAM_FILTER_OPTIONS', $teamFilterOptions);
+
 		$viewer->view('MainPage.tpl', 'Home');
 	}
 
@@ -433,6 +462,162 @@ class Home_MainPage_View extends Vtiger_Index_View {
 			return $h . 'h ' . $m . 'm';
 		}
 		return $h . 'h';
+	}
+
+	/**
+	 * Kiểm tra user có phải CEO hoặc Admin (được xem Team Status tất cả thành viên).
+	 */
+	protected static function isUserCEOOrAdmin($userModel) {
+		if (!$userModel) {
+			return false;
+		}
+		if ($userModel->isAdminUser()) {
+			return true;
+		}
+		$roleId = $userModel->get('roleid');
+		if (empty($roleId)) {
+			return false;
+		}
+		$db = PearDatabase::getInstance();
+		$r = $db->pquery("SELECT rolename FROM vtiger_role WHERE roleid = ?", array($roleId));
+		if ($db->num_rows($r)) {
+			$name = strtolower(trim($db->query_result($r, 0, 'rolename')));
+			return ($name === 'ceo' || preg_match('/\bceo\b/', $name));
+		}
+		return false;
+	}
+
+	/**
+	 * Lấy danh sách user và phòng ban để làm option cho bộ lọc Team Status.
+	 */
+	protected static function getTeamStatusFilterOptions() {
+		$out = array('users' => array(), 'departments' => array());
+		try {
+			$db = PearDatabase::getInstance();
+			$r = $db->pquery("SELECT id, first_name, last_name, user_name FROM vtiger_users WHERE status = 'Active' ORDER BY last_name, first_name", array());
+			if ($r) {
+				while ($row = $db->fetchByAssoc($r)) {
+					$name = trim($row['first_name'] . ' ' . $row['last_name']);
+					if (empty($name)) $name = $row['user_name'];
+					$out['users'][] = array('id' => (int)$row['id'], 'name' => $name);
+				}
+			}
+			$r2 = $db->pquery("SELECT DISTINCT department FROM vtiger_users WHERE status = 'Active' AND department IS NOT NULL AND TRIM(department) != '' ORDER BY department", array());
+			if ($r2) {
+				while ($row = $db->fetchByAssoc($r2)) {
+					$out['departments'][] = $row['department'];
+				}
+			}
+		} catch (Exception $e) { }
+		return $out;
+	}
+
+	/**
+	 * Lấy danh sách thành viên với trạng thái: online, offline, ngày nghỉ.
+	 * Chỉ gọi khi user là CEO/Admin.
+	 * @param string|int $filterUser Người phụ trách (reports_to_id) - chỉ lấy user thuộc quyền người này; rỗng = tất cả
+	 * @param string $filterDept Phòng ban; rỗng = tất cả
+	 * @param string $filterDate Ngày xem trạng thái (Y-m-d); rỗng = hôm nay
+	 */
+	protected static function getTeamStatusForCEO($filterUser = '', $filterDept = '', $filterDate = '') {
+		$list = array();
+		$today = !empty($filterDate) ? date('Y-m-d', strtotime($filterDate)) : date('Y-m-d');
+		try {
+			$db = PearDatabase::getInstance();
+			$params = array();
+			$sqlUsers = "SELECT u.id, u.user_name, u.first_name, u.last_name, u.reports_to_id, u.department
+				FROM vtiger_users u
+				WHERE u.status = 'Active'";
+			if ($filterUser !== '' && $filterUser !== null) {
+				$sqlUsers .= " AND u.reports_to_id = ?";
+				$params[] = $filterUser;
+			}
+			if ($filterDept !== '' && $filterDept !== null) {
+				$sqlUsers .= " AND TRIM(COALESCE(u.department,'')) = ?";
+				$params[] = trim($filterDept);
+			}
+			$sqlUsers .= " ORDER BY u.last_name, u.first_name";
+			$resUsers = $db->pquery($sqlUsers, $params);
+			if (!$resUsers) {
+				return $list;
+			}
+			$userNames = array();
+			while ($row = $db->fetchByAssoc($resUsers)) {
+				$id = (int) $row['id'];
+				$name = trim($row['first_name'] . ' ' . $row['last_name']);
+				if (empty($name)) {
+					$name = $row['user_name'];
+				}
+				$initial = mb_strtoupper(mb_substr($name, 0, 1));
+				if (empty($initial)) {
+					$initial = mb_strtoupper(mb_substr($row['user_name'], 0, 1));
+				}
+				$list[$id] = array(
+					'id' => $id,
+					'name' => $name,
+					'initial' => $initial ?: '?',
+					'user_name' => $row['user_name'],
+					'status' => 'offline',
+					'status_label' => 'Offline',
+					'leave_note' => '',
+				);
+				$userNames[$row['user_name']] = $id;
+			}
+			if (empty($list)) {
+				return $list;
+			}
+
+			// Online: bản ghi vtiger_loginhistory mới nhất có status='Signed in' và logout_time rỗng
+			$sqlOnline = "SELECT lh.user_name FROM vtiger_loginhistory lh
+				INNER JOIN (SELECT user_name, MAX(login_id) AS max_id FROM vtiger_loginhistory GROUP BY user_name) t
+				ON lh.user_name = t.user_name AND lh.login_id = t.max_id
+				WHERE lh.status = 'Signed in'
+				AND (lh.logout_time IS NULL OR lh.logout_time = '' OR lh.logout_time = '0000-00-00 00:00:00')";
+			$resOnline = $db->pquery($sqlOnline, array());
+			if ($resOnline) {
+				while ($row = $db->fetchByAssoc($resOnline)) {
+					$un = $row['user_name'];
+					if (isset($userNames[$un])) {
+						$uid = $userNames[$un];
+						$list[$uid]['status'] = 'online';
+						$list[$uid]['status_label'] = 'Online';
+					}
+				}
+			}
+
+			// Ngày nghỉ phép: vtiger_leaverequest approved, hôm nay nằm trong [date_start, due_date]
+			if (Vtiger_Utils::CheckTable('vtiger_leaverequest')) {
+				$sqlLeave = "SELECT created_user_id, subject, leave_type FROM vtiger_leaverequest
+					WHERE approval_status = 'approved'
+					AND created_user_id > 0
+					AND date_start <= ? AND (due_date >= ? OR (due_date IS NULL AND date_start = ?))";
+				$resLeave = $db->pquery($sqlLeave, array($today, $today, $today));
+				if ($resLeave) {
+				while ($row = $db->fetchByAssoc($resLeave)) {
+					$uid = (int) $row['created_user_id'];
+					if (isset($list[$uid])) {
+						$list[$uid]['status'] = 'leave';
+						$list[$uid]['status_label'] = 'Ngày nghỉ';
+						$note = decode_html($row['subject']);
+						if (empty($note)) {
+							$note = $row['leave_type'] === 'unpaid' ? 'Nghỉ không lương' : 'Nghỉ phép';
+						}
+						$list[$uid]['leave_note'] = $note;
+					}
+				}
+				}
+			}
+			// Sắp xếp: Ngày nghỉ → Online → Offline (người nghỉ phép hiển thị trước)
+			$order = array('leave' => 0, 'online' => 1, 'offline' => 2);
+			usort($list, function ($a, $b) use ($order) {
+				$oa = isset($order[$a['status']]) ? $order[$a['status']] : 2;
+				$ob = isset($order[$b['status']]) ? $order[$b['status']] : 2;
+				return $oa - $ob;
+			});
+		} catch (Exception $e) {
+			// ignore
+		}
+		return array_values($list);
 	}
 
 	/**

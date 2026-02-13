@@ -27,7 +27,7 @@ echo "==========================================\n";
 echo "Configure Management App Menu (Backup)\n";
 echo "==========================================\n\n";
 
-// Management app: Schedule (Calendar) + Teams (Teams module) + Report, Document, Project, ProjectTask
+// Management app: Schedule + Teams + Report + Document + Project + ProjectTask
 $modules = array(
 	'Calendar'   => array('label' => 'Schedule', 'display' => 'Schedule'),
 	'Teams'      => array('label' => 'Teams', 'display' => 'Teams'),

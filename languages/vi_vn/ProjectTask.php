@@ -38,4 +38,15 @@ $languageStrings = array(
 	'administrative' => 'Hành chính',
 	'operative' => 'Hoạt động',
 	'other' => 'Khác',
+
+	// Subtasks
+	'LBL_SUBTASKS' => 'Công việc con',
+	'LBL_SUBTASK_TITLE_PLACEHOLDER' => 'Thêm công việc và nhấn Enter',
+	'LBL_NO_SUBTASKS' => 'Chưa có công việc con',
+
+	// Subtask detail form
+	'LBL_ADD_FIELD' => 'Thêm trường',
+	'LBL_MANAGE_FIELDS' => 'Quản lý trường',
+	'LBL_ADD_LOGGED_TIME' => 'Thêm thời gian đã ghi',
+	'LBL_ADD_ESTIMATED_TIME' => 'Thêm thời gian ước tính',
 );

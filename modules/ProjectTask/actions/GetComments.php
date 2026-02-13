@@ -27,11 +27,27 @@ class ProjectTask_GetComments_Action extends Vtiger_Action_Controller {
 		foreach ($comments as $commentModel) {
 			$userModel = $commentModel->getCommentedByModel();
 			$userName = $userModel ? $userModel->getName() : '';
+			$attachments = array();
+			try {
+				$fileInfos = $commentModel->getFileNameAndDownloadURL();
+				if (!empty($fileInfos) && is_array($fileInfos)) {
+					foreach ($fileInfos as $f) {
+						if (!empty($f['url']) && !empty($f['rawFileName'])) {
+							$attachments[] = array(
+								'url' => $f['url'],
+								'name' => $f['rawFileName'],
+							);
+						}
+					}
+				}
+			} catch (Exception $e) {
+			}
 			$payload[] = array(
 				'id' => $commentModel->getId(),
 				'comment_text' => $commentModel->get('commentcontent'),
 				'userName' => $userName,
 				'time' => $commentModel->getCommentedTime(),
+				'attachments' => $attachments,
 			);
 		}
 		$response = new Vtiger_Response();

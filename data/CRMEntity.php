@@ -178,25 +178,33 @@ class CRMEntity {
 			$file_name = $file_details['name'];
 		}
 
-		// Check 1
+		// Check 1 & 2: Validation - ModComments uses relaxed rules (any image type/size; thumbnails can be blurry, lightbox shows full)
 		$save_file = true;
-		//only images are allowed for Image Attachmenttype
-		$mimeType = vtlib_mime_content_type($file_details['tmp_name']);
-		$mimeTypeContents = explode('/', $mimeType);
-		// For contacts and products we are sending attachmentType as value
-		if ($attachmentType == 'Image' || ($file_details['size'] && $mimeTypeContents[0] == 'image')) {
-			$save_file = validateImageFile($file_details);
+		if ($module == 'ModComments') {
+			// ModComments: accept any image/file - no format or size restriction at app level
+			if (empty($file_details['tmp_name']) || !is_uploaded_file($file_details['tmp_name'])
+				|| empty($file_details['name']) || (isset($file_details['error']) && $file_details['error'] !== 0)) {
+				$save_file = false;
+			} elseif (!empty($file_details['size'])) {
+				// Basic security: reject files with embedded PHP/shell code
+				$content = @file_get_contents($file_details['tmp_name'], false, null, 0, 8192);
+				if ($content !== false && (stripos($content, '<?php') !== false || stripos($content, '<?=') !== false)) {
+					$save_file = false;
+				}
+			}
+		} else {
+			$mimeType = vtlib_mime_content_type($file_details['tmp_name']);
+			$mimeTypeContents = explode('/', $mimeType);
+			if ($attachmentType == 'Image' || ($file_details['size'] && isset($mimeTypeContents[0]) && $mimeTypeContents[0] == 'image')) {
+				$save_file = validateImageFile($file_details);
+			}
+			if ($save_file && ($module == 'Contacts' || $module == 'Products')) {
+				$save_file = validateImageFile($file_details);
+			}
 		}
-                $log->debug("File Validation status in Check1 save_file => $save_file");
+		$log->debug("File Validation status save_file => $save_file");
 		if (!$save_file) {
 			return false;
-		}
-
-		// Check 2
-		$save_file = true;
-		//only images are allowed for these modules
-		if ($module == 'Contacts' || $module == 'Products') {
-			$save_file = validateImageFile($file_details);
 		}
                 $log->debug("File Validation status in Check2 save_file => $save_file");
 		$binFile = sanitizeUploadFileName($file_name, $upload_badext);
@@ -686,9 +694,13 @@ class CRMEntity {
 				}elseif ($uitype == 61 && php7_count($_FILES)) {
 					if($module == "ModComments") {
 						$UPLOADED_FILES = $_FILES[$fieldname];
+						// Single file from FormData: PHP gives name/type/tmp_name/error/size as top-level keys; normalize to array of files
+						if (isset($UPLOADED_FILES['name']) && !is_array($UPLOADED_FILES['name'])) {
+							$UPLOADED_FILES = array(0 => $UPLOADED_FILES);
+						}
 						$uploadedFileNames = array();
 						foreach($UPLOADED_FILES as $fileIndex => $file) {
-							if($file['error'] == 0 && $file['name'] != '' && $file['size'] > 0) {
+							if (is_array($file) && isset($file['error']) && $file['error'] == 0 && !empty($file['name']) && !empty($file['size'])) {
 								if(isset($_REQUEST[$fileIndex.'_hidden']) && $_REQUEST[$fileIndex.'_hidden'] != '') {
 									$file['original_name'] = vtlib_purify($_REQUEST[$fileIndex.'_hidden']);
 								} else {
@@ -722,6 +734,26 @@ class CRMEntity {
 					$fldvalue = from_html($fldvalue, ($insertion_mode == 'edit') ? true : false);
 			} else {
 				$fldvalue = '';
+				// New comment (insert): filename not in request; process $_FILES for ModComments
+				if ($uitype == 61 && $module == "ModComments" && php7_count($_FILES) && isset($_FILES[$fieldname]) && !empty($_FILES[$fieldname]['name'])) {
+					$UPLOADED_FILES = $_FILES[$fieldname];
+					if (isset($UPLOADED_FILES['name']) && !is_array($UPLOADED_FILES['name'])) {
+						$UPLOADED_FILES = array(0 => $UPLOADED_FILES);
+					}
+					$uploadedFileNames = array();
+					foreach ($UPLOADED_FILES as $fileIndex => $file) {
+						if (is_array($file) && isset($file['error']) && $file['error'] == 0 && !empty($file['name']) && !empty($file['size'])) {
+							$file['original_name'] = (isset($_REQUEST[$fileIndex.'_hidden']) && $_REQUEST[$fileIndex.'_hidden'] != '')
+								? vtlib_purify($_REQUEST[$fileIndex.'_hidden']) : stripslashes($file['name']);
+							$file['original_name'] = str_replace('"', '', $file['original_name']);
+							$attachmentId = $this->uploadAndSaveFile($this->id, $module, $file);
+							if ($attachmentId) $uploadedFileNames[] = $attachmentId;
+						}
+					}
+					if (php7_count($uploadedFileNames)) {
+						$fldvalue = implode(',', $uploadedFileNames);
+					}
+				}
 			}
 			if ($fldvalue == '') {
 				$fldvalue = $this->get_column_value($columname, $fldvalue, $fieldname, $uitype, $datatype);

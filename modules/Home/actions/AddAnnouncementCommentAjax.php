@@ -1,6 +1,6 @@
 <?php
 /*+***********************************************************************************
- * Add a comment to an announcement (by creatorid).
+ * Add a comment to an announcement (by creatorid). Supports file upload.
  *************************************************************************************/
 
 class Home_AddAnnouncementCommentAjax_Action extends Vtiger_Action_Controller {
@@ -11,7 +11,8 @@ class Home_AddAnnouncementCommentAjax_Action extends Vtiger_Action_Controller {
 		try {
 			$announcementId = (int)$request->get('id');
 			$commentText = $request->get('comment_text');
-			if (!$announcementId || $commentText === null || trim($commentText) === '') {
+			if ($commentText === null) $commentText = '';
+			if (!$announcementId || (trim($commentText) === '' && empty($_FILES['filename']['tmp_name']))) {
 				$response->setError('Missing id or comment_text');
 				$response->emit();
 				return;
@@ -23,7 +24,11 @@ class Home_AddAnnouncementCommentAjax_Action extends Vtiger_Action_Controller {
 				$response->emit();
 				return;
 			}
-			$cid = Settings_Vtiger_Announcement_Model::addComment($announcementId, $currentUser->getId(), trim($commentText));
+			$attachmentId = null;
+			if (!empty($_FILES['filename']['tmp_name']) && $_FILES['filename']['error'] === UPLOAD_ERR_OK) {
+				$attachmentId = Settings_Vtiger_Announcement_Model::uploadCommentFile($_FILES['filename']);
+			}
+			$cid = Settings_Vtiger_Announcement_Model::addComment($announcementId, $currentUser->getId(), trim($commentText) ?: ' ', $attachmentId);
 			$comments = Settings_Vtiger_Announcement_Model::getComments($announcementId);
 			$response->setResult(array('success' => true, 'id' => $cid, 'comments' => $comments));
 		} catch (Exception $e) {

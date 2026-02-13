@@ -46,6 +46,9 @@ class ProjectHandler extends VTEventHandler {
 				return;
 			}
 
+			// Save team group + additional assignees (từ form: _team_group_id, _additional_assignees)
+			$this->saveProjectTeamAssignment($adb, $recordId);
+
 			// Get owner from vtiger_crmentity (after commit, data is committed)
 			$ownerResult = $adb->pquery("SELECT smownerid FROM vtiger_crmentity WHERE crmid = ?", array($recordId));
 			if ($adb->num_rows($ownerResult) == 0) {
@@ -183,6 +186,35 @@ class ProjectHandler extends VTEventHandler {
 		} catch (Exception $e) {
 			if ($log) {
 				$log->error("[ProjectHandler] Error creating notification: " . $e->getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Lưu project assign theo team group và additional assignees (từ _team_group_id, _additional_assignees).
+	 */
+	protected function saveProjectTeamAssignment($adb, $projectId) {
+		if (class_exists('Teams_Module_Model')) {
+			Teams_Module_Model::ensureProjectAssignSchema();
+		}
+		$projectId = (int) $projectId;
+		if ($projectId <= 0) return;
+
+		$teamGroupId = isset($_REQUEST['_team_group_id']) ? (int) $_REQUEST['_team_group_id'] : 0;
+		$adb->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
+		if ($teamGroupId > 0) {
+			$adb->pquery("INSERT INTO vtiger_project_team_groups (projectid, team_groupid) VALUES (?, ?)",
+				array($projectId, $teamGroupId));
+		}
+
+		$assignees = isset($_REQUEST['_additional_assignees']) ? $_REQUEST['_additional_assignees'] : array();
+		if (!is_array($assignees)) $assignees = array();
+		$adb->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
+		foreach ($assignees as $uid) {
+			$uid = (int) $uid;
+			if ($uid > 0) {
+				$adb->pquery("INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
+					array($projectId, $uid));
 			}
 		}
 	}

@@ -35,6 +35,9 @@ $languageStrings = array(
 
 	//Folder
 	'LBL_FOLDER_HAS_DOCUMENTS' => 'Please move documents from folder before deleting',
+	'LBL_FOLDER_NOT_FOUND' => 'Folder not found',
+	'LBL_FOLDER_CANNOT_DELETE_SYSTEM' => 'Cannot delete system folder (Default, Google Drive, Dropbox)',
+	'LBL_NO_PERMISSION_TO_DELETE_FOLDER' => 'You do not have permission to delete this folder',
 
 	//DetailView Actions
 	'LBL_DOWNLOAD_FILE' => 'Download File',
@@ -58,6 +61,11 @@ $languageStrings = array(
 	'LBL_ADD_NEW_FOLDER' => 'Add New Folder',
 	'LBL_FOLDER_NAME' => 'Folder Name',
 	'LBL_FOLDER_DESCRIPTION' => 'Folder Description',
+	'LBL_FOLDER_SHARING_HINT' => 'Select users/groups who can view this folder. Empty = all.',
+	'LBL_SHARING' => 'View permission',
+	'LBL_EDIT_FOLDER' => 'Edit Folder',
+	'LBL_USERS' => 'Users',
+	'LBL_GROUPS' => 'Groups',
 
 	//Check file integrity messages
 	'LBL_FILE_AVAILABLE' => 'File is available for download',

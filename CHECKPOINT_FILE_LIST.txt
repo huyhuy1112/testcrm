@@ -1,6 +1,19 @@
 # Checkpoint File List - All Modified Files
-# Date: 2026-01-23 09:14:59 +07
+# Date: 2026-02-11 12:49:29
 # Use this list to restore files if needed
+
+## CHECKPOINT 2026-02-11 12:49 – Comment Upload Ảnh (Project Task, Project Board, ModComments)
+# Thư mục: checkpoints/checkpoint_20260211_124929/
+# File: RESTORE_INSTRUCTIONS.txt (lệnh khôi phục chi tiết)
+# Mục đích: Fix Add comment, hình mới hiện, ModComments chấp nhận mọi ảnh, lightbox phóng to
+# File lưu: data/CRMEntity.php, layouts/v7/modules/ProjectTask/resources/List.js,
+#   layouts/v7/modules/Project/TaskBoard.tpl, layouts/v7/resources/custom.css
+
+## CHECKPOINT 2026-02-04 15:08 – Main Page (ô bằng nhau, Agenda, nút Mở lịch)
+# Thư mục: checkpoints/checkpoint_20260204_150806/
+# File: RESTORE_INSTRUCTIONS.txt (lệnh khôi phục chi tiết)
+# Commit: 601cbf3 – Main Page: ô bằng nhau, Agenda lấp đầy, nút Mở lịch to, khoảng cách chữ với thanh màu
+# File lưu: layouts/v7/resources/custom.css
 
 ## CHECKPOINT 2026-02-02 16:39 – Layout & List View (huy-dev push)
 # Thư mục: checkpoints/checkpoint_20260202_163916/

@@ -125,6 +125,9 @@ class Project extends CRMEntity {
 	 * Get list view query (send more WHERE clause condition if required)
 	 */
 	function getListQuery($module, $usewhere='') {
+		if (class_exists('Teams_Module_Model')) {
+			Teams_Module_Model::ensureProjectAssignSchema();
+		}
 		$query = "SELECT vtiger_crmentity.*, $this->table_name.*";
 
 		// Keep track of tables joined to avoid duplicates
@@ -172,9 +175,38 @@ class Project extends CRMEntity {
 		}
 
 		global $current_user;
-		$query .= $this->getNonAdminAccessControlQuery($module,$current_user);
-		$query .= "	WHERE vtiger_crmentity.deleted = 0 ".$usewhere;
+		$accessQuery = $this->getNonAdminAccessControlQuery($module, $current_user);
+		// Dùng LEFT JOIN thay vì INNER để cho phép thêm điều kiện OR (team group, assignees)
+		if (strpos($accessQuery, 'INNER JOIN') !== false) {
+			$accessQuery = str_replace('INNER JOIN', 'LEFT JOIN', $accessQuery);
+		}
+		$query .= $accessQuery;
+		$userId = (int) $current_user->id;
+		$teamOrAssignees = " (vtiger_project.projectid IN (SELECT ptg.projectid FROM vtiger_project_team_groups ptg INNER JOIN vtiger_team_group_users tgu ON ptg.team_groupid = tgu.groupid AND tgu.userid = " . $userId . ") OR vtiger_project.projectid IN (SELECT projectid FROM vtiger_project_assignees WHERE userid = " . $userId . ")) ";
+		$query .= "	WHERE vtiger_crmentity.deleted = 0 AND (" . $teamOrAssignees . " OR " . $this->getProjectAccessTableCondition($current_user, $module) . ") " . $usewhere;
 		return $query;
+	}
+
+	/**
+	 * Điều kiện chuẩn: record có trong bảng tạm access (owner/role/sharing).
+	 * Trả về "vt_tmp_ux.id IS NOT NULL" hoặc "1" nếu admin.
+	 */
+	function getProjectAccessTableCondition($user, $module) {
+		require('user_privileges/user_privileges_' . $user->id . '.php');
+		$tabId = getTabid($module);
+		if ($is_admin == true || $profileGlobalPermission[1] != 1 || $profileGlobalPermission[2] != 1 || $defaultOrgSharingPermission[$tabId] != 3) {
+			return " 1=1 ";
+		}
+		$tableName = 'vt_tmp_u' . $user->id;
+		require('user_privileges/sharing_privileges_' . $user->id . '.php');
+		$sharingRuleInfoVariable = $module . '_share_read_permission';
+		$sharingRuleInfo = isset($$sharingRuleInfoVariable) ? $$sharingRuleInfoVariable : null;
+		if (!empty($sharingRuleInfo) && (php7_count($sharingRuleInfo['ROLE']) > 0 || php7_count($sharingRuleInfo['GROUP']) > 0)) {
+			$tableName .= '_t' . $tabId;
+		} elseif ($module == 'Calendar') {
+			$tableName .= '_t' . $tabId;
+		}
+		return " " . $tableName . ".id IS NOT NULL ";
 	}
 
 	/**

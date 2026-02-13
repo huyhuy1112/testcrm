@@ -182,9 +182,11 @@ class Project_Detail_View extends Vtiger_Detail_View {
 			$userOptions[$userId] = $userModel->getName();
 		}
 
+		$projectName = $recordModel ? $recordModel->get('projectname') : '';
 		$viewer = $this->getViewer($request);
 		$viewer->assign('MODULE', $moduleName);
 		$viewer->assign('RECORD_ID', $recordId);
+		$viewer->assign('PROJECT_NAME', $projectName);
 		$viewer->assign('TASK_COLUMNS', $columns);
 		$viewer->assign('CREATE_TASK_URL', $createTaskUrl);
 		$viewer->assign('STATUS_MAP', $statusMap);

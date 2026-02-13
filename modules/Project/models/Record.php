@@ -114,6 +114,9 @@
 		$recordId  = $this->getId();
 		$db = PearDatabase::getInstance();
 
+		$parentRes = $db->pquery("SHOW COLUMNS FROM vtiger_projecttask LIKE 'parent_projecttaskid'", array());
+		$hasParent = ($db->num_rows($parentRes) > 0);
+		$parentFilter = $hasParent ? " AND (vtiger_projecttask.parent_projecttaskid IS NULL OR vtiger_projecttask.parent_projecttaskid = 0) " : " ";
 		$sql = "SELECT vtiger_projecttask.projecttaskid AS recordid,
 				vtiger_projecttask.projecttaskname AS name,
 				vtiger_projecttask.projectid,
@@ -126,7 +129,7 @@
 				vtiger_crmentity.createdtime
 				FROM vtiger_projecttask
 				INNER JOIN vtiger_crmentity ON vtiger_projecttask.projecttaskid = vtiger_crmentity.crmid
-				WHERE vtiger_projecttask.projectid = ? AND vtiger_crmentity.deleted = 0
+				WHERE vtiger_projecttask.projectid = ? AND vtiger_crmentity.deleted = 0" . $parentFilter . "
 				ORDER BY vtiger_projecttask.projecttaskid DESC";
 
 		$result = $db->pquery($sql, array($recordId));

@@ -51,4 +51,15 @@ $languageStrings = array(
 	'Deferred' => 'Deferred',
 	'Canceled' => 'Canceled',
     'LBL_NO_DATE_VALUE_MSG' => 'or Project Tasks do not have Start and/or End Date',
+
+	// Subtasks
+	'LBL_SUBTASKS' => 'Subtasks',
+	'LBL_SUBTASK_TITLE_PLACEHOLDER' => 'Add task and hit enter',
+	'LBL_NO_SUBTASKS' => 'No subtasks exist in this task',
+
+	// Subtask detail form
+	'LBL_ADD_FIELD' => 'Add field',
+	'LBL_MANAGE_FIELDS' => 'Manage fields',
+	'LBL_ADD_LOGGED_TIME' => 'Add logged time',
+	'LBL_ADD_ESTIMATED_TIME' => 'Add estimated time',
 );

@@ -267,6 +267,7 @@ class Settings_Vtiger_Announcement_Model extends Vtiger_Base_Model {
                 announcement_id INT NOT NULL,
                 userid INT NOT NULL,
                 comment_text TEXT,
+                filename VARCHAR(255) NULL,
                 createdtime DATETIME,
                 KEY idx_announcement (announcement_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8", array());
@@ -276,17 +277,59 @@ class Settings_Vtiger_Announcement_Model extends Vtiger_Base_Model {
                 $db->pquery("ALTER TABLE ".self::commentsTable." ADD COLUMN announcement_id INT NULL AFTER id", array());
                 $db->pquery("UPDATE ".self::commentsTable." c INNER JOIN ".self::tableName." a ON a.creatorid = c.announcement_creatorid SET c.announcement_id = a.id WHERE c.announcement_creatorid IS NOT NULL", array());
             }
+            $colFile = $db->pquery("SHOW COLUMNS FROM ".self::commentsTable." LIKE 'filename'", array());
+            if ($db->num_rows($colFile) == 0) {
+                $db->pquery("ALTER TABLE ".self::commentsTable." ADD COLUMN filename VARCHAR(255) NULL AFTER comment_text", array());
+            }
         }
         $done = true;
+    }
+
+    /**
+     * Upload a file for announcement comment. Creates vtiger_crmentity + vtiger_attachments.
+     * @param array $file $_FILES['filename']
+     * @return int|null attachment id or null on failure
+     */
+    public static function uploadCommentFile($file) {
+        global $adb, $current_user, $upload_badext;
+        if (empty($file['tmp_name']) || $file['error'] !== UPLOAD_ERR_OK) return null;
+        $fileName = isset($file['original_name']) ? $file['original_name'] : $file['name'];
+        $fileName = sanitizeUploadFileName($fileName, $upload_badext);
+        $fileName = ltrim(basename(' ' . $fileName));
+        $filetype = isset($file['type']) ? $file['type'] : 'application/octet-stream';
+        $filetmp = $file['tmp_name'];
+        $uploadPath = decideFilePath();
+        $encryptName = Vtiger_Util_Helper::getEncryptedFileName($fileName);
+        $currentId = $adb->getUniqueID('vtiger_crmentity');
+        if (!copy($filetmp, $uploadPath . $currentId . '_' . $encryptName)) return null;
+        $dateVar = date('Y-m-d H:i:s');
+        $adb->pquery('INSERT INTO vtiger_crmentity (crmid,smcreatorid,smownerid,setype,description,createdtime,modifiedtime) VALUES (?,?,?,?,?,?,?)',
+            array($currentId, $current_user->id, $current_user->id, 'ModComments Attachment', '', $adb->formatDate($dateVar, true), $adb->formatDate($dateVar, true)));
+        $adb->pquery('INSERT INTO vtiger_attachments (attachmentsid,name,description,type,path,storedname) VALUES (?,?,?,?,?,?)',
+            array($currentId, $fileName, '', $filetype, $uploadPath, $encryptName));
+        return (int)$currentId;
     }
 
     public static function getComments($announcementId) {
         self::ensureCommentsTable();
         $db = PearDatabase::getInstance();
         $list = array();
-        $res = $db->pquery('SELECT id, userid, comment_text, createdtime FROM '.self::commentsTable.'
+        $res = $db->pquery('SELECT id, userid, comment_text, createdtime, filename FROM '.self::commentsTable.'
             WHERE announcement_id = ? ORDER BY createdtime ASC', array((int)$announcementId));
         while ($row = $db->fetchByAssoc($res)) {
+            $attachments = array();
+            $filenameField = isset($row['filename']) ? trim($row['filename']) : '';
+            if ($filenameField) {
+                $ids = array_filter(array_map('intval', preg_split('/\s*,\s*/', $filenameField, -1, PREG_SPLIT_NO_EMPTY)));
+                foreach ($ids as $aid) {
+                    $r = $db->pquery('SELECT name FROM vtiger_attachments WHERE attachmentsid=?', array($aid));
+                    if ($db->num_rows($r) > 0) {
+                        $name = $db->query_result($r, 0, 'name');
+                        $url = 'index.php?module=Home&action=DownloadAnnouncementCommentFile&record=' . (int)$row['id'] . '&fileid=' . $aid;
+                        $attachments[] = array('url' => $url, 'name' => $name ?: 'file');
+                    }
+                }
+            }
             $list[] = array(
                 'id' => $row['id'],
                 'userid' => $row['userid'],
@@ -294,16 +337,18 @@ class Settings_Vtiger_Announcement_Model extends Vtiger_Base_Model {
                 'comment_text' => $row['comment_text'] ?: '',
                 'createdtime' => $row['createdtime'],
                 'timeAgo' => self::timeAgo($row['createdtime']),
+                'attachments' => $attachments,
             );
         }
         return $list;
     }
 
-    public static function addComment($announcementId, $userId, $commentText) {
+    public static function addComment($announcementId, $userId, $commentText, $attachmentId = null) {
         self::ensureCommentsTable();
         $db = PearDatabase::getInstance();
-        $db->pquery('INSERT INTO '.self::commentsTable.' (announcement_id, userid, comment_text, createdtime) VALUES (?,?,?,?)',
-            array((int)$announcementId, (int)$userId, $commentText, date('Y-m-d H:i:s')));
+        $filenameVal = $attachmentId ? (string)(int)$attachmentId : null;
+        $db->pquery('INSERT INTO '.self::commentsTable.' (announcement_id, userid, comment_text, filename, createdtime) VALUES (?,?,?,?,?)',
+            array((int)$announcementId, (int)$userId, $commentText, $filenameVal, date('Y-m-d H:i:s')));
         return $db->getLastInsertID();
     }
 }

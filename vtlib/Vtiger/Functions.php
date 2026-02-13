@@ -366,6 +366,26 @@ class Vtiger_Functions {
 					$nameList[$id] = $label;
 				}
 			}
+			// Team groups (Project/ProjectTask assign): id âm = -team_groupid
+			$diffIds = array_diff($ids, array_keys($nameList));
+			$teamGroupIds = array();
+			foreach ($diffIds as $id) {
+				if (is_numeric($id) && (int)$id < 0) {
+					$teamGroupIds[(int)$id] = abs((int)$id);
+				}
+			}
+			if ($teamGroupIds) {
+				global $adb;
+				$check = $adb->pquery("SHOW TABLES LIKE 'vtiger_team_groups'", array());
+				if ($check && $adb->num_rows($check) > 0) {
+					$placeholders = implode(',', array_fill(0, count($teamGroupIds), '?'));
+					$res = $adb->pquery("SELECT groupid, group_name FROM vtiger_team_groups WHERE groupid IN ($placeholders)", array_values($teamGroupIds));
+					while ($res && ($row = $adb->fetchByAssoc($res))) {
+						$negId = -1 * (int)$row['groupid'];
+						$nameList[$negId] = $row['group_name'];
+					}
+				}
+			}
 		}
 
 		return $nameList;

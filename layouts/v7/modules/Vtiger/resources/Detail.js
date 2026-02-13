@@ -1330,6 +1330,11 @@ Vtiger.Class("Vtiger_Detail_Js",{
 							// End Viet Add
 							jQuery('.vt-notification').remove();
 							var postSaveRecordDetails = response;
+							// Guard: response may not include this field (e.g. owner/team group)
+							if (!postSaveRecordDetails[fieldName] || postSaveRecordDetails[fieldName].display_value === undefined) {
+								window.location.reload();
+								return true;
+							}
 							if(fieldBasicData.data('type') == 'picklist' && app.getModuleName() != 'Users') {
 								var color = postSaveRecordDetails[fieldName].colormap[postSaveRecordDetails[fieldName].value];
 								if(color) {

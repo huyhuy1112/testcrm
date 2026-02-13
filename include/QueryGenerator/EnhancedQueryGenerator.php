@@ -220,7 +220,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 		if ($fieldObject && isset($fieldObject->referenceFieldName)) {
 			// if its a reference field then we need to add the fieldname to table name
 			preg_match('/(\w+) ; \((\w+)\) (\w+)/', $fieldObject->referenceFieldName, $matches);
-			if (php7_count($matches) != 0) {
+			if (php7_count($matches) >= 4) {
 				list($full, $referenceField, $referenceModule, $fieldname) = $matches;
 			}
 			$field = $fieldObject;
@@ -242,7 +242,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 		foreach ($this->fields as $field) {
 			// handle for reference field
 			preg_match('/(\w+) ; \((\w+)\) (\w+)/', $field, $matches);
-			if (php7_count($matches) != 0) {
+			if (php7_count($matches) >= 4) {
 				list($full, $referenceField, $referenceModule, $fieldname) = $matches;
 				$parentReferenceFieldModel = null;
 				$parentReferenceFieldModel = $moduleFields[$field];
@@ -312,7 +312,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 			$referenceParentFieldName = '';
 			// for reference field do not add the table names to the list
 			preg_match('/(\w+) ; \((\w+)\) (\w+)/', $fieldName, $matches);
-			if (php7_count($matches) != 0) {
+			if (php7_count($matches) >= 4) {
 				list($full, $referenceParentFieldName, $referenceModuleName, $fieldName) = $matches;
 			}
 
@@ -395,7 +395,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 			if (empty($fieldName))
 				continue;
 
-			$field = isset($moduleFields) ? $moduleFields[$fieldName] : null;
+			$field = (isset($moduleFields) && array_key_exists($fieldName, $moduleFields)) ? $moduleFields[$fieldName] : null;
 			if (empty($field))
 				continue; // not accessible field.
 
@@ -403,7 +403,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 			$referenceParentFieldName = '';
 			// for reference field do not add the table names to the list
 			preg_match('/(\w+) ; \((\w+)\) (\w+)/', $fieldName, $matches);
-			if (php7_count($matches) != 0) {
+			if (php7_count($matches) >= 4) {
 				list($full, $referenceParentFieldName, $referenceModuleName, $fieldName) = $matches;
 			}
 
@@ -623,13 +623,14 @@ class EnhancedQueryGenerator extends QueryGenerator {
 
 		foreach ($this->conditionals as $index => $conditionInfo) {
 			$parentReferenceField = '';
-			$baseFieldName = $fieldName = $conditionInfo['name'];
+			$baseFieldName = $fieldName = isset($conditionInfo['name']) ? $conditionInfo['name'] : '';
 			$parentReferenceField = $referenceModule = '';
-			$field = isset($moduleFieldList) ? $moduleFieldList[$fieldName] : null;
+			$field = (isset($moduleFieldList) && array_key_exists($fieldName, $moduleFieldList)) ? $moduleFieldList[$fieldName] : null;
 
 			// if its a reference field then we need to add the fieldname to table name
+			$matches = array();
 			preg_match('/(\w+) ; \((\w+)\) (\w+)/', $baseFieldName, $matches);
-			if (php7_count($matches) != 0) {
+			if (php7_count($matches) >= 4) {
 				list($full, $parentReferenceField, $referenceModule, $fieldName) = $matches;
 			}
 
@@ -878,7 +879,7 @@ class EnhancedQueryGenerator extends QueryGenerator {
 
 		$parentReferenceField = '';
 		preg_match('/(\w+) ; \((\w+)\) (\w+)/', $fieldName, $matches);
-		if (php7_count($matches) != 0) {
+		if (php7_count($matches) >= 4) {
 			list($full, $parentReferenceField, $referenceModule, $fieldName) = $matches;
 		}
 		if ($orderByFieldModel && $orderByFieldModel->getFieldDataType() == 'reference') {

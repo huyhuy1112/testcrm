@@ -68,12 +68,19 @@ class ModComments_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 	
 	/**
 	 * Function to get the record model based on the request parameters
+	 * Use getRaw for commentcontent so emoji and Unicode are not stripped by vtlib_purify.
 	 * @param Vtiger_Request $request
 	 * @return Vtiger_Record_Model or Module specific Record Model instance
 	 */
 	public function getRecordModelFromRequest(Vtiger_Request $request) {
 		$recordModel = parent::getRecordModelFromRequest($request);
-        $recordModel->set('is_private', $request->get('is_private'));
+		if ($request->has('commentcontent')) {
+			$rawComment = $request->getRaw('commentcontent');
+			if ($rawComment !== '' && $rawComment !== null) {
+				$recordModel->set('commentcontent', $rawComment);
+			}
+		}
+		$recordModel->set('is_private', $request->get('is_private'));
 
 		return $recordModel;
 	}

@@ -1,5 +1,31 @@
 {strip}
 <div class="container-fluid mainpage-wrap">
+	{if $MAINPAGE_CAN_SEE_TEAM_STATUS}
+	<form method="get" class="mainpage-global-filter" id="mainpage-global-filter-form">
+		<input type="hidden" name="module" value="Home" />
+		<input type="hidden" name="view" value="MainPage" />
+		<div class="mainpage-global-filter-inner">
+			<span class="mainpage-global-filter-title"><i class="fa fa-filter"></i> Bộ lọc trang:</span>
+			<label class="mainpage-global-filter-label">Người phụ trách</label>
+			<select name="team_filter_user" class="form-control input-sm mainpage-global-filter-select">
+				<option value="">— Tất cả —</option>
+				{foreach from=$MAINPAGE_TEAM_FILTER_OPTIONS.users item=u}
+					<option value="{$u.id}"{if $MAINPAGE_TEAM_FILTER_USER == $u.id} selected="selected"{/if}>{$u.name|escape:'html'}</option>
+				{/foreach}
+			</select>
+			<label class="mainpage-global-filter-label">Phòng ban</label>
+			<select name="team_filter_department" class="form-control input-sm mainpage-global-filter-select">
+				<option value="">— Tất cả —</option>
+				{foreach from=$MAINPAGE_TEAM_FILTER_OPTIONS.departments item=d}
+					<option value="{$d|escape:'html'}"{if $MAINPAGE_TEAM_FILTER_DEPARTMENT == $d} selected="selected"{/if}>{$d|escape:'html'}</option>
+				{/foreach}
+			</select>
+			<label class="mainpage-global-filter-label">Thời gian</label>
+			<input type="date" name="team_filter_date" class="form-control input-sm mainpage-global-filter-date" value="{$MAINPAGE_TEAM_FILTER_DATE|escape:'html'}" />
+			<button type="submit" class="btn btn-primary btn-sm mainpage-global-filter-btn"><i class="fa fa-filter"></i> Lọc</button>
+		</div>
+	</form>
+	{/if}
 	<div class="mainpage-grid">
 		<div class="mainpage-card announcements area-ann">
 			<div class="card-header subtle">
@@ -49,6 +75,9 @@
 								<div id="ann-detail-panel-comments" class="ann-detail-panel">
 									<ul class="ann-comments-list list-unstyled" id="ann-detail-comments-list"></ul>
 									<div class="ann-add-comment">
+										<div class="task-comment-toolbar"><button type="button" class="btn btn-default btn-xs ann-detail-comment-upload-btn" title="Upload from computer"><span class="fa fa-paperclip"></span> Upload</button>
+										<input type="file" class="ann-detail-comment-file-input" accept="*" style="display:none">
+										<span class="ann-detail-comment-file-name text-muted small"></span></div>
 										<textarea class="form-control" id="ann-detail-comment-input" rows="2" placeholder="Write a comment"></textarea>
 										<button type="button" class="btn btn-primary btn-sm" id="ann-detail-comment-add">Add</button>
 									</div>
@@ -292,34 +321,108 @@
 
 		<div class="mainpage-card time area-time">
 			<div class="card-header subtle">
-				<div class="title"><i class="fa fa-clock-o"></i> Thời gian phiên làm việc</div>
+				<div class="title-block">
+					<div class="title"><i class="fa fa-users"></i> Team Status</div>
+					<div class="subtitle text-muted small">Nhân sự đi làm, vắng mặt, làm ở nhà, đi công tác,…</div>
+				</div>
 			</div>
 			<div class="card-body time-grid">
-				{if $MAINPAGE_LOGIN_TIMESTAMP gt 0}
-					<div class="logged-time-wrap">
-						<div class="logged-time-value" id="mainpage-logged-time-display">{$MAINPAGE_LOGGED_TIME_DISPLAY|escape:'html'}</div>
-						<div class="logged-time-label">Đã đăng nhập từ lúc bắt đầu phiên</div>
-						<input type="hidden" id="mainpage-login-timestamp" value="{$MAINPAGE_LOGIN_TIMESTAMP}" />
+				{if $MAINPAGE_CAN_SEE_TEAM_STATUS}
+					{* CEO/Admin: block Người nghỉ phép (nếu có) + toàn bộ trạng thái *}
+					{if $MAINPAGE_TEAM_STATUS_LEAVE_ONLY|@count gt 0}
+						<div class="team-status-leave-block">
+							<div class="team-status-leave-block-title"><i class="fa fa-calendar-minus-o"></i> Người nghỉ phép ({$MAINPAGE_TEAM_FILTER_DATE_DISPLAY|escape:'html'})</div>
+							<ul class="team-status-list team-status-list-leave list-unstyled">
+								{foreach from=$MAINPAGE_TEAM_STATUS_LEAVE_ONLY item=member}
+									<li class="team-status-item team-status-leave">
+										<span class="team-status-avatar">{$member.initial|escape:'html'}</span>
+										<span class="team-status-name">{$member.name|escape:'html'}</span>
+										<span class="team-status-badge status-leave">{$member.status_label|escape:'html'}</span>
+										{if $member.leave_note}<span class="team-status-leave-note text-muted">— {$member.leave_note|escape:'html'}</span>{/if}
+									</li>
+								{/foreach}
+							</ul>
+						</div>
+					{/if}
+					<div class="team-status-legend text-muted small">
+						<span class="team-status-legend-item"><i class="fa fa-circle status-online"></i> Online</span>
+						<span class="team-status-legend-item"><i class="fa fa-circle status-offline"></i> Offline</span>
+						<span class="team-status-legend-item"><i class="fa fa-calendar-minus-o status-leave"></i> Ngày nghỉ phép</span>
+					</div>
+					<div class="team-status-list-wrap">
+						{if $MAINPAGE_TEAM_STATUS|@count gt 0}
+							<ul class="team-status-list list-unstyled">
+								{foreach from=$MAINPAGE_TEAM_STATUS item=member}
+									<li class="team-status-item team-status-{$member.status}">
+										<span class="team-status-avatar">{$member.initial|escape:'html'}</span>
+										<span class="team-status-name">{$member.name|escape:'html'}</span>
+										<span class="team-status-badge status-{$member.status}">{$member.status_label|escape:'html'}</span>
+										{if $member.leave_note}<span class="team-status-leave-note text-muted">({$member.leave_note|escape:'html'})</span>{/if}
+									</li>
+								{/foreach}
+							</ul>
+						{else}
+							<div class="text-muted small">Chưa có dữ liệu thành viên.</div>
+						{/if}
 					</div>
 				{else}
-					<div class="time-empty text-muted small">Đăng nhập lại để bắt đầu tính thời gian phiên làm việc.</div>
-				{/if}
-				<div class="login-history-section">
-					<div class="login-history-title">Lịch sử đăng nhập</div>
-					{if $MAINPAGE_LOGIN_HISTORY|@count gt 0}
-						<ul class="login-history-list list-unstyled">
-							{foreach from=$MAINPAGE_LOGIN_HISTORY item=hist}
-								<li class="login-history-item">
-									<span class="hist-time">{$hist.login_display|escape:'html'} → {$hist.logout_display|escape:'html'}</span>
-									{if $hist.duration_display != '-'}<span class="hist-duration">{$hist.duration_display|escape:'html'}</span>{/if}
-									<span class="hist-status status-{if $hist.status == 'Signed off'}off{else}on{/if}">{$hist.status|escape:'html'}</span>
-								</li>
-							{/foreach}
-						</ul>
+					{* User thường: xem thời gian phiên + lịch sử đăng nhập của mình *}
+					{if $MAINPAGE_LOGIN_TIMESTAMP gt 0}
+						<div class="logged-time-wrap">
+							<div class="logged-time-value" id="mainpage-logged-time-display">{$MAINPAGE_LOGGED_TIME_DISPLAY|escape:'html'}</div>
+							<div class="logged-time-label">Đã đăng nhập từ lúc bắt đầu phiên</div>
+							<input type="hidden" id="mainpage-login-timestamp" value="{$MAINPAGE_LOGIN_TIMESTAMP}" />
+						</div>
 					{else}
-						<div class="text-muted small">Chưa có lịch sử.</div>
+						<div class="time-empty text-muted small">Đăng nhập lại để bắt đầu tính thời gian phiên làm việc.</div>
 					{/if}
+					<div class="login-history-section">
+						<div class="login-history-title">Lịch sử đăng nhập</div>
+						{if $MAINPAGE_LOGIN_HISTORY|@count gt 0}
+							<ul class="login-history-list list-unstyled">
+								{foreach from=$MAINPAGE_LOGIN_HISTORY item=hist}
+									<li class="login-history-item">
+										<span class="hist-time">{$hist.login_display|escape:'html'} → {$hist.logout_display|escape:'html'}</span>
+										{if $hist.duration_display != '-'}<span class="hist-duration">{$hist.duration_display|escape:'html'}</span>{/if}
+										<span class="hist-status status-{if $hist.status == 'Signed off'}off{else}on{/if}">{$hist.status|escape:'html'}</span>
+									</li>
+								{/foreach}
+							</ul>
+						{else}
+							<div class="text-muted small">Chưa có lịch sử.</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="mainpage-card kpi area-kpi">
+			<div class="card-header subtle">
+				<div class="title"><i class="fa fa-bar-chart"></i> KPI</div>
+				<div class="actions kpi-actions">
+					<select class="form-control input-sm kpi-chart-select" id="mainpage-kpi-type" style="max-width:140px;">
+						<option value="bar-ngang">Bar ngang</option>
+						<option value="bar-doc">Bar dọc</option>
+						<option value="tron">Biểu đồ tròn</option>
+						<option value="donut">Donut</option>
+						<option value="duong">Đường</option>
+						<option value="stacked">Bar xếp chồng</option>
+					</select>
+					<select class="form-control input-sm kpi-chart-select" id="mainpage-kpi-select" style="max-width:180px;">
+						<option value="kinhdoanh">Phòng Kinh doanh</option>
+						<option value="kythuat">Phòng Kỹ thuật</option>
+						<option value="nhansu">Phòng Nhân sự</option>
+						<option value="ketoan">Phòng Kế toán</option>
+						<option value="marketing">Phòng Marketing</option>
+					</select>
 				</div>
+			</div>
+			<div class="card-body kpi-body">
+				<div id="kpi-chart-kinhdoanh" class="kpi-chart-panel" data-vals="85,72,91" data-colors="#059669,#10b981,#34d399" data-labels="Doanh thu T1,Chỉ tiêu bán hàng,Khách hàng mới"></div>
+				<div id="kpi-chart-kythuat" class="kpi-chart-panel hide" data-vals="78,95,88" data-colors="#3b82f6,#60a5fa,#93c5fd" data-labels="Hoàn thành sprint,Code review,Bug fix rate"></div>
+				<div id="kpi-chart-nhansu" class="kpi-chart-panel hide" data-vals="68,82,94" data-colors="#8b5cf6,#a78bfa,#c4b5fd" data-labels="Tuyển dụng,Đào tạo nội bộ,Tỷ lệ giữ chân"></div>
+				<div id="kpi-chart-ketoan" class="kpi-chart-panel hide" data-vals="92,100,76" data-colors="#ec4899,#f472b6,#f9a8d4" data-labels="Thu chi cân đối,Báo cáo đúng hạn,Kiểm toán nội bộ"></div>
+				<div id="kpi-chart-marketing" class="kpi-chart-panel hide" data-vals="89,65,80" data-colors="#f59e0b,#fbbf24,#fcd34d" data-labels="Lượt tiếp cận,Conversion rate,Brand awareness"></div>
 			</div>
 		</div>
 	</div>
@@ -461,11 +564,45 @@
 	var detailCommentsPollTimer = null;
 	var DETAIL_POLL_INTERVAL_MS = 4000;
 
+	if (!jQuery('#ann-comment-lightbox').length) {
+		jQuery('body').append('<div id="ann-comment-lightbox" class="ann-comment-lightbox"><div class="ann-comment-lightbox-backdrop"></div><div class="ann-comment-lightbox-content"><button type="button" class="ann-comment-lightbox-close" aria-label="Close">&times;</button><img class="ann-comment-lightbox-img" alt="" /><a href="#" class="ann-comment-lightbox-download" target="_blank" download><span class="fa fa-download"></span> Download</a></div></div>');
+		jQuery(document).on('click', '#mainpage-announcement-detail-modal .ann-comment-attachment a', function(e) {
+			var link = jQuery(this);
+			var img = link.find('img.ann-comment-img');
+			if (img.length) {
+				e.preventDefault();
+				var src = img.attr('src');
+				var href = link.attr('href');
+				if (!src) return;
+				var lb = jQuery('#ann-comment-lightbox');
+				lb.find('.ann-comment-lightbox-img').attr('src', src);
+				lb.find('.ann-comment-lightbox-download').attr('href', href || src).attr('download', '');
+				lb.show();
+			}
+		});
+		jQuery(document).on('click', '#ann-comment-lightbox .ann-comment-lightbox-close, #ann-comment-lightbox .ann-comment-lightbox-backdrop', function() {
+			jQuery('#ann-comment-lightbox').hide();
+		});
+	}
+
 	function renderDetailComments(comments) {
 		var list = jQuery('#ann-detail-comments-list');
 		list.empty();
 		(comments || []).forEach(function(c) {
-			list.append('<li class="ann-comment-item"><span class="ann-avatar ann-avatar-user ann-avatar-sm">' + (c.userName ? c.userName.charAt(0).toUpperCase() : '?') + '</span> <span class="ann-comment-meta">' + (c.userName || '') + ' ' + (c.timeAgo || '') + '</span><div class="ann-comment-text">' + (c.comment_text || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></li>');
+			var attHtml = '';
+			(c.attachments || []).forEach(function(a) {
+				var ext = (a.name || '').split('.').pop().toLowerCase();
+				var isImg = /^(jpg|jpeg|png|gif|webp|bmp)$/.test(ext);
+				var safeName = (a.name || 'file').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+				var url = (a.url || '#').replace(/"/g,'&quot;');
+				var imgUrl = isImg ? url.replace('action=DownloadAnnouncementCommentFile','action=InlineAnnouncementCommentFile') : url;
+				if (isImg) {
+					attHtml += '<div class="ann-comment-attachment"><a href="' + url + '" target="_blank"><img src="' + imgUrl + '" alt="" class="ann-comment-img" /></a></div>';
+				} else {
+					attHtml += '<div class="ann-comment-attachment"><a href="' + url + '" target="_blank" class="ann-comment-file-link">' + safeName + '</a></div>';
+				}
+			});
+			list.append('<li class="ann-comment-item"><span class="ann-avatar ann-avatar-user ann-avatar-sm">' + (c.userName ? c.userName.charAt(0).toUpperCase() : '?') + '</span> <span class="ann-comment-meta">' + (c.userName || '') + ' ' + (c.timeAgo || '') + '</span><div class="ann-comment-text">' + (c.comment_text || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' + attHtml + '</li>');
 		});
 		jQuery('#ann-detail-comments-badge').text((comments || []).length);
 	}
@@ -691,22 +828,49 @@
 		});
 	});
 
+	jQuery(document).on('click', '.ann-detail-comment-upload-btn', function(e) {
+		e.preventDefault();
+		jQuery('#mainpage-announcement-detail-modal .ann-detail-comment-file-input').trigger('click');
+	});
+	jQuery(document).on('change', '#mainpage-announcement-detail-modal .ann-detail-comment-file-input', function() {
+		var input = jQuery(this);
+		var file = input[0].files && input[0].files[0];
+		jQuery('.ann-detail-comment-file-name').text(file ? file.name : '').toggleClass('hidden', !file);
+	});
+
 	jQuery('#ann-detail-comment-add').on('click', function() {
 		if (!currentDetailId) return;
 		var text = jQuery('#ann-detail-comment-input').val();
-		if (!text || !text.trim()) return;
+		var fileInput = jQuery('#mainpage-announcement-detail-modal .ann-detail-comment-file-input')[0];
+		var file = fileInput && fileInput.files && fileInput.files[0];
+		if ((!text || !text.trim()) && !file) return;
 		var btn = this;
 		btn.disabled = true;
-		app.request.post({ data: { module: 'Home', action: 'AddAnnouncementCommentAjax', id: currentDetailId, comment_text: text.trim() } }).then(function(err, data) {
+		var done = function(err, data) {
 			btn.disabled = false;
 			if (err) {
 				if (app.helper && app.helper.showAlert) app.helper.showAlert({ title: '', text: err.message || 'Error.' });
 				return;
 			}
 			jQuery('#ann-detail-comment-input').val('');
+			jQuery('#mainpage-announcement-detail-modal .ann-detail-comment-file-input').val('');
+			jQuery('.ann-detail-comment-file-name').text('').addClass('hidden');
 			var res = (data && data.result) ? data.result : (data || {});
 			renderDetailComments(res.comments || []);
-		});
+		};
+		if (file) {
+			var fd = new FormData();
+			fd.append('module', 'Home');
+			fd.append('action', 'AddAnnouncementCommentAjax');
+			fd.append('id', currentDetailId);
+			fd.append('comment_text', (text || ' ').trim());
+			fd.append('filename', file, file.name || 'file');
+			jQuery.ajax({ url: 'index.php', type: 'POST', data: fd, processData: false, contentType: false, dataType: 'json' })
+				.done(function(data) { done(null, data); })
+				.fail(function() { done({ message: 'Request failed' }); });
+		} else {
+			app.request.post({ data: { module: 'Home', action: 'AddAnnouncementCommentAjax', id: currentDetailId, comment_text: text.trim() } }).then(done);
+		}
 	});
 })();
 
@@ -730,6 +894,123 @@
 	}
 	update();
 	setInterval(update, 60000);
+})();
+
+(function() {
+	var selDept = document.getElementById('mainpage-kpi-select');
+	var selType = document.getElementById('mainpage-kpi-type');
+	var panels = document.querySelectorAll('.kpi-chart-panel');
+	if (!selDept || !selType || !panels.length) return;
+
+	var deptNames = { kinhdoanh:'Kinh doanh', kythuat:'Kỹ thuật', nhansu:'Nhân sự', ketoan:'Kế toán', marketing:'Marketing' };
+
+	function parseData(el) {
+		var vals = (el.getAttribute('data-vals') || '').split(',').map(function(v){ return parseInt(v,10) || 0; });
+		var colors = (el.getAttribute('data-colors') || '').split(',');
+		var labels = (el.getAttribute('data-labels') || '').split(',');
+		return { vals: vals, colors: colors, labels: labels };
+	}
+
+	function renderChart(panel, type) {
+		var d = parseData(panel);
+		var vals = d.vals, colors = d.colors, labels = d.labels;
+		var deptId = panel.id.replace('kpi-chart-','');
+		var title = 'KPI Phòng ' + (deptNames[deptId] || deptId);
+		panel.innerHTML = '<div class="kpi-chart-title">' + title + '</div>';
+		panel.className = panel.className.replace(/\bkpi-type-\S+/g,'') + ' kpi-type-' + type;
+
+		if (type === 'bar-ngang') {
+			var wrap = document.createElement('div'); wrap.className = 'kpi-bar-chart';
+			for (var i=0; i<vals.length; i++) {
+				var row = document.createElement('div'); row.className = 'kpi-bar-row';
+				row.innerHTML = '<span class="kpi-bar-label">' + (labels[i]||'') + '</span>' +
+					'<div class="kpi-bar-wrap"><div class="kpi-bar" style="width:' + vals[i] + '%; background:' + (colors[i]||'#6366f1') + ';"></div>' +
+					'<span class="kpi-bar-val">' + vals[i] + '%</span></div>';
+				wrap.appendChild(row);
+			}
+			panel.appendChild(wrap);
+		} else if (type === 'bar-doc') {
+			var wrap = document.createElement('div'); wrap.className = 'kpi-bar-chart kpi-bar-vertical';
+			var maxVal = Math.max.apply(null, vals);
+			for (var i=0; i<vals.length; i++) {
+				var row = document.createElement('div'); row.className = 'kpi-bar-row kpi-bar-row-vertical';
+				var h = maxVal ? (vals[i] / maxVal * 100) : 0;
+				row.innerHTML = '<span class="kpi-bar-label">' + (labels[i]||'') + '</span>' +
+					'<div class="kpi-bar-vertical-wrap"><div class="kpi-bar-vertical" style="height:' + h + '%; background:' + (colors[i]||'#6366f1') + ';"></div>' +
+					'<span class="kpi-bar-val">' + vals[i] + '%</span></div>';
+				wrap.appendChild(row);
+			}
+			panel.appendChild(wrap);
+		} else if (type === 'tron' || type === 'donut') {
+			var total = vals.reduce(function(a,b){ return a+b; }, 0);
+			if (!total) total = 1;
+			var acc = 0;
+			var segs = vals.map(function(v,i){ var start=acc; acc += (v/total)*360; return { start:start, end:acc, c:colors[i]||'#6366f1', l:labels[i], v:vals[i] }; });
+			var conic = segs.map(function(s){ return s.c + ' ' + s.start + 'deg ' + s.end + 'deg'; }).join(', ');
+			var pie = document.createElement('div');
+			pie.className = 'kpi-pie-chart' + (type === 'donut' ? ' kpi-donut' : '');
+			pie.style.background = 'conic-gradient(' + conic + ')';
+			panel.appendChild(pie);
+			var leg = document.createElement('div'); leg.className = 'kpi-pie-legend';
+			segs.forEach(function(s,i){
+				var sp = document.createElement('span'); sp.className = 'kpi-pie-legend-item';
+				sp.innerHTML = '<i style="background:' + s.c + '"></i> ' + (s.l||'') + ' (' + s.v + '%)';
+				leg.appendChild(sp);
+			});
+			panel.appendChild(leg);
+		} else if (type === 'duong') {
+			var wrap = document.createElement('div'); wrap.className = 'kpi-line-chart';
+			var maxVal = Math.max.apply(null, vals);
+			var svg = '<svg viewBox="0 0 300 120" preserveAspectRatio="none"><polyline fill="none" stroke="#6366f1" stroke-width="2" points="';
+			var pts = vals.map(function(v,i){ var x = (i/(vals.length-1||1))*300; var y = 110 - (maxVal ? (v/maxVal)*100 : 0); return x + ',' + y; }).join(' ');
+			svg += pts + '"/></svg>';
+			wrap.innerHTML = svg;
+			panel.appendChild(wrap);
+			var rowWrap = document.createElement('div'); rowWrap.className = 'kpi-line-legend';
+			for (var i=0; i<vals.length; i++) {
+				var sp = document.createElement('span'); sp.className = 'kpi-line-legend-item';
+				sp.innerHTML = '<i style="background:' + (colors[i]||'#6366f1') + '"></i> ' + (labels[i]||'') + ': ' + vals[i] + '%';
+				rowWrap.appendChild(sp);
+			}
+			panel.appendChild(rowWrap);
+		} else if (type === 'stacked') {
+			var total = vals.reduce(function(a,b){ return a+b; }, 0);
+			if (!total) total = 1;
+			var wrap = document.createElement('div'); wrap.className = 'kpi-stacked-chart';
+			var bar = document.createElement('div'); bar.className = 'kpi-stacked-bar';
+			vals.forEach(function(v,i){
+				var seg = document.createElement('div');
+				seg.className = 'kpi-stacked-seg';
+				seg.style.width = (v/total*100) + '%';
+				seg.style.background = colors[i]||'#6366f1';
+				seg.title = (labels[i]||'') + ': ' + v + '%';
+				bar.appendChild(seg);
+			});
+			wrap.appendChild(bar);
+			var leg = document.createElement('div'); leg.className = 'kpi-stacked-legend';
+			vals.forEach(function(v,i){
+				var sp = document.createElement('span'); sp.className = 'kpi-stacked-legend-item';
+				sp.innerHTML = '<i style="background:' + (colors[i]||'#6366f1') + '"></i> ' + (labels[i]||'') + ' ' + v + '%';
+				leg.appendChild(sp);
+			});
+			wrap.appendChild(leg);
+			panel.appendChild(wrap);
+		}
+	}
+
+	function refresh() {
+		var dept = selDept.value;
+		var type = selType.value;
+		panels.forEach(function(p) {
+			var visible = p.id === 'kpi-chart-' + dept;
+			p.classList.toggle('hide', !visible);
+			if (visible) { p.innerHTML = ''; renderChart(p, type); }
+		});
+	}
+
+	selDept.addEventListener('change', refresh);
+	selType.addEventListener('change', refresh);
+	refresh();
 })();
 </script>
 {/strip}

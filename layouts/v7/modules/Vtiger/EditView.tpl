@@ -43,6 +43,9 @@
 							{/if}
 							<input type="hidden" name="action" value="Save" />
 							<input type="hidden" name="record" value="{$RECORD_ID}" />
+							{if $MODULE eq 'Documents' && isset($DOCUMENTS_FOLDER_ID) && $DOCUMENTS_FOLDER_ID !== ''}
+								<input type="hidden" name="folder_id" value="{$DOCUMENTS_FOLDER_ID}" />
+							{/if}
 							<input type="hidden" name="defaultCallDuration" value="{$USER_MODEL->get('callduration')}" />
 							<input type="hidden" name="defaultOtherEventDuration" value="{$USER_MODEL->get('othereventduration')}" />
 							<input type="hidden" name="appName" value="&app={$SELECTED_MENU_CATEGORY}" />
