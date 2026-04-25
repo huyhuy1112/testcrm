@@ -433,6 +433,124 @@ body.cyv-filter-tasks .calendar-yearview-day.has-events[data-tk="0"] { opacity: 
 .cyv-actions { padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); margin-top: 10px; display: flex; justify-content: flex-end; }
 .cyv-actions .btn { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.10); color: #e5e7eb; }
 .cyv-actions .btn:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.14); }
+
+/* Year view day popover (non-modal, anchored to clicked day) */
+.cyv-day-popover {
+  position: absolute;
+  z-index: 2147483000; /* above vtiger headers/overlays, but not modal backdrop */
+  width: 360px;
+  max-width: calc(100vw - 24px);
+  background: rgba(255,255,255,0.98);
+  color: #0f172a;
+  border-radius: 14px;
+  box-shadow: 0 22px 70px rgba(0,0,0,0.35);
+  border: 1px solid rgba(15,23,42,0.12);
+  overflow: hidden;
+}
+.cyv-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 12px;
+  background: linear-gradient(180deg, rgba(248,250,252,1) 0%, rgba(241,245,249,1) 100%);
+  border-bottom: 1px solid rgba(15,23,42,0.08);
+}
+.cyv-pop-title {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+.cyv-pop-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: rgba(15,23,42,0.65);
+  font-size: 22px;
+  line-height: 1;
+  padding: 0 4px;
+  cursor: pointer;
+}
+.cyv-pop-close:hover { color: rgba(15,23,42,0.90); }
+.cyv-pop-body {
+  padding: 10px 12px 12px 12px;
+  max-height: 420px;
+  overflow: auto;
+}
+.cyv-pop-sec { margin-bottom: 10px; }
+.cyv-pop-sec-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(15,23,42,0.70);
+  margin: 8px 0 8px 0;
+}
+.cyv-pop-sec-count {
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(15,23,42,0.06);
+  border: 1px solid rgba(15,23,42,0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: rgba(15,23,42,0.70);
+}
+.cyv-pop-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.cyv-pop-item {
+  position: relative;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(15,23,42,0.08);
+  background: rgba(255,255,255,0.92);
+}
+.cyv-pop-link {
+  display: block;
+  font-weight: 700;
+  color: #0f172a;
+  text-decoration: none !important;
+  padding-right: 74px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cyv-pop-link:hover { color: #0b4aa2; }
+.cyv-pop-meta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(15,23,42,0.65);
+}
+.cyv-pop-badge {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.cyv-pop-badge.is-event { background: rgba(96,165,250,0.18); color: #0b4aa2; border: 1px solid rgba(96,165,250,0.35); }
+.cyv-pop-badge.is-task { background: rgba(52,211,153,0.18); color: #065f46; border: 1px solid rgba(52,211,153,0.35); }
+.cyv-pop-empty,
+.cyv-pop-empty-state {
+  padding: 12px 12px;
+  border-radius: 12px;
+  background: rgba(15,23,42,0.04);
+  border: 1px dashed rgba(15,23,42,0.18);
+  color: rgba(15,23,42,0.70);
+  font-weight: 600;
+  font-size: 13px;
+}
+.cyv-pop-actions {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(15,23,42,0.08);
+  display: flex;
+  justify-content: flex-end;
+}
 .calendar-yearview-daylist {
   margin: 0;
   padding-left: 18px;

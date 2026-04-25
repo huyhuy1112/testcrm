@@ -160,43 +160,135 @@
 		return { index:index, counts:counts, typeCounts:typeCounts };
 	}
 
-	function showDayModal(dateKey, items){
-		var title = dateKey;
-		var total = (items && items.length) ? items.length : 0;
-		var body = "<div class='cyv-modal'>";
-		body += "<div class='cyv-modal-head'>";
-		body += "<div class='cyv-modal-title'>" + escapeHtml(title) + "</div>";
-		body += "<div class='cyv-modal-sub'>" + (total ? (total + " mục") : "Không có mục") + "</div>";
-		body += "</div>";
-		if (!items || !items.length){
-			body += "<div class='cyv-empty'>Không có sự kiện / công việc trong ngày này.</div>";
-		} else {
-			body += "<ul class='cyv-list'>";
-			items.forEach(function(ev){
-				var subject = ev.title || ev.subject || ev.name || "(No subject)";
-				var id = ev.id || ev.activityid || "";
-				var mod = ev.module || ev.sourceModule || "";
-				var isEvent = (mod === "Events");
-				var icon = isEvent ? "fa-calendar" : "fa-check-square-o";
-				var badge = isEvent ? "Event" : "Task";
-				var url = id ? ("index.php?module=Calendar&view=Detail&record=" + encodeURIComponent(id)) : "javascript:void(0)";
-				body += "<li class='cyv-item'>";
-				body += "<span class='cyv-dot " + (isEvent ? "is-event" : "is-task") + "'></span>";
-				body += "<i class='fa " + icon + " cyv-ico' aria-hidden='true'></i>";
-				body += "<a class='cyv-link' href='" + url + "' target='_self'>" + escapeHtml(subject) + "</a>";
-				body += "<span class='cyv-badge " + (isEvent ? "is-event" : "is-task") + "'>" + badge + "</span>";
-				body += "</li>";
-			});
-			body += "</ul>";
+	function closeDayPopover(){
+		try { jQuery('.cyv-day-popover').remove(); } catch (e) {}
+		try { jQuery(document).off('mousedown.cyvPopover'); } catch (e2) {}
+		try { jQuery(document).off('keydown.cyvPopover'); } catch (e3) {}
+	}
+
+	function formatDateLabel(dateKey){
+		try {
+			if (window.moment) {
+				var m = moment(dateKey, "YYYY-MM-DD", true);
+				if (m && m.isValid()) return m.format("MMMM D, YYYY");
+			}
+		} catch (e) {}
+		return dateKey;
+	}
+
+	function formatTimeRange(ev){
+		try {
+			if (!window.moment) return "";
+			var r = parseEventRange(ev);
+			if (!r.start) return "";
+			// show time only if input looks like datetime/time
+			var hasTime = (String(ev.start || ev.date_start || "").indexOf(":") !== -1) || (String(ev.time_start || "").indexOf(":") !== -1);
+			if (!hasTime) return "";
+			var s = r.start.format("HH:mm");
+			var e = (r.end && r.end.isValid()) ? r.end.format("HH:mm") : "";
+			if (e && e !== s) return s + "–" + e;
+			return s;
+		} catch (e) { return ""; }
+	}
+
+	function positionPopover($pop, anchorEl){
+		try {
+			var rect = anchorEl.getBoundingClientRect();
+			var scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
+			var scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+
+			var left = rect.left + scrollX;
+			var top = rect.bottom + scrollY + 8;
+			$pop.css({ left: left + "px", top: top + "px" });
+
+			var popRect = $pop.get(0).getBoundingClientRect();
+			var vw = window.innerWidth || document.documentElement.clientWidth;
+			var vh = window.innerHeight || document.documentElement.clientHeight;
+
+			if (popRect.right > vw - 12) {
+				left = rect.right + scrollX - popRect.width;
+			}
+			if (popRect.bottom > vh - 12) {
+				top = rect.top + scrollY - popRect.height - 8;
+			}
+
+			left = Math.max(scrollX + 12, Math.min(left, scrollX + vw - popRect.width - 12));
+			top = Math.max(scrollY + 12, Math.min(top, scrollY + vh - popRect.height - 12));
+
+			$pop.css({ left: left + "px", top: top + "px" });
+		} catch (e) {}
+	}
+
+	function showDayPopover(dateKey, items, anchorEl){
+		closeDayPopover();
+
+		var titleLabel = formatDateLabel(dateKey);
+		var list = items || [];
+
+		var events = [];
+		var tasks = [];
+		list.forEach(function(ev){
+			var mod = ev.module || ev.sourceModule || ev.calendarModule || "";
+			if (mod === "Events") events.push(ev);
+			else tasks.push(ev);
+		});
+
+		var html = "";
+		html += "<div class='cyv-day-popover' role='dialog' aria-label='Day details'>";
+		html += "  <div class='cyv-pop-head'>";
+		html += "    <div class='cyv-pop-title'>" + escapeHtml(titleLabel) + "</div>";
+		html += "    <button type='button' class='cyv-pop-close' aria-label='Close'>&times;</button>";
+		html += "  </div>";
+		html += "  <div class='cyv-pop-body'>";
+
+		function renderSection(label, arr, badgeClass, badgeText){
+			html += "    <div class='cyv-pop-sec'>";
+			html += "      <div class='cyv-pop-sec-title'>" + escapeHtml(label) + "<span class='cyv-pop-sec-count'>" + arr.length + "</span></div>";
+			if (!arr.length) {
+				html += "      <div class='cyv-pop-empty'>No " + escapeHtml(label.toLowerCase()) + " for this day.</div>";
+			} else {
+				html += "      <ul class='cyv-pop-list'>";
+				arr.forEach(function(ev){
+					var subject = ev.title || ev.subject || ev.name || "(No subject)";
+					var id = ev.id || ev.activityid || "";
+					var url = id ? ("index.php?module=Calendar&view=Detail&record=" + encodeURIComponent(id)) : "javascript:void(0)";
+					var time = formatTimeRange(ev);
+					html += "        <li class='cyv-pop-item'>";
+					html += "          <a class='cyv-pop-link' href='" + url + "' target='_self'>" + escapeHtml(subject) + "</a>";
+					if (time) html += "          <div class='cyv-pop-meta'>" + escapeHtml(time) + "</div>";
+					html += "          <span class='cyv-pop-badge " + badgeClass + "'>" + escapeHtml(badgeText) + "</span>";
+					html += "        </li>";
+				});
+				html += "      </ul>";
+			}
+			html += "    </div>";
 		}
-		body += "<div class='cyv-actions'>";
-		body += "<a class='btn btn-default cyv-open' href='index.php?module=Calendar&view=Calendar&date=" + encodeURIComponent(title) + "'>Mở lịch</a>";
-		body += "</div>";
-		body += "</div>";
-		app.helper.showModal(
-			"<div class='modal-header'><button type='button' class='close' data-dismiss='modal' aria-label='Close'><span aria-hidden='true'>&times;</span></button></div>" +
-			"<div class='modal-body'>" + body + "</div>"
-		);
+
+		if (!events.length && !tasks.length) {
+			html += "    <div class='cyv-pop-empty-state'>No tasks or events for this day.</div>";
+		} else {
+			renderSection("Events", events, "is-event", "Event");
+			renderSection("Tasks", tasks, "is-task", "Task");
+		}
+
+		html += "    <div class='cyv-pop-actions'>";
+		html += "      <a class='btn btn-default btn-sm' href='index.php?module=Calendar&view=Calendar&date=" + encodeURIComponent(dateKey) + "'>Open Calendar</a>";
+		html += "    </div>";
+		html += "  </div>";
+		html += "</div>";
+
+		var $pop = jQuery(html).appendTo(document.body);
+		positionPopover($pop, anchorEl);
+
+		$pop.on('click', '.cyv-pop-close', function(e){ e.preventDefault(); closeDayPopover(); });
+		jQuery(document).on('mousedown.cyvPopover', function(e){
+			var $t = jQuery(e.target);
+			if ($t.closest('.cyv-day-popover').length) return;
+			closeDayPopover();
+		});
+		jQuery(document).on('keydown.cyvPopover', function(e){
+			if (e && (e.key === 'Escape' || e.keyCode === 27)) closeDayPopover();
+		});
 	}
 
 	jQuery(function(){
@@ -297,7 +389,7 @@
 							if (mod === "Events") return !!showEvents;
 							return !!showTasks;
 						});
-						showDayModal(k, filtered);
+						showDayPopover(k, filtered, this);
 					});
 				});
 			});
