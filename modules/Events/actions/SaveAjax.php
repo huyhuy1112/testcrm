@@ -235,11 +235,23 @@ class Events_SaveAjax_Action extends Events_Save_Action {
 			$_REQUEST['set_reminder'] = 'No';
 		}
 
-		// All day: giống Calendar — khi tick "All day" lưu 00:00:00 / 23:59:59 để Feed hiển thị lên ô All-Day
+		// All day: use calendar dates from the request as plain dates. Do NOT keep due_date derived from
+		// Vtiger_Datetime_UIType::getDBDateTimeValue(due_date + time_end): TZ conversion on end-of-day time
+		// can roll the stored due_date to the next calendar day (1-day all-day becomes 2 days on calendar).
 		$allday = $request->get('allday');
 		if ($allday == '1' || $allday === true) {
 			$recordModel->set('time_start', '00:00:00');
 			$recordModel->set('time_end', '23:59:59');
+			$ds = $request->get('date_start');
+			$dd = $request->get('due_date');
+			if (!empty($ds)) {
+				$recordModel->set('date_start', Vtiger_Date_UIType::getDBInsertedValue($ds));
+			}
+			if (!empty($dd)) {
+				$recordModel->set('due_date', Vtiger_Date_UIType::getDBInsertedValue($dd));
+			} elseif (!empty($ds)) {
+				$recordModel->set('due_date', Vtiger_Date_UIType::getDBInsertedValue($ds));
+			}
 		}
 
 		return $recordModel;

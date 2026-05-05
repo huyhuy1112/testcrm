@@ -404,36 +404,14 @@ Vtiger.Class('Vtiger_Index_Js', {
 	registerEventForTaskManagement : function(){
 		var globalNav = jQuery('.global-nav');
 		globalNav.find(".taskManagement").on("click",function(e){
-			if(jQuery("#taskManagementContainer").length > 0){
-				app.helper.hidePageOverlay();
-				return false;
-			}
-
-			var params = {
-				'module' : 'Calendar',
-				'view' : 'TaskManagement',
-				'mode' : 'showManagementView'
-			}
-			app.helper.showProgress();
-			app.request.post({"data":params}).then(function(err,data){
-				if(err === null){
-					app.helper.loadPageOverlay(data,{'ignoreScroll' : true,'backdrop': 'static'}).then(function(){
-						app.helper.hideProgress();
-						$('#overlayPage').find('.data').css('height','100vh');
-
-						var taskManagementPageOffset = jQuery('.taskManagement').offset();
-						$('#overlayPage').find(".arrow").css("left",taskManagementPageOffset.left+13);
-						$('#overlayPage').find(".arrow").addClass("show");
-
-						vtUtils.showSelect2ElementView($('#overlayPage .data-header').find('select[name="assigned_user_id"]'),{placeholder:"User : All"});
-						vtUtils.showSelect2ElementView($('#overlayPage .data-header').find('select[name="taskstatus"]'),{placeholder:"Status : All"});
-						var js = new Vtiger_TaskManagement_Js();
-						js.registerEvents();
-					});
-				}else{
-					app.helper.showErrorNotification({"message":err});
-				}
-			});
+			// Unified behavior: always go to full-page MANAGEMENT Task Board, remembering origin
+			// as a relative CRM URL (no scheme/host).
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			var search = window.location.search || '';
+			var origin = 'index.php' + search;
+			var returnParam = origin ? '&return_url=' + encodeURIComponent(origin) : '';
+			window.location.href = 'index.php?module=Calendar&view=TaskManagement&mode=showManagementView&app=MANAGEMENT' + returnParam;
 		});
 	},
 
@@ -659,24 +637,35 @@ Vtiger.Class('Vtiger_Index_Js', {
 	},
 
 	registerAppTriggerEvent : function() {
-		jQuery('.app-menu').removeClass('hide');
+		// Đảm bảo luôn có wrapper #app-menu (khi fragment/PJAX chỉ có .container-fluid + .app-list không có wrapper)
+		var ensureAppMenuWrapper = function() {
+			if (jQuery('#app-menu').length) return;
+			var container = jQuery('.container-fluid').filter(function() { return jQuery(this).find('.app-switcher-container').length; }).first();
+			var appList = container.length ? container.next('.app-list.row') : jQuery();
+			if (!appList.length) return;
+			var wrap = jQuery('<div class="app-menu hide" id="app-menu"></div>');
+			wrap.insertBefore(container).append(container).append(appList);
+		};
+		ensureAppMenuWrapper();
+
+		// Không bỏ .hide lúc load — menu chỉ hiện khi user click; tránh menu/submenu (vd MANAGEMENT) lộ ở góc
+		// Không mở submenu (MANAGEMENT, ...) khi load/ reload/ chuyển trang — chỉ mở khi user click
+		jQuery('.app-modules-dropdown-container').removeClass('open');
 		var toggleAppMenu = function(type) {
+			ensureAppMenuWrapper();
 			var appMenu = jQuery('.app-menu');
 			var appNav = jQuery('.app-nav');
 			var navbar = jQuery('.app-fixed-navbar');
 			appMenu.appendTo('#page');
-			// Vị trí menu cố định trên mọi trang: dưới topbar + dòng app-nav (tránh menu nhảy khác nhau giữa Dashboard, Teams, Mail Manager...)
-			var topOffset = 0;
-			if (navbar.length) {
-				topOffset = navbar.outerHeight(true) || 64;
-			} else {
-				topOffset = 64;
+			// Vị trí menu: dưới topbar + app-nav, dùng getBoundingClientRect() để tránh top sai (vd 1181px) do outerHeight() trên layout đặc biệt
+			var topOffset = 64 + 50;
+			var anchor = (appNav.length && appNav.is(':visible')) ? appNav[0] : (navbar.length ? navbar[0] : null);
+			if (anchor) {
+				var rect = anchor.getBoundingClientRect();
+				topOffset = rect.bottom;
 			}
-			if (appNav.length && appNav.is(':visible')) {
-				topOffset += appNav.outerHeight(true) || 50;
-			} else {
-				topOffset += 50;
-			}
+			// Giới hạn top để menu luôn trong viewport (tránh menu bị đẩy xuống dưới màn hình)
+			topOffset = Math.min(Math.max(0, topOffset), 200);
 			appMenu.css({
 				'position' : 'fixed',
 				'top' : topOffset + 'px',
@@ -685,21 +674,32 @@ Vtiger.Class('Vtiger_Index_Js', {
 				'max-width' : '300px'
 			});
 			if(typeof type === 'undefined') {
-				type = appMenu.is(':hidden') ? 'show' : 'hide';
+				type = appMenu.hasClass('hide') || appMenu.is(':hidden') ? 'show' : 'hide';
 			}
 			if(type == 'show') {
+				appMenu.removeClass('hide');
+				appMenu.css({ 'z-index': 99999, 'display': 'block', 'visibility': 'visible' });
 				appMenu.show(200, function() {});
 			} else {
-				appMenu.hide(200, function() {});
+				jQuery('.app-modules-dropdown-container').removeClass('open');
+				appMenu.hide(200, function() {
+					appMenu.addClass('hide');
+				});
 			}
 		};
 
-		jQuery('.app-trigger, .app-icon, .app-navigator').on('click',function(e){
+		// Delegation: bấm vào hamburger (topbar) hoặc icon trong app-menu → mở/đóng overlay menu
+		// #appnavigator = div hamburger trên Topbar.tpl; .app-menu cũng có .app-icon bên trong
+		jQuery(document).on('click', '.app-trigger, .app-icon, .app-navigator, .app-switcher-container, #appnavigator, #menu-toggle-action', function(e){
 			e.stopPropagation();
+			e.preventDefault();
 			toggleAppMenu();
 		});
 
-		jQuery('html').on('click', function() {
+		// Đóng menu khi click ra ngoài (bỏ qua nếu click vào hamburger hoặc vào chính .app-menu)
+		jQuery(document).on('click', 'html', function(e) {
+			var t = jQuery(e.target);
+			if (t.closest('#appnavigator, .app-switcher-container, .app-menu').length) return;
 			toggleAppMenu('hide');
 		});
 
@@ -713,24 +713,26 @@ Vtiger.Class('Vtiger_Index_Js', {
 
 		var appMenuEl = jQuery('.app-menu');
 		/* Không mở menu con tự động khi hover - chỉ mở khi user click */
-		//Fix for Responsive layout Sub Menu + chỉ mở menu con khi click
-		jQuery('.app-item').on('click', function(e) {
-			var url = jQuery(this).data('defaultUrl');
-			if(url && url!=='#') {
-				window.location.href = url;
+		// Fix cho menu overlay (app-menu): chỉ chặn click trên app-menu khi item là dropdown-toggle.
+		// Các item điều hướng (vd: Dashboard) cần click để navigate theo data-default-url.
+		jQuery('.app-menu .app-item.dropdown-toggle').on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var container = jQuery(this).closest('.app-modules-dropdown-container');
+			if(container.length) {
+				var wasOpen = container.hasClass('open');
+				jQuery('.app-modules-dropdown-container').removeClass('open');
+				if(!wasOpen) {
+					var appModulesDropdown = container.find('.app-modules-dropdown');
+					var menuWidth = appMenuEl.length ? appMenuEl.outerWidth() : 280;
+					appModulesDropdown.css('left', menuWidth + 'px');
+					container.addClass('open').find('.app-item').addClass('active-app-item');
+				}
 			} else {
-				e.preventDefault();
-				e.stopPropagation();
-				var container = jQuery(this).closest('.app-modules-dropdown-container');
-				if(container.length) {
-					var wasOpen = container.hasClass('open');
-					jQuery('.app-modules-dropdown-container').removeClass('open');
-					if(!wasOpen) {
-						var appModulesDropdown = container.find('.app-modules-dropdown');
-						var menuWidth = appMenuEl.length ? appMenuEl.outerWidth() : 280;
-						appModulesDropdown.css('left', menuWidth + 'px');
-						container.addClass('open').find('.app-item').addClass('active-app-item');
-					}
+				// Non-dropdown item inside app-menu: navigate if it has data-default-url
+				var url = jQuery(this).data('defaultUrl') || jQuery(this).attr('data-default-url');
+				if (url) {
+					window.location.href = String(url);
 				}
 			}
 		});
