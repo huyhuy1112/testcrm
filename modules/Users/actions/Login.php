@@ -22,6 +22,13 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 		$username = $request->get('username');
 		$password = $request->getRaw('password');
 
+		// Ensure we don't reuse an existing authenticated session
+		// (prevents UI showing previous account after logging in as another user).
+		if (Vtiger_Session::get('AUTHUSERID')) {
+			Vtiger_Session::destroy();
+			Vtiger_Session::init();
+		}
+
 		$user = CRMEntity::getInstance('Users');
 		$user->column_fields['user_name'] = $username;
 
@@ -30,6 +37,9 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 
 			$userid = $user->retrieve_user_id($username);
 			Vtiger_Session::set('AUTHUSERID', $userid);
+
+			// Thời điểm đăng nhập (để tính "My logged time" trên Main Page)
+			$_SESSION['user_login_time'] = time();
 
 			// For Backward compatability
 			// TODO Remove when switch-to-old look is not needed
@@ -56,7 +66,8 @@ class Users_Login_Action extends Vtiger_Action_Controller {
 				$return_params = $_SESSION['return_params'];
 			}
 
-			header ('Location: index.php?module=Users&parent=Settings&view=SystemSetup');
+			// Post-login landing: go to the existing runtime Dashboard page.
+			header ('Location: index.php?module=Home&view=DashBoard&app=MANAGEMENT');
 			exit();
 		} else {
 			header ('Location: index.php?module=Users&parent=Settings&view=Login&error=login');

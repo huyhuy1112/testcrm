@@ -252,67 +252,539 @@ body{
     font-size: 14px;
     vertical-align: middle;
 }
-.app-menu{
-    width: 100%;
-    padding: 20px 0;
-    color: #555;
-    position: absolute;
+/* Menu hamburger (app overlay): đồng bộ style giữa mọi app.
+   Lưu ý: một số skin dùng LESS và compile sau khi load → phải để rule mới ở đây để tránh "quay về menu cũ". */
+.app-menu,
+#page .app-menu {
+    width: 280px !important;
+    max-width: 300px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100vh - 90px) !important;
+    padding: 12px 0 12px 0 !important;
+    padding-bottom: 12px !important;
+    color: #fff;
+    position: fixed !important;
+    left: 0 !important;
     border: 0;
-    box-shadow: 0px 5px 14px #555;
-    background: #2c3b49;
+    box-shadow: 6px 12px 28px rgba(0,0,0,0.3);
+    background: linear-gradient(180deg, #2d3e50 0%, #1a252f 100%);
     overflow-y: auto;
+    overflow-x: visible !important;
     z-index: 10001;
+    border-radius: 0 10px 10px 0;
+    border-left: 4px solid #3498db;
+    transition: box-shadow 0.25s ease, transform 0.2s ease;
+}
+.app-menu:hover,
+#page .app-menu:hover {
+    box-shadow: 8px 16px 32px rgba(0,0,0,0.35);
 }
 .app-menu hr{
-    border-top: 1px solid #596875;
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(52,152,219,0.4), transparent);
+    margin: 8px 12px;
 }
 
-.menu-item{
-    padding: 20px 5px;
-    margin: 10px;
-    background: #ddd;
+.app-menu .container-fluid,
+.app-menu .app-list {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+}
+.app-menu .app-list-divider {
+    margin-bottom: 4px !important;
+}
+
+/* Remove duplicate hamburger inside opened overlay menu (keep header hamburger only) */
+.app-menu #menu-toggle-action { display: none !important; }
+.app-menu > .container-fluid > .row:first-child { display: none !important; }
+
+/* Unified card shell + 3px left rail (transparent until accent class) */
+.app-menu .menu-item.app-item,
+#app-menu.app-menu .menu-item.app-item {
+    display: block !important;
+    padding: 10px 12px !important;
+    margin: 0 10px 6px 10px !important;
+    border-radius: 10px !important;
+    text-align: left;
+    cursor: pointer;
+    font-size: 1.05em;
+    color: #ecf0f1 !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-left: 3px solid transparent !important;
+    box-shadow: none !important;
+    text-shadow: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+#app-menu.app-menu a.menu-item.app-item,
+.app-menu a.menu-item.app-item {
+    text-decoration: none !important;
+}
+.app-menu .menu-item.app-item:hover,
+#app-menu.app-menu .menu-item.app-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #fff !important;
+    transform: none !important;
+}
+.app-menu .menu-item.app-item:hover .menu-items-wrapper,
+.app-menu .menu-item.app-item:hover .app-menu-items-wrapper {
+    transform: none !important;
+}
+.app-menu .menu-item.app-item .fa,
+.app-menu .menu-item.app-item .app-icon-list,
+#app-menu.app-menu .menu-item.app-item .fa,
+#app-menu.app-menu .menu-item.app-item .app-icon-list {
+    font-size: 1.25em;
+    margin-right: 10px;
+    transition: opacity 0.2s ease, color 0.2s ease !important;
+}
+.app-menu .menu-item.app-item:hover .fa,
+.app-menu .menu-item.app-item:hover .app-icon-list {
+    transform: none !important;
+}
+
+/* App overlay menu: căn icon + chữ thẳng hàng */
+.app-menu .menu-item.app-item .app-menu-items-wrapper{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.app-menu .menu-item.app-item .app-menu-items-wrapper .fa,
+.app-menu .menu-item.app-item .menu-items-wrapper .fa,
+#app-menu.app-menu .menu-item.app-item .app-menu-items-wrapper .fa,
+#app-menu.app-menu .menu-item.app-item .menu-items-wrapper .fa {
+    margin-right: 0 !important;
+}
+.app-menu .menu-item.app-item .app-icon-list{
+    flex: 0 0 auto;
+    width: 24px;
     text-align: center;
-    cursor: pointer;
 }
-.app-item{
-    padding: 60px 5px;
-    font-size: 1.8em;
-    color: #fff;
-    text-shadow: 0 0 1px #999;
-    cursor: pointer;
+.app-menu .menu-item.app-item .app-name{
+    flex: 1 1 auto;
+    display: inline-block;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
-.app-item div{
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+.app-menu .menu-item.app-item .fa-chevron-right{
+    flex: 0 0 auto;
+    margin-left: 6px;
+    opacity: 0.85;
 }
-.app-item:hover div{
-    font-size: 1em;
-    -ms-transform: translateY(30px) scale(0.7);
-    -moz-transform: translateY(30px) scale(0.7);
-    -webkit-transform: translateY(30px) scale(0.7);
-    transform: translateY(30px) scale(0.7);
-    -webkit-transition: all 0.25s ease-in;
-    transition: all 0.25s ease-in;
+
+/* Subtle per-app accents — keep custom.css as source of truth; mirror key rules */
+.app-menu .app-item-color-MARKETING,
+#app-menu.app-menu .app-item-color-MARKETING {
+    border-left-color: rgba(52, 152, 219, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(52, 152, 219, 0.22) !important;
 }
-.app-item .fa{
-    font-size: 1.5em;
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+.app-menu .app-item-color-MARKETING:hover,
+#app-menu.app-menu .app-item-color-MARKETING:hover {
+    border-left-color: rgba(52, 152, 219, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(52, 152, 219, 0.28) !important;
 }
-.app-item:hover .fa{
-    -webkit-transform: scale(3);
-    -moz-transform: scale(3);
-    -ms-transform: scale(3);
-    transform: scale(3);
+.app-menu .app-item-color-SALES,
+#app-menu.app-menu .app-item-color-SALES {
+    border-left-color: rgba(231, 76, 60, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(231, 76, 60, 0.22) !important;
+}
+.app-menu .app-item-color-SALES:hover,
+#app-menu.app-menu .app-item-color-SALES:hover {
+    border-left-color: rgba(231, 76, 60, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(231, 76, 60, 0.28) !important;
+}
+.app-menu .app-item-color-INVENTORY,
+#app-menu.app-menu .app-item-color-INVENTORY {
+    border-left-color: rgba(230, 126, 34, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(230, 126, 34, 0.22) !important;
+}
+.app-menu .app-item-color-INVENTORY:hover,
+#app-menu.app-menu .app-item-color-INVENTORY:hover {
+    border-left-color: rgba(230, 126, 34, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(230, 126, 34, 0.28) !important;
+}
+.app-menu .app-item-color-SUPPORT,
+#app-menu.app-menu .app-item-color-SUPPORT {
+    border-left-color: rgba(26, 188, 156, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(26, 188, 156, 0.22) !important;
+}
+.app-menu .app-item-color-SUPPORT:hover,
+#app-menu.app-menu .app-item-color-SUPPORT:hover {
+    border-left-color: rgba(26, 188, 156, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(26, 188, 156, 0.28) !important;
+}
+.app-menu .app-item-color-MANAGEMENT,
+#app-menu.app-menu .app-item-color-MANAGEMENT {
+    border-left-color: rgba(46, 204, 113, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(46, 204, 113, 0.22) !important;
+}
+.app-menu .app-item-color-MANAGEMENT:hover,
+#app-menu.app-menu .app-item-color-MANAGEMENT:hover {
+    border-left-color: rgba(46, 204, 113, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(46, 204, 113, 0.28) !important;
+}
+.app-menu .app-item-color-TOOLS,
+#app-menu.app-menu .app-item-color-TOOLS {
+    border-left-color: rgba(39, 174, 96, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(39, 174, 96, 0.22) !important;
+}
+.app-menu .app-item-color-TOOLS:hover,
+#app-menu.app-menu .app-item-color-TOOLS:hover {
+    border-left-color: rgba(39, 174, 96, 0.75) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(39, 174, 96, 0.28) !important;
+}
+.app-menu .app-item-color-PROJECT,
+#app-menu.app-menu .app-item-color-PROJECT {
+    border-left-color: rgba(155, 89, 182, 0.5) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(155, 89, 182, 0.2) !important;
+}
+.app-menu .app-item-color-PROJECT:hover,
+#app-menu.app-menu .app-item-color-PROJECT:hover {
+    border-left-color: rgba(155, 89, 182, 0.72) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(155, 89, 182, 0.26) !important;
+}
+.app-menu .app-item-misc,
+#app-menu.app-menu .app-item-misc {
+    border-left-color: rgba(149, 165, 166, 0.5) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(149, 165, 166, 0.18) !important;
+}
+.app-menu .app-item-misc:hover,
+#app-menu.app-menu .app-item-misc:hover {
+    border-left-color: rgba(149, 165, 166, 0.68) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(149, 165, 166, 0.22) !important;
+}
+.app-menu .app-item-dashboard,
+#app-menu.app-menu .app-item-dashboard {
+    border-left-color: rgba(52, 152, 219, 0.55) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    box-shadow: inset 3px 0 0 rgba(52, 152, 219, 0.22) !important;
+}
+.app-menu .app-item-dashboard:hover,
+#app-menu.app-menu .app-item-dashboard:hover {
+    border-left-color: rgba(52, 152, 219, 0.78) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: inset 3px 0 0 rgba(52, 152, 219, 0.28) !important;
+}
+#app-menu.app-menu .app-item-dashboard-chevron,
+.app-menu .app-item-dashboard-chevron {
+    opacity: 0;
+}
+.app-menu .app-item-dashboard .app-name,
+#app-menu.app-menu .app-item-dashboard .app-name {
+    text-transform: uppercase !important;
+    letter-spacing: 0.02em !important;
+}
+
+body[data-app="MARKETING"] #app-menu .app-item-color-MARKETING,
+body[data-app="SALES"] #app-menu .app-item-color-SALES,
+body[data-app="INVENTORY"] #app-menu .app-item-color-INVENTORY,
+body[data-app="SUPPORT"] #app-menu .app-item-color-SUPPORT,
+body[data-app="MANAGEMENT"] #app-menu .app-item-color-MANAGEMENT,
+body[data-app="TOOLS"] #app-menu .app-item-color-TOOLS,
+body[data-app="PROJECT"] #app-menu .app-item-color-PROJECT {
+    background: rgba(255, 255, 255, 0.10) !important;
+    border-left-color: rgba(255, 255, 255, 0.55) !important;
+    box-shadow: inset 3px 0 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Subtle icon tint per app (keeps hover/background unified) */
+.app-menu .app-item-color-MARKETING .app-icon-list i { color: rgba(52, 152, 219, 0.95) !important; }
+.app-menu .app-item-color-SALES .app-icon-list i { color: rgba(231, 76, 60, 0.95) !important; }
+.app-menu .app-item-color-INVENTORY .app-icon-list i { color: rgba(230, 126, 34, 0.95) !important; }
+.app-menu .app-item-color-SUPPORT .app-icon-list i { color: rgba(26, 188, 156, 0.95) !important; }
+.app-menu .app-item-color-MANAGEMENT .app-icon-list i { color: rgba(46, 204, 113, 0.95) !important; }
+.app-menu .app-item-color-TOOLS .app-icon-list i { color: rgba(39, 174, 96, 0.95) !important; }
+.app-menu .app-item-color-PROJECT .app-icon-list i { color: rgba(155, 89, 182, 0.95) !important; }
+.app-menu .app-item-misc .app-icon-list i { color: rgba(149, 165, 166, 0.9) !important; }
+
+/* Menu con (dropdown modules): chỉ hiện khi click (class .open) */
+.app-menu.hide .app-modules-dropdown,
+.app-menu .app-modules-dropdown-container {
+    position: static;
+}
+
+/* MainPage fix: ensure TaskManagement overlay is above all layers (scope by module only) */
+body[data-app="MANAGEMENT"] #overlayPageContent { z-index: 100000 !important; }
+body[data-app="MANAGEMENT"] #overlayPage { z-index: 100010 !important; }
+
+/* Calendar Task Management — full page layout */
+.task-management-page.panel {
+    max-width: 1280px;
+    margin: 14px auto 28px;
+    border-radius: 14px;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.92) 0%, #ffffff 28%);
+}
+.task-management-page .overlayHeader { padding: 12px 16px 8px; }
+.task-management-page .modal-body.overflowYAuto { padding: 0 12px 18px; max-width: 100%; }
+
+/* Header / toolbar cohesion */
+.task-management-page .task-mgmt-fullpage-header { border-bottom: 0; padding: 10px 4px 8px; }
+.task-management-page .task-mgmt-fullpage-header h4 { font-weight: 800; letter-spacing: 0.2px; color: #0f172a; }
+.task-management-page .task-mgmt-fullpage-close {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.40);
     opacity: 1;
-    -webkit-transition: all 0.25s ease-in;
-    -moz-transition: all 0.25s ease;
-    -o-transition: all 0.25s ease;
-    transition: all 0.25s ease-in;
+}
+.task-management-page .task-mgmt-fullpage-close:hover { background: rgba(15, 23, 42, 0.10); }
+
+/* Toolbar card */
+.task-management-page .data-header {
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 14px;
+    padding: 10px 12px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+.task-management-page .data-header .btn-group.dateFilters .btn { border-radius: 999px !important; border-color: rgba(148, 163, 184, 0.45); }
+.task-management-page .data-header .btn-group.dateFilters .btn.active {
+    background: rgba(37, 99, 235, 0.10);
+    border-color: rgba(37, 99, 235, 0.35);
+    color: #1d4ed8;
+    box-shadow: inset 0 0 0 1px rgba(37, 99, 235, 0.15);
+}
+.task-management-page .data-header .otherFilters .btn-success.search { border-radius: 10px; height: 34px; padding: 6px 10px; }
+.task-management-page .task-mgmt-filters {
+    width: auto !important;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 8px;
+}
+@media (max-width: 1199px) {
+    .task-management-page .task-mgmt-filters {
+        float: none !important;
+        width: 100% !important;
+        margin-top: 12px;
+    }
+    .task-management-page .data-header .dateFilters { float: none !important; }
+}
+.task-management-page .task-mgmt-column-scroll {
+    width: 100% !important;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Board layout */
+.task-management-page .data-body.row {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 14px;
+    margin: 14px 0 0;
+}
+.task-management-page .data-body.row > .contentsBlock {
+    float: none;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+}
+@media (max-width: 1199px) {
+    .task-management-page .data-body.row { flex-wrap: wrap; }
+    .task-management-page .data-body.row > .contentsBlock { flex: 1 1 320px; }
+}
+
+/* Lane (priority column) styling */
+.task-management-page .contentsBlock .title {
+    border-radius: 999px;
+    padding: 6px 10px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+.task-management-page .contentsBlock .content {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.30);
+    border-radius: 14px;
+    padding: 10px 10px 12px;
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.07);
+}
+.task-management-page .contentsBlock .input-group .form-control {
+    height: 36px;
+    border-radius: 12px;
+    border-color: rgba(148, 163, 184, 0.45);
+}
+.task-management-page .contentsBlock .input-group .input-group-addon {
+    border-radius: 12px;
+    background: rgba(15, 23, 42, 0.04);
+    border-color: rgba(148, 163, 184, 0.45);
+}
+
+/* Task cards */
+.task-management-page .task-card-wrap { margin: 8px 0; }
+.task-management-page .task-card {
+    background: #ffffff;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    padding: 10px 10px 8px;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+.task-management-page .task-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+    border-color: rgba(100, 116, 139, 0.45);
+}
+.task-management-page .task-card .taskSubject { font-weight: 700; color: #0f172a; }
+.task-management-page .task-card .taskSubject a { color: inherit; }
+.task-management-page .task-card .taskStatus {
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 12px;
+    line-height: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+.task-management-page .task-card .other-details { margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(148, 163, 184, 0.35); }
+.task-management-page .task-card .task-details { font-size: 12.5px; color: rgba(15, 23, 42, 0.78); }
+.task-management-page .task-card .task-actions a {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+}
+.task-management-page .task-card .task-actions a:hover { background: rgba(15, 23, 42, 0.08); }
+
+/* Make scroll area feel like a lane */
+.task-management-page .task-mgmt-column-scroll.scrollable {
+    border-radius: 12px;
+    padding: 6px;
+    background: rgba(241, 245, 249, 0.55);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+}
+
+.app-menu.hide .app-modules-dropdown {
+    display: none !important;
+    visibility: hidden !important;
+}
+.app-menu:not(.hide) .app-modules-dropdown-container.open > .app-modules-dropdown,
+.app-menu:not(.hide) .app-modules-dropdown-container.open .app-modules-dropdown {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    z-index: 10002 !important;
+    position: fixed !important;
+    left: 280px !important;
+    top: 95px !important;
+}
+
+/* Submenu accent system: keep dark base, add subtle parent app identity */
+.app-menu .app-modules-dropdown {
+    border-left: 3px solid rgba(148, 163, 184, 0.22);
+    box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.85),
+        inset 3px 0 0 rgba(148, 163, 184, 0.10);
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-MARKETING + .app-modules-dropdown {
+    border-left-color: rgba(52, 152, 219, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(52, 152, 219, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-SALES + .app-modules-dropdown {
+    border-left-color: rgba(231, 76, 60, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(231, 76, 60, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-INVENTORY + .app-modules-dropdown {
+    border-left-color: rgba(230, 126, 34, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(230, 126, 34, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-SUPPORT + .app-modules-dropdown {
+    border-left-color: rgba(26, 188, 156, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(26, 188, 156, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-MANAGEMENT + .app-modules-dropdown {
+    border-left-color: rgba(46, 204, 113, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(46, 204, 113, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-TOOLS + .app-modules-dropdown {
+    border-left-color: rgba(39, 174, 96, 0.55) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(39, 174, 96, 0.18) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-PROJECT + .app-modules-dropdown {
+    border-left-color: rgba(155, 89, 182, 0.5) !important;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.85), inset 3px 0 0 rgba(155, 89, 182, 0.16) !important;
+}
+.app-menu .app-modules-dropdown-container.open > .app-item-color-MARKETING + .app-modules-dropdown li a:hover { background: rgba(52,152,219,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-SALES + .app-modules-dropdown li a:hover { background: rgba(231,76,60,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-INVENTORY + .app-modules-dropdown li a:hover { background: rgba(230,126,34,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-SUPPORT + .app-modules-dropdown li a:hover { background: rgba(26,188,156,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-MANAGEMENT + .app-modules-dropdown li a:hover { background: rgba(46,204,113,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-TOOLS + .app-modules-dropdown li a:hover { background: rgba(39,174,96,0.14) !important; }
+.app-menu .app-modules-dropdown-container.open > .app-item-color-PROJECT + .app-modules-dropdown li a:hover { background: rgba(155,89,182,0.14) !important; }
+.app-menu ul.dropdown-menu.app-modules-dropdown {
+    display: none;
+}
+.app-menu:not(.hide) .app-modules-dropdown-container.open ul.app-modules-dropdown {
+    display: block !important;
+}
+.app-menu .app-modules-dropdown {
+    pointer-events: auto !important;
+    min-width: 260px !important;
+    width: 260px !important;
+    height: auto !important;
+    max-height: calc(100vh - 120px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    padding: 8px 0 !important;
+    list-style: none;
+    background: #2C3B49 !important;
+    border-radius: 0 8px 8px 0;
+    box-shadow: 4px 8px 20px rgba(0,0,0,0.25);
+}
+.app-menu .app-modules-dropdown li { display: block !important; }
+.app-menu .app-modules-dropdown li a {
+    display: block !important;
+    padding: 10px 16px !important;
+    font-size: 1em !important;
+    color: #fff !important;
+}
+.app-menu .app-modules-dropdown .module-icon-lg {
+    font-size: 1.2em !important;
+    margin-right: 2px;
+}
+.app-menu .app-modules-dropdown .module-icon {
+    display: inline-block;
+    min-width: 1.2em;
+    text-align: center;
+}
+.app-menu .app-modules-dropdown li:hover,
+.app-menu .app-modules-dropdown li a:hover {
+    background: rgba(0, 0, 0, 0.25) !important;
+    color: #fff !important;
+}
+
+/* Khi menu đang mở (không .hide) luôn nổi trên cùng */
+.app-menu:not(.hide) {
+    z-index: 99999 !important;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .menu-toggle{

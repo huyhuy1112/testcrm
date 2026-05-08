@@ -8,10 +8,22 @@
 ************************************************************************************}
 
 {assign var=APP_IMAGE_MAP value=Vtiger_MenuStructure_Model::getAppIcons()}
+{assign var=MK_INDICATOR_FA value=''}
+{if $MODULE eq 'Home' || !$MODULE}{assign var=MK_INDICATOR_FA value='fa-tachometer'}
+{elseif $SELECTED_MENU_CATEGORY eq 'MARKETING'}{assign var=MK_INDICATOR_FA value='fa-bullhorn'}
+{elseif $SELECTED_MENU_CATEGORY eq 'SALES'}{assign var=MK_INDICATOR_FA value='fa-dollar'}
+{elseif $SELECTED_MENU_CATEGORY eq 'INVENTORY'}{assign var=MK_INDICATOR_FA value='fa-cubes'}
+{elseif $SELECTED_MENU_CATEGORY eq 'SUPPORT'}{assign var=MK_INDICATOR_FA value='fa-ticket'}
+{elseif $SELECTED_MENU_CATEGORY eq 'MANAGEMENT'}{assign var=MK_INDICATOR_FA value='fa-sitemap'}
+{elseif $SELECTED_MENU_CATEGORY eq 'PROJECT'}{assign var=MK_INDICATOR_FA value='fa-briefcase'}
+{elseif $SELECTED_MENU_CATEGORY eq 'TOOLS'}{assign var=MK_INDICATOR_FA value='fa-wrench'}
+{elseif $MODULE eq 'Campaigns'}{assign var=MK_INDICATOR_FA value='fa-bullhorn'}
+{/if}
 
-<div class="col-sm-1 col-xs-2 app-indicator-icon-container app-{$SELECTED_MENU_CATEGORY}">
-	<div class="row" title="{if $MODULE eq 'Home' || !$MODULE} {vtranslate('LBL_DASHBOARD')} {else}{vtranslate("LBL_$SELECTED_MENU_CATEGORY")}{/if}">
-		<span class="app-indicator-icon fa {if $MODULE eq 'Home' || !$MODULE}fa-dashboard{else}{$APP_IMAGE_MAP[$SELECTED_MENU_CATEGORY]}{/if}"></span>
+{assign var=IS_DASHBOARD_VIEW value=($MODULE eq 'Home' && ($VIEW eq 'DashBoard' || $REQ->get('view') eq 'DashBoard'))}
+<div class="col-sm-1 col-xs-2 app-indicator-icon-container app-{$SELECTED_MENU_CATEGORY}{if !$IS_DASHBOARD_VIEW} app-trigger cursorPointer{/if}" title="{if $MODULE eq 'Home' || !$MODULE}{vtranslate('LBL_DASHBOARD')}{elseif $MODULE eq 'Campaigns'}{vtranslate('LBL_MARKETING','Vtiger')} — {vtranslate('Campaigns','Campaigns')}{elseif $SELECTED_MENU_CATEGORY}{vtranslate("LBL_$SELECTED_MENU_CATEGORY")}{else}{$MODULE}{/if}{if !$IS_DASHBOARD_VIEW} (click để mở menu){/if}">
+	<div class="row">
+		<span class="app-indicator-icon fa {if $MK_INDICATOR_FA ne ''}{$MK_INDICATOR_FA}{else}{$APP_IMAGE_MAP[$SELECTED_MENU_CATEGORY]}{/if}"></span>
 	</div>
 </div>
 

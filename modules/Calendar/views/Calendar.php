@@ -19,12 +19,9 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 		$viewer->assign('IS_MODULE_EDITABLE', $moduleModel->isPermitted('EditView'));
 		$viewer->assign('IS_MODULE_DELETABLE', $moduleModel->isPermitted('Delete'));
 
-		// Mini calendar: mọi role đều thấy để đăng kí ngày nghỉ
+		// BA: mini calendar must remain visible; Leave Request UI removed separately
 		$viewer->assign('SHOW_MINI_CALENDAR_LEAVE', true);
-		// Đơn nghỉ phép (menu + duyệt): chỉ Admin/CEO thấy
-		$currentUser = Users_Record_Model::getCurrentUserModel();
-		$showLeaveRequest = $currentUser && ($currentUser->isAdminUser() || $this->isUserCEO($currentUser));
-		$viewer->assign('SHOW_LEAVE_REQUEST', $showLeaveRequest);
+		$viewer->assign('SHOW_LEAVE_REQUEST', false);
 
 		parent::preProcess($request, false);
 		if($display) {
@@ -42,7 +39,8 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 			"~layouts/".Vtiger_Viewer::getDefaultLayoutName()."/lib/jquery/fullcalendar/lib/moment.min.js",
 			"~layouts/".Vtiger_Viewer::getDefaultLayoutName()."/lib/jquery/fullcalendar/fullcalendar.js",
 			"~layouts/".Vtiger_Viewer::getDefaultLayoutName()."/lib/jquery/webui-popover/dist/jquery.webui-popover.js",
-			"modules.Calendar.resources.CalendarView",
+			// Logic lịch nằm ở layouts/.../Calendar.js (nạp qua Index: modules.Calendar.resources.Calendar).
+			// modules.Calendar.resources.CalendarView không tồn tại trên v7 → trước đây script này bị bỏ qua im lặng.
 			"~/libraries/jquery/colorpicker/js/colorpicker.js",
 			"layouts.v7.modules.Calendar.resources.CalendarQuickCreate"
 		);
@@ -60,7 +58,8 @@ class Calendar_Calendar_View extends Vtiger_Index_View {
 			'~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/lib/jquery/fullcalendar/fullcalendar-bootstrap.css',
 			'~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/lib/jquery/webui-popover/dist/jquery.webui-popover.css',
 			'~/libraries/jquery/colorpicker/css/colorpicker.css',
-			'~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/modules/Calendar/resources/calendar-google.css'
+			'~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/modules/Calendar/resources/calendar-google.css',
+			'~layouts/'.Vtiger_Viewer::getDefaultLayoutName().'/modules/Calendar/resources/Calendar.css'
 		);
 		$cssInstances = $this->checkAndConvertCssStyles($cssFileNames);
 		$headerCssInstances = array_merge($headerCssInstances, $cssInstances);

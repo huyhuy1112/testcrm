@@ -38,6 +38,44 @@ Inventory_Edit_Js("SalesOrder_Edit_Js",{},{
         }
         return params;
     },
+
+	/**
+	 * Override submit behavior for Tools > Orders context.
+	 * In TOOLS app we allow saving without inventory line items.
+	 */
+	registerSubmitEvent : function () {
+		var self = this;
+		var editViewForm = this.getForm();
+		editViewForm.submit(function(e){
+			var appNameValue = (editViewForm.find('[name="appName"]').val() || '').toUpperCase();
+			var isToolsContext = appNameValue.indexOf('TOOLS') !== -1;
+
+			if (!isToolsContext) {
+				var deletedItemInfo = jQuery('.deletedItem', editViewForm);
+				if (deletedItemInfo.length > 0) {
+					e.preventDefault();
+					var msg = app.vtranslate('JS_PLEASE_REMOVE_LINE_ITEM_THAT_IS_DELETED');
+					app.helper.showErrorNotification({"message" : msg});
+					editViewForm.removeData('submit');
+					return false;
+				} else if (jQuery('.lineItemRow').length <= 0) {
+					e.preventDefault();
+					msg = app.vtranslate('JS_NO_LINE_ITEM');
+					app.helper.showErrorNotification({"message" : msg});
+					editViewForm.removeData('submit');
+					return false;
+				}
+
+				self.updateLineItemElementByOrder();
+				self.saveProductCount();
+				self.saveSubTotalValue();
+				self.saveTotalValue();
+				self.savePreTaxTotalValue();
+			}
+
+			return true;
+		});
+	},
     
     /**
 	 * Function to register event for enabling recurrence
@@ -164,6 +202,49 @@ Inventory_Edit_Js("SalesOrder_Edit_Js",{},{
             this.registerEventForEnablingRecurrence();
             this.registerForTogglingBillingandShippingAddress();
             this.registerEventForCopyAddress();
+            this.registerAddProductsServicesButton();
+        },
+
+        /**
+         * Unified entry button for adding a new line-item row that contains
+         * BOTH Products & Services selectors (SalesOrder only).
+         */
+        registerAddProductsServicesButton : function() {
+            var self = this;
+            jQuery('#addProductsServices').on('click', function(e, data){
+                var currentTarget = jQuery(e.currentTarget);
+                var params = {'currentTarget' : currentTarget};
+                var newLineItem = self.getNewLineItem(params);
+                newLineItem = newLineItem.appendTo(self.lineItemsHolder);
+                newLineItem.find('input.productName').addClass('autoComplete');
+                newLineItem.find('.ignore-ui-registration').removeClass('ignore-ui-registration');
+                vtUtils.applyFieldElementsView(newLineItem);
+                app.event.trigger('post.lineItem.New', newLineItem);
+                self.checkLineItemRow();
+                self.registerLineItemAutoComplete(newLineItem);
+
+                // When this row is created due to multi-select popup selection,
+                // map selected ProductsServices record into the line item row.
+                if(typeof data !== "undefined") {
+                    var recordData;
+                    for(var id in data) {
+                        recordData = data[id];
+                        break;
+                    }
+                    var itemType = recordData ? recordData.item_type : null;
+					var underlyingType = 'Products';
+					if(itemType) {
+						var itemTypeLower = itemType.toLowerCase();
+						if(itemTypeLower === 'product' || itemTypeLower === 'products') {
+							underlyingType = 'Products';
+						} else if(itemTypeLower === 'service' || itemTypeLower === 'services') {
+							underlyingType = 'Services';
+						}
+					}
+                    newLineItem.find('.lineItemType').val(underlyingType);
+                    self.mapResultsToFields(newLineItem, data);
+                }
+            });
         },
     
 });
