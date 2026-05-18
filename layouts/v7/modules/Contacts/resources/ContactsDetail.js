@@ -10,7 +10,7 @@
 		return !!(b
 			&& b.getAttribute('data-module') === 'Contacts'
 			&& b.getAttribute('data-view') === 'Detail'
-			&& b.getAttribute('data-app') === 'SALES');
+			&& (b.getAttribute('data-app') === 'SALES' || b.getAttribute('data-app') === 'MARKETING'));
 	}
 
 	function refreshRelatedBadges() {

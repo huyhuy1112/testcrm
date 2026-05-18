@@ -14,11 +14,13 @@
 			return false;
 		}
 		var appName = (b.getAttribute('data-app') || '').toUpperCase();
-		if (appName === 'SALES') {
+		if (appName === 'SALES' || appName === 'MARKETING') {
 			return true;
 		}
 		var params = new URLSearchParams(window.location.search || '');
-		return params.get('module') === 'Contacts' && params.get('view') === 'List' && params.get('app') === 'SALES';
+		var app = params.get('app');
+		return params.get('module') === 'Contacts' && params.get('view') === 'List' &&
+			(app === 'SALES' || app === 'MARKETING');
 	}
 
 	function destroyPerfectScrollbar($tc) {
@@ -214,13 +216,13 @@
 		}
 
 		$(document).off('.mkContactsListUi');
-		$(document).on('click.mkContactsListUi', '.mk-contact-trigger-columns', function (e) {
+		$(document).on('click.mkContactsListUi', '.mk-so-trigger-columns, .mk-contact-trigger-columns', function (e) {
 			e.preventDefault();
 			root.find('.listColumnFilter').first().trigger('click');
 		});
-		$(document).on('click.mkContactsListUi', '.mk-contact-filter-trigger-search', function (e) {
+		$(document).on('click.mkContactsListUi', '.mk-so-filter-trigger-search, .mk-contact-filter-trigger-search', function (e) {
 			e.preventDefault();
-			root.toggleClass('mk-contact-search-open');
+			root.toggleClass('mk-so-search-open mk-contact-search-open');
 		});
 		$(document).on('click.mkContactsListUi', '#listViewContent #NextPageButton, #listViewContent #PreviousPageButton, #listViewContent #pageToJumpSubmit', function () {
 			scheduleApply();

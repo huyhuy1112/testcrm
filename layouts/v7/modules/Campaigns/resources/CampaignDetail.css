@@ -1,7 +1,709 @@
 /* Campaigns Detail UI polish (module-scoped).
- * Scope: only inside Campaign Detail wrapper.
+ * MARKETING app: split shell + Figma layout (body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"])
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+/* ========== MARKETING Detail — app shell (Sales Order detail gutters) ========== */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #page,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #page.container-fluid {
+	padding-top: 0 !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.main-container-Campaigns,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page {
+	min-height: 0 !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-dash-main {
+	padding: 0 !important;
+	overflow-x: hidden;
+	box-sizing: border-box;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-dash-main.mk-camp-detail-main {
+	width: 100%;
+	max-width: none;
+	min-width: 0;
+	background: #f7f9fb;
+	box-sizing: border-box;
+}
+
+/* Gutters on .main-container (48px L / 32px R) — clears fixed sidebar + topbar */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page {
+	width: 100%;
+	max-width: 1232px;
+	margin-left: auto !important;
+	margin-right: auto !important;
+	padding-top: 24px !important;
+	padding-bottom: 32px !important;
+	padding-left: 48px !important;
+	padding-right: 32px !important;
+	box-sizing: border-box;
+	position: relative !important;
+}
+
+@media (max-width: 1199px) {
+	body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page {
+		padding-left: 32px !important;
+		padding-right: 24px !important;
+	}
+}
+
+@media (max-width: 991px) {
+	body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page {
+		padding: 16px !important;
+	}
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .content-area {
+	width: 100% !important;
+	max-width: none !important;
+	margin-left: 0 !important;
+	padding-left: 0 !important;
+	min-width: 0 !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page #modnavigator,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page #sidebar-essentials,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hide-legacy,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .essentials-toggle {
+	display: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .main-container.mk-camp-detail-page .content-area,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-inner.detailViewContainer {
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	width: 100% !important;
+	max-width: none !important;
+	min-width: 0 !important;
+	left: auto !important;
+	position: relative !important;
+	float: none !important;
+	box-sizing: border-box !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-inner.detailViewContainer {
+	margin: 0;
+	padding: 0;
+	min-height: 0 !important;
+	overflow: visible;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detailview-content {
+	padding: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row {
+	width: 100% !important;
+	max-width: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+}
+
+/* Breadcrumb */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb {
+	margin: 0 0 10px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px 8px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #6b6358;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb__item a {
+	color: #504533;
+	text-decoration: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb__item a:hover {
+	color: #c98f12;
+	text-decoration: underline;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb__sep {
+	color: #d4c4ad;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-breadcrumb__item--current .mk-camp-detail-breadcrumb__text {
+	color: #8a7d6e;
+	max-width: 420px;
+}
+
+/* Hero — Sales Order detail pattern (card strip + 127px row) */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero-strip.detailview-header-block {
+	background: #fff !important;
+	border: 1px solid #e9ddc4 !important;
+	border-radius: 12px !important;
+	box-shadow: none !important;
+	padding: 24px !important;
+	margin: 0 0 12px !important;
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: stretch !important;
+	gap: 8px !important;
+	box-sizing: border-box !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero-strip .detailview-header.mk-camp-detail-hero-head {
+	background: transparent !important;
+	border: none !important;
+	box-shadow: none !important;
+	padding: 0 !important;
+	margin: 0 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 8px !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__row {
+	display: flex !important;
+	flex-wrap: nowrap !important;
+	align-items: center !important;
+	justify-content: space-between !important;
+	gap: 24px !important;
+	margin: 0 !important;
+	min-height: 127px !important;
+	width: 100% !important;
+	box-sizing: border-box !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__row::before,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__row::after {
+	display: none !important;
+	content: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__left {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__identity {
+	display: flex !important;
+	align-items: center !important;
+	gap: 16px !important;
+	min-width: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__icon.recordImage {
+	width: 64px !important;
+	height: 64px !important;
+	min-width: 64px !important;
+	flex: 0 0 64px !important;
+	border-radius: 12px !important;
+	display: flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	padding: 0 !important;
+	position: static !important;
+	float: none !important;
+	background: linear-gradient(145deg, #fef3c7 0%, #fde68a 40%, #f59e0b 100%) !important;
+	border: 1px solid #fcd34d;
+	color: #92400e;
+	box-shadow: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__icon .name,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__icon strong,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__icon i.fa {
+	display: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__title {
+	font-family: 'Space Grotesk', Inter, sans-serif;
+	font-size: 1.5rem;
+	font-weight: 700;
+	margin: 0;
+	color: #191c1e;
+	line-height: 1.2;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__meta {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+	margin-top: 6px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__type-pill {
+	display: inline-flex;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	background: #fef3c7;
+	color: #92400e;
+	border: 1px solid #fde68a;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__created {
+	font-size: 13px;
+	color: #6b6358;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__tags,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__tags--inset {
+	margin: 0 !important;
+	padding: 8px 0 0 !important;
+	border-top: 1px solid #f0e6d6;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-actions.mk-camp-detail-hero__actions {
+	flex: 0 0 auto;
+	align-self: center;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-actions__toolbar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 14px;
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	border: 1px solid #d4c4ad;
+	background: #fff;
+	color: #504533;
+	box-shadow: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-btn:hover {
+	border-color: #c98f12;
+	color: #7c5800;
+	background: #fffbeb;
+}
+
+/* Tabs — chỉ gạch cam dưới tab active (không gạch đen/full-width) */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs.related-tabs.row {
+	margin: 0 0 16px;
+	padding: 0;
+	border: none !important;
+	border-bottom: none !important;
+	box-shadow: none !important;
+	background: transparent;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .navbar {
+	min-height: 0;
+	margin-bottom: 0;
+	background: transparent;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .navbar-collapse {
+	padding: 0;
+	border: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs {
+	border: none !important;
+	border-bottom: none !important;
+	display: flex;
+	align-items: flex-end;
+	flex-wrap: nowrap;
+	box-shadow: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li {
+	border: none !important;
+	margin-bottom: 0 !important;
+	float: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li > a {
+	border: none !important;
+	border-bottom: none !important;
+	box-shadow: none !important;
+	padding: 12px 16px 10px;
+	font-weight: 600;
+	font-size: 14px;
+	color: #6b6358;
+	background: transparent !important;
+	position: relative;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li.active > a,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li.active > a:hover,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li.active > a:focus {
+	color: #c98f12 !important;
+	background: transparent !important;
+	border: none !important;
+	border-bottom: none !important;
+	box-shadow: none !important;
+	outline: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li:not(.active) > a:hover {
+	color: #504533;
+	background: transparent !important;
+	border-bottom: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-related-tabs .nav.nav-tabs > li.active > a::after {
+	content: "";
+	position: absolute;
+	left: 12px;
+	right: 12px;
+	bottom: 0;
+	height: 3px;
+	border-radius: 3px 3px 0 0;
+	background: #fdbb2c;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-tabs-spacer {
+	flex: 1 1 auto;
+	list-style: none;
+}
+
+/* KPI progress row */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern {
+	background: transparent;
+	padding: 0;
+	border-radius: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	margin-bottom: 16px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card {
+	background: #fff;
+	border: 1px solid #e9ddc4;
+	border-radius: 12px;
+	padding: 16px 18px;
+	box-shadow: 0 2px 8px rgba(25, 28, 30, 0.04);
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__head {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	margin-bottom: 8px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__eyebrow {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__eyebrow--blue { color: #2563eb; }
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__eyebrow--green { color: #059669; }
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__label {
+	font-size: 13px;
+	font-weight: 600;
+	color: #504533;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__pct {
+	font-family: 'Space Grotesk', Inter, sans-serif;
+	font-size: 2rem;
+	font-weight: 700;
+	line-height: 1;
+	margin: 4px 0 10px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__pct--blue { color: #2563eb; }
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__pct--green { color: #059669; }
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card__bar.cpd-progress {
+	height: 10px;
+	border-radius: 999px;
+	background: #eef2f7;
+	overflow: hidden;
+	margin-bottom: 12px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card--time .js-time-progress {
+	background: linear-gradient(90deg, #3b82f6, #60a5fa);
+	height: 100%;
+	border-radius: 999px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-card--result .js-result-progress {
+	background: linear-gradient(90deg, #10b981, #34d399);
+	height: 100%;
+	border-radius: 999px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta__box {
+	border-radius: 8px;
+	padding: 10px 12px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta--time .mk-camp-kpi-meta__box {
+	background: #eff6ff;
+	border: 1px solid #dbeafe;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta--result .mk-camp-kpi-meta__box {
+	background: #ecfdf5;
+	border: 1px solid #d1fae5;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta__label {
+	display: block;
+	font-size: 10px;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: #6b7280;
+	margin-bottom: 4px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-meta__value {
+	font-size: 14px;
+	font-weight: 700;
+	color: #191c1e;
+}
+
+/* Detail blocks — không viền cam; kiểu card xám nhạt (hình 4) */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row #detailView .block,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-detail-blocks .block {
+	margin-bottom: 16px;
+	border: 1px solid #e8e8e8 !important;
+	border-radius: 10px !important;
+	background: #fff !important;
+	overflow: visible;
+	box-shadow: none !important;
+	padding: 16px 20px !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row #detailView .block + br {
+	display: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block > div:first-child h4,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row #detailView .block > div:first-child h4 {
+	margin: 0 0 12px;
+	padding: 0 0 10px;
+	font-size: 15px;
+	font-weight: 700;
+	color: #191c1e;
+	background: transparent !important;
+	border-bottom: 1px solid #eeeeee !important;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block h4::before,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-detail-blocks .block h4::before {
+	content: "" !important;
+	width: 0 !important;
+	height: 0 !important;
+	border-top: 5px solid transparent !important;
+	border-bottom: 5px solid transparent !important;
+	border-left: 8px solid #f59e0b !important;
+	border-radius: 0 !important;
+	background: transparent !important;
+	box-shadow: none !important;
+	flex-shrink: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block h4 img {
+	display: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block hr,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row #detailView .block hr {
+	display: none;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .blockData,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row #detailView .blockData {
+	padding: 0 !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .detailview-table,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-details-row .detailview-table {
+	border: none;
+	margin: 0;
+	background: transparent;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .fieldLabel .muted {
+	color: #6b6358;
+	font-weight: 500;
+	font-size: 13px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .fieldValue .value,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .fieldValue .displayValue {
+	color: #191c1e;
+	font-weight: 600;
+	font-size: 14px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .fieldValue a {
+	color: #2563eb;
+	font-weight: 600;
+}
+
+/* Phases panel */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-phases-panel {
+	margin-top: 16px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-phases-panel__title {
+	font-size: 15px;
+	font-weight: 700;
+	margin: 0 0 12px;
+	color: #191c1e;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-phases-panel__title::before {
+	content: "";
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 8px solid #f59e0b;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-phase-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+	gap: 12px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card {
+	background: #fff;
+	border: 1px solid #e9ddc4;
+	border-radius: 12px;
+	padding: 14px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card__title {
+	margin: 0 0 6px;
+	font-size: 14px;
+	font-weight: 700;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card__pct,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card .js-phase-progress-pct {
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: #2563eb;
+	margin-bottom: 8px;
+}
+
+/* Phase progress bars — vàng cam theo % */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card .cpd-progress {
+	height: 10px;
+	border-radius: 999px;
+	background: #f1f5f9;
+	overflow: hidden;
+	margin-bottom: 12px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .cpd-card .cpd-progress .bar,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .cpd-card .js-phase-progress,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .cpd-card[data-phase] .js-phase-progress {
+	background: linear-gradient(90deg, #f59e0b 0%, #fdbb2c 55%, #fbbf24 100%) !important;
+	height: 100%;
+	min-height: 10px;
+	border-radius: 999px;
+	box-shadow: none;
+	color: transparent;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-description-files {
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 16px 18px;
+	margin-top: 16px;
+}
+
+/* Campaign Result Files: blue accent only (no orange block chevron) */
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-description-files h4,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-description-files h4 {
+	font-size: 15px;
+	font-weight: 700;
+	margin: 0 0 8px;
+	padding-left: 12px;
+	border-left: 3px solid #3b82f6;
+	color: #0f172a;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-detail-blocks .block .mk-campaign-description-files h4::before,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-detail-blocks .block .mk-campaign-description-files h4::before,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-campaign-description-files h4::before,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-description-files h4::before {
+	display: none !important;
+	content: none !important;
+	border: none !important;
+	width: 0 !important;
+	height: 0 !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .campaign-under-description-files {
+	background: transparent !important;
+	padding: 12px 0 0 !important;
+	border: none !important;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-files-empty {
+	border: 2px dashed #d4c4ad;
+	border-radius: 12px;
+	padding: 28px 16px;
+	text-align: center;
+	color: #6b6358;
+	background: #faf8f5;
+}
+
+@media (max-width: 900px) {
+	body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-kpi-grid {
+		grid-template-columns: 1fr;
+	}
+	body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-camp-detail-hero__row {
+		flex-wrap: wrap;
+	}
+}
+
+/* Legacy / all-apps content wrapper */
 #CampaignPhaseDashboard.campaign-detail-modern {
 	/* Soft dashboard background without affecting other pages */
 	background: linear-gradient(180deg, rgba(99, 102, 241, 0.06), rgba(56, 189, 248, 0.03) 42%, rgba(255,255,255,0) 100%);
@@ -147,9 +849,18 @@
 
 #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-description-files h4 {
 	font-size: 16px;
-	font-weight: 900;
+	font-weight: 700;
 	color: #0f172a;
 	margin: 0 0 6px 0;
+	padding-left: 12px;
+	border-left: 3px solid #3b82f6;
+}
+
+#CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-detail-blocks .block .mk-campaign-description-files h4::before,
+#CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-description-files h4::before {
+	display: none !important;
+	content: none !important;
+	border: none !important;
 }
 
 #CampaignPhaseDashboard.campaign-detail-modern .mk-campaign-description-files .mk-files-help {
@@ -421,13 +1132,10 @@
 }
 
 /* =============================================================================
- * Campaign Detail – horizontal alignment (Campaigns Detail only)
- * Global rule `.main-container .content-area { padding-left: 296px }` reserves
- * list sidebar (240px) + module nav; Detail view has no #sidebar-essentials,
- * which creates a large dead left gutter and pushes content right.
+ * Campaign Detail – horizontal alignment (non-MARKETING legacy layout only)
  * ============================================================================= */
 
-body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent > .content-area {
+body[data-module="Campaigns"]:not([data-app="MARKETING"]) .main-container .detailViewContainer.viewContent > .content-area {
 	padding-left: 72px !important;
 	padding-right: 24px !important;
 	max-width: 1440px;
@@ -438,7 +1146,7 @@ body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent >
 	box-sizing: border-box;
 }
 
-body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent .detailview-content.container-fluid {
+body[data-module="Campaigns"]:not([data-app="MARKETING"]) .main-container .detailViewContainer.viewContent .detailview-content.container-fluid {
 	max-width: 1440px;
 	margin-left: auto !important;
 	margin-right: auto !important;
@@ -449,24 +1157,22 @@ body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent .
 	box-sizing: border-box;
 }
 
-/* Bootstrap rows use negative horizontal margins; keep centered column from horizontal scroll */
-body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent .detailview-content.container-fluid > .details.row {
+body[data-module="Campaigns"]:not([data-app="MARKETING"]) .main-container .detailViewContainer.viewContent .detailview-content.container-fluid > .details.row {
 	margin-left: 0 !important;
 	margin-right: 0 !important;
 }
 
-/* Inline tpl + MarketingTheme add horizontal padding on .mk-page; strip X padding inside centered column */
-body[data-module="Campaigns"] #CampaignPhaseDashboard.campaign-detail-modern.cpd-wrap.mk-page {
+body[data-module="Campaigns"]:not([data-app="MARKETING"]) #CampaignPhaseDashboard.campaign-detail-modern.cpd-wrap.mk-page {
 	padding: 12px 0 24px 0 !important;
 }
 
 @media (max-width: 991px) {
-	body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent > .content-area {
+	body[data-module="Campaigns"]:not([data-app="MARKETING"]) .main-container .detailViewContainer.viewContent > .content-area {
 		padding-left: 16px !important;
 		padding-right: 16px !important;
 	}
 
-	body[data-module="Campaigns"] .main-container .detailViewContainer.viewContent .detailview-content.container-fluid {
+	body[data-module="Campaigns"]:not([data-app="MARKETING"]) .main-container .detailViewContainer.viewContent .detailview-content.container-fluid {
 		padding-left: 16px !important;
 		padding-right: 16px !important;
 	}

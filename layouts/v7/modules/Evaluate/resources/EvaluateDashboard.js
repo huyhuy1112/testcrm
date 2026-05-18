@@ -108,12 +108,14 @@
 		var rc = document.getElementById('evalRoiChart');
 		if (rc) {
 			destroyChart('roi');
+			var roiBg = rois.map(function (r) { return barColorForRoi(r).bg; });
+			var roiBorder = rois.map(function (r) { return barColorForRoi(r).border; });
 			_charts.roi = new Chart(rc, {
 				type: 'bar',
 				data: {
 					labels: labels,
 					datasets: [
-						{ label: 'ROI (%)', data: rois, backgroundColor: 'rgba(59,130,246,0.35)', borderColor: 'rgba(37,99,235,0.9)', borderWidth: 1 }
+						{ label: 'ROI (%)', data: rois, backgroundColor: roiBg, borderColor: roiBorder, borderWidth: 1 }
 					]
 				},
 				options: {

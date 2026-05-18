@@ -1,12 +1,14 @@
 /**
- * Accounts Organizations Detail (Sales): layout helpers only; does not replace Vtiger Detail.js.
+ * Accounts Organizations Detail (Sales + Marketing): related-tab badge refresh; does not replace Vtiger Detail.js.
  */
 (function ($) {
 	'use strict';
 
 	function isScopedBody() {
 		var b = document.body;
-		return !!(b && b.getAttribute('data-module') === 'Accounts' && b.getAttribute('data-view') === 'Detail' && b.getAttribute('data-app') === 'SALES');
+		var app = b && b.getAttribute('data-app');
+		return !!(b && b.getAttribute('data-module') === 'Accounts' && b.getAttribute('data-view') === 'Detail' &&
+			(app === 'SALES' || app === 'MARKETING'));
 	}
 
 	function refreshRelatedBadges() {
@@ -30,7 +32,7 @@
 		if (!isScopedBody()) {
 			return;
 		}
-		document.body.classList.add('mk-acc-detail-sales');
+		document.body.classList.add('mk-acc-detail-modern');
 		refreshRelatedBadges();
 
 		var tabs = document.querySelector('.mk-acc-detail-related-tabs');

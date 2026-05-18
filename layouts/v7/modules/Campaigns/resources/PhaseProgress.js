@@ -31,7 +31,8 @@ jQuery(function () {
 		percent = Math.round(clampPercent(percent));
 
 		var $bar = $card.find('.js-phase-progress').first();
-		$bar.css('width', percent + '%').text(percent + '%').attr('aria-valuenow', percent);
+		$bar.css('width', percent + '%').attr('aria-valuenow', percent);
+		$card.find('.js-phase-progress-pct').first().text(percent + '%');
 	});
 
 	// Result Progress
@@ -42,8 +43,8 @@ jQuery(function () {
 	resultPercent = Math.round(clampPercent(resultPercent));
 	jQuery('.js-result-progress')
 		.css('width', resultPercent + '%')
-		.text(resultPercent + '%')
 		.attr('aria-valuenow', resultPercent);
+	jQuery('.js-result-progress-value').text(resultPercent + '%');
 
 	function fmtInt(n) {
 		var v = Math.round(n);
@@ -79,8 +80,8 @@ jQuery(function () {
 	timePercent = Math.round(clampPercent(timePercent));
 	jQuery('.js-time-progress')
 		.css('width', timePercent + '%')
-		.text(timePercent + '%')
 		.attr('aria-valuenow', timePercent);
+	jQuery('.js-time-progress-value').text(timePercent + '%');
 
 	// Detail block labels: show "Comment" only (same as Edit), not "Phase N Comment" from DB.
 	var shortComment =

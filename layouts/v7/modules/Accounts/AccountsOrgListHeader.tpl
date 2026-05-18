@@ -42,8 +42,10 @@
 		{/if}
 		{if $MODULE_SETTING_ACTIONS|@count gt 0}
 			<div class="mk-org-settings-wrap">
-				<button type="button" class="mk-org-btn mk-org-btn--outline mk-org-btn--icononly dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="{vtranslate('LBL_SETTINGS', $MODULE)}" aria-label="{vtranslate('LBL_CUSTOMIZE', 'Reports')}">
+				<button type="button" class="mk-org-btn mk-org-btn--outline dropdown-toggle" data-toggle="dropdown" aria-expanded="false" title="{vtranslate('LBL_SETTINGS', $MODULE)}" aria-label="{vtranslate('LBL_CUSTOMIZE', 'Reports')}">
 					<span class="mk-org-btn__ic" aria-hidden="true"><span class="fa fa-wrench"></span></span>
+					<span class="mk-org-btn__txt">{vtranslate('LBL_CUSTOMIZE', 'Reports')}</span>
+					<span class="caret"></span>
 				</button>
 				<ul class="dropdown-menu detailViewSetting mk-org-settings-menu dropdown-menu-right">
 					{foreach item=SETTING from=$MODULE_SETTING_ACTIONS}

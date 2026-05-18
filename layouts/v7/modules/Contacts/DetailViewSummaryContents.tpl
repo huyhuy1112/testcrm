@@ -1,13 +1,6 @@
-{* Contacts DetailViewSummaryContents: SALES scoped summary form wrapper. *}
+{* Contacts DetailViewSummaryContents: Sales + Marketing modern summary form. *}
 {strip}
-{if $smarty.get.app eq 'MARKETING'}
-	<link rel="stylesheet" type="text/css" href="{vresource_url('layouts/v7/modules/Plans/resources/MarketingTheme.v2.css')}" />
-	<form id="detailView" class="clearfix" method="POST" style="position: relative">
-		<div class="col-lg-12 resizable-summary-view mk mk-page">
-			{include file='SummaryViewWidgets.tpl'|vtemplate_path:$MODULE_NAME}
-		</div>
-	</form>
-{elseif (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}
+{if !empty($MK_CONTACT_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
 	<form id="detailView" class="clearfix mk-contact-detail-summary-form" method="POST" style="position: relative">
 		<div class="col-lg-12 resizable-summary-view mk-contact-detail-summary-col">
 			{include file='SummaryViewWidgets.tpl'|vtemplate_path:$MODULE_NAME}

@@ -258,7 +258,8 @@ body[data-module="ServiceContracts"][data-view="Detail"][data-app="SALES"] .mk-d
 body[data-module="Potentials"][data-view="Detail"][data-app="SALES"] .mk-dash-main,
 body[data-module="SalesOrder"][data-view="Detail"][data-app="SALES"] .mk-dash-main,
 body[data-module="Quotes"][data-view="Detail"][data-app="SALES"],
-body[data-module="ProductsServices"][data-view="Detail"][data-app="SALES"] .mk-dash-main {
+body[data-module="ProductsServices"][data-view="Detail"][data-app="SALES"] .mk-dash-main,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-dash-main.mk-camp-detail-main {
     flex: 1 1 auto;
     min-height: 0;
     display: block;
@@ -273,7 +274,8 @@ body[data-module="Potentials"][data-view="List"][data-app="SALES"] .mk-dash-main
 body[data-module="ServiceContracts"][data-view="List"][data-app="SALES"] .mk-dash-main,
 body[data-module="SalesOrder"][data-view="List"][data-app="SALES"] .mk-dash-main,
 body[data-module="Quotes"][data-view="List"][data-app="SALES"] .mk-dash-main,
-body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] .mk-dash-main {
+body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] .mk-dash-main,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-dash-main.mk-camp-list-main {
     flex: 1 1 auto;
     min-height: 0;
     display: block;
@@ -295,7 +297,11 @@ body[data-module="Potentials"][data-view="List"][data-app="SALES"] #page.contain
 body[data-module="ServiceContracts"][data-view="List"][data-app="SALES"] #page.container-fluid,
 body[data-module="SalesOrder"][data-view="List"][data-app="SALES"] #page.container-fluid,
 body[data-module="Quotes"][data-view="List"][data-app="SALES"] #page.container-fluid,
-body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] #page.container-fluid {
+body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] #page.container-fluid,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #page,
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #page.container-fluid,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] #page,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] #page.container-fluid {
     padding-top: 0 !important;
 }
 
@@ -379,6 +385,7 @@ body[data-module="ProductsServices"][data-view="Detail"][data-app="SALES"] .mk-d
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
     background: #ffffff;
     border-right: 1px solid #e2e8f0;
     box-shadow: none;
@@ -500,11 +507,12 @@ body[data-view="ModernDashboard"] .mk-dashboard-sidebar {
     padding: 0;
 }
 
-.mk-dash-sidebar-inner {
+.mk-dash-sidebar-scroll {
     flex: 1 1 auto;
     min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -537,6 +545,19 @@ body[data-view="ModernDashboard"] .mk-dashboard-sidebar {
     display: block;
     flex-shrink: 0;
     color: #475569;
+}
+
+.mk-dash-svg--designer {
+    width: 20px;
+    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
+}
+
+.mk-dash-nav-ic .mk-dash-svg--designer,
+.mk-dash-app-ic .mk-dash-svg--designer {
+    display: block;
+    margin: 0 auto;
 }
 
 .mk-dash-nav-item .mk-dash-svg,
@@ -606,11 +627,14 @@ body[data-view="ModernDashboard"] .mk-dashboard-sidebar {
     padding: 20px 16px 20px;
     margin-top: auto;
     border: none;
-    border-top: none;
+    border-top: 1px solid #e2e8f0;
     box-shadow: none;
     background: #ffffff;
+    flex: 0 0 auto;
     flex-shrink: 0;
     box-sizing: border-box;
+    position: relative;
+    z-index: 2;
 }
 
 .mk-dash-sidebar-user {
@@ -996,7 +1020,8 @@ body[data-module="ProductsServices"][data-view="Detail"][data-app="SALES"] .mk-d
     body[data-module="ServiceContracts"][data-view="List"][data-app="SALES"] .mk-dash-main,
     body[data-module="SalesOrder"][data-view="List"][data-app="SALES"] .mk-dash-main,
     body[data-module="Quotes"][data-view="List"][data-app="SALES"],
-body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] .mk-dash-main {
+body[data-module="ProductsServices"][data-view="List"][data-app="SALES"] .mk-dash-main,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] {
         padding: 0;
     }
 
@@ -1948,3 +1973,382 @@ body[data-view="DashBoard"] #app-menu.app-menu.hide {
 }
 
 /* (dedupe) */
+
+/* ========== Campaigns (MARKETING) — dashboard split shell (list + detail) ========== */
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"],
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-app-shell,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-topbar,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Campaigns"][data-view="Detail"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar,
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+body[data-module="Campaigns"][data-view="List"][data-app="MARKETING"] .mk-dash-app-ic .mk-dash-svg--marketing {
+    overflow: visible;
+}
+
+/* ========== Evaluate (MARKETING) — same split shell as Campaigns ========== */
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] #page,
+body[data-module="Evaluate"][data-view="List"][data-app="MARKETING"] #page.container-fluid {
+    padding-top: 0 !important;
+}
+
+/* ========== Plans (MARKETING) — same split shell as Campaigns ========== */
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] #page,
+body[data-module="Plans"][data-view="List"][data-app="MARKETING"] #page.container-fluid {
+    padding-top: 0 !important;
+}
+
+/* ========== Plans (MARKETING) — detail split shell ========== */
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Plans"][data-view="Detail"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+/* ========== Contacts (MARKETING) — list + detail split shell ========== */
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"],
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] .mk-app-shell,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] .mk-topbar,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] .mk-dashboard-sidebar,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] #page,
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] #page.container-fluid,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] #page,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] #page.container-fluid {
+    padding-top: 0 !important;
+}
+
+body[data-module="Contacts"][data-view="List"][data-app="MARKETING"] .mk-dash-main.mk-contacts-list-main,
+body[data-module="Contacts"][data-view="Detail"][data-app="MARKETING"] .mk-dash-main.mk-contact-detail-main {
+    padding: 20px 24px 24px 16px;
+}
+
+/* ========== Accounts / Organizations (MARKETING) — list + detail split shell ========== */
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"],
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] {
+    --mk-dash-sidebar-w: 256px;
+    --mk-dash-topbar-h: 64px;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] #mk-dash-split-root.mk-dash-split-root {
+    position: relative;
+    display: block;
+    min-height: 0;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] .mk-app-shell,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] .mk-app-shell {
+    margin-left: var(--mk-dash-sidebar-w);
+    width: calc(100% - var(--mk-dash-sidebar-w));
+    max-width: calc(100% - var(--mk-dash-sidebar-w));
+    min-height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: #f7f9fb;
+    padding-top: var(--mk-dash-topbar-h);
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] .mk-topbar,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] .mk-topbar {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] .mk-topbar .mk-dash-app-topbar {
+    position: fixed;
+    top: 0;
+    left: var(--mk-dash-sidebar-w);
+    right: 0;
+    width: auto;
+    min-height: var(--mk-dash-topbar-h);
+    height: var(--mk-dash-topbar-h);
+    z-index: 1030;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #ffffff !important;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] .mk-dashboard-sidebar,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] .mk-dashboard-sidebar {
+    top: 0;
+    height: 100vh;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] #page,
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] #page.container-fluid,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] #page,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] #page.container-fluid {
+    padding-top: 0 !important;
+}
+
+body[data-module="Accounts"][data-view="List"][data-app="MARKETING"] .mk-dash-main.mk-accounts-list-main,
+body[data-module="Accounts"][data-view="Detail"][data-app="MARKETING"] .mk-dash-main.mk-accounts-detail-main {
+    padding: 20px 24px 24px 16px;
+}

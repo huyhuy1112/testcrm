@@ -18,11 +18,14 @@
 		{/if}
 	{/foreach}
 
-{if (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}
+{if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
 	<div class="mk-acc-detail-summary-grid">
 		<section class="mk-acc-detail-card mk-acc-detail-card--key mk-acc-detail-grid__key" aria-labelledby="mk-acc-detail-keyfields-title">
 			<div class="mk-acc-detail-card__head">
-				<h2 id="mk-acc-detail-keyfields-title" class="mk-acc-detail-card__title">{vtranslate('LBL_KEY_FIELDS', $MODULE_NAME)}</h2>
+				<h2 id="mk-acc-detail-keyfields-title" class="mk-acc-detail-card__title">
+					{vtranslate('LBL_KEY_FIELDS', $MODULE_NAME)}
+					<span class="mk-acc-detail-card__title-ic" aria-hidden="true">{include file="partials/AccountsDetailSvgIcon.tpl"|@vtemplate_path:$MODULE ICON='INFO'}</span>
+				</h2>
 			</div>
 			<div class="summaryView mk-acc-detail-summaryView">
 				<div class="summaryViewFields mk-acc-detail-kv-wrap">
@@ -32,6 +35,12 @@
 		</section>
 
 		<section class="mk-acc-detail-card mk-acc-detail-card--activities mk-acc-detail-grid__activities" aria-labelledby="mk-acc-detail-activities-title">
+			<div class="mk-acc-detail-card__head mk-acc-detail-card__head--activities">
+				<h2 id="mk-acc-detail-activities-title" class="mk-acc-detail-card__title">
+					<span class="mk-acc-detail-card__title-ic" aria-hidden="true">{include file="partials/AccountsDetailSvgIcon.tpl"|@vtemplate_path:$MODULE ICON='CALENDAR'}</span>
+					{vtranslate('LBL_ACTIVITIES', 'Vtiger')}
+				</h2>
+			</div>
 			<div id="relatedActivities" class="mk-acc-detail-related-activities">
 				{$RELATED_ACTIVITIES}
 			</div>
@@ -58,7 +67,10 @@
 				<div class="widgetContainer_comments" data-url="{$COMMENTS_WIDGET_MODEL->getUrl()}" data-name="{$COMMENTS_WIDGET_MODEL->getLabel()}">
 					<div class="widget_header mk-acc-detail-card__head">
 						<input type="hidden" name="relatedModule" value="{$COMMENTS_WIDGET_MODEL->get('linkName')}" />
-						<h2 id="mk-acc-detail-comments-title" class="mk-acc-detail-card__title">{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h2>
+						<h2 id="mk-acc-detail-comments-title" class="mk-acc-detail-card__title">
+							<span class="mk-acc-detail-card__title-ic" aria-hidden="true">{include file="partials/AccountsDetailSvgIcon.tpl"|@vtemplate_path:$MODULE ICON='COMMENT'}</span>
+							{vtranslate($COMMENTS_WIDGET_MODEL->getLabel(),$MODULE_NAME)}
+						</h2>
 					</div>
 					<div class="widget_contents">
 					</div>
@@ -74,7 +86,10 @@
 					<div class="widget_header clearfix mk-acc-detail-card__head mk-acc-detail-documents__head">
 						<input type="hidden" name="relatedModule" value="{$DOCUMENT_WIDGET_MODEL->get('linkName')}" />
 						<span class="toggleButton pull-left"><i class="fa fa-angle-down"></i>&nbsp;&nbsp;</span>
-						<h2 id="mk-acc-detail-documents-title" class="mk-acc-detail-card__title display-inline-block pull-left">{vtranslate($DOCUMENT_WIDGET_MODEL->getLabel(),$MODULE_NAME)}</h2>
+						<h2 id="mk-acc-detail-documents-title" class="mk-acc-detail-card__title display-inline-block pull-left">
+							<span class="mk-acc-detail-card__title-ic" aria-hidden="true">{include file="partials/AccountsDetailSvgIcon.tpl"|@vtemplate_path:$MODULE ICON='FOLDER'}</span>
+							{vtranslate($DOCUMENT_WIDGET_MODEL->getLabel(),$MODULE_NAME)}
+						</h2>
 
 						{if $DOCUMENT_WIDGET_MODEL->get('action')}
 							{assign var=PARENT_ID value=$RECORD->getId()}

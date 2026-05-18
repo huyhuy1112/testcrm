@@ -1,6 +1,6 @@
 {* Contacts Detail actions: Sales layout + SVG icons + primary Send Email CTA. *}
 {strip}
-{if (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}
+{if !empty($MK_CONTACT_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
 	{assign var=MK_CONTACT_ACTION_COL value="detailViewButtoncontainer mk-contact-detail-actions"}
 	<div class="{$MK_CONTACT_ACTION_COL}">
 		<div class="pull-right btn-toolbar mk-contact-detail-actions__toolbar">
@@ -10,8 +10,8 @@
 				<button type="button" class="btn btn-default mk-contact-detail-btn mk-contact-detail-btn--ghost markStar {if $STARRED} active {/if}" id="starToggle">
 					<span class="mk-contact-detail-btn__ic mk-contact-detail-btn__ic--follow" aria-hidden="true">{include file="partials/ContactDetailSvgIcon.tpl"|@vtemplate_path:$MODULE ICON='FOLLOW'}</span>
 					<div class="starredStatus hide" title="{vtranslate('LBL_STARRED', $MODULE)}">
-						<div class="unfollowMessage"><i class="fa fa-star-o"></i> &nbsp;{vtranslate('LBL_UNFOLLOW',$MODULE)}</div>
-						<div class="followMessage"><i class="fa fa-star active"></i> &nbsp;{vtranslate('LBL_FOLLOWING',$MODULE)}</div>
+						<div class="unfollowMessage"><span class="mk-contact-detail-btn__txt">{vtranslate('LBL_UNFOLLOW',$MODULE)}</span></div>
+						<div class="followMessage"><span class="mk-contact-detail-btn__txt">{vtranslate('LBL_FOLLOWING',$MODULE)}</span></div>
 					</div>
 					<div class="unstarredStatus" title="{vtranslate('LBL_NOT_STARRED', $MODULE)}">
 						<span class="mk-contact-detail-btn__txt">{vtranslate('LBL_FOLLOW',$MODULE)}</span>
@@ -22,7 +22,7 @@
 				{assign var=MK_BASIC_LBL value=$DETAIL_VIEW_BASIC_LINK->getLabel()}
 				{assign var=MK_BASIC_ICON value='EDIT'}
 				{if $MK_BASIC_LBL eq 'LBL_SEND_EMAIL'}{assign var=MK_BASIC_ICON value='EMAIL'}{/if}
-				<button type="button" class="btn btn-default mk-contact-detail-btn {if $MK_BASIC_LBL eq 'LBL_SEND_EMAIL'}mk-contact-detail-btn--primary{/if}" id="{$MODULE_NAME}_detailView_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($MK_BASIC_LBL)}"
+				<button type="button" class="btn btn-default mk-contact-detail-btn {if $MK_BASIC_LBL eq 'LBL_SEND_EMAIL'}mk-contact-detail-btn--primary{else}mk-contact-detail-btn--ghost{/if}" id="{$MODULE_NAME}_detailView_basicAction_{Vtiger_Util_Helper::replaceSpaceWithUnderScores($MK_BASIC_LBL)}"
 						{if $DETAIL_VIEW_BASIC_LINK->isPageLoadLink()}
 							onclick="window.location.href = '{$DETAIL_VIEW_BASIC_LINK->getUrl()}&app={$SELECTED_MENU_CATEGORY}'"
 						{else}

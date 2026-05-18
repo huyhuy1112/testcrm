@@ -36,6 +36,16 @@ $languageStrings = array(
 	'LBL_PHASE_KPI_ACTUAL' => 'Actual',
 	'LBL_PHASE_START' => 'Start',
 	'LBL_PHASE_END' => 'End',
+	'LBL_VIEW_CAMPAIGN' => 'View Campaign',
+	'LBL_DESCRIPTION_INFORMATION' => 'Description Details',
+	'LBL_CAMPAIGN_TIMELINE' => 'Campaign Timeline',
+	'LBL_TIME_PROGRESS' => 'Time Progress',
+	'LBL_PERFORMANCE_METRIC' => 'Performance Metric',
+	'LBL_RESULT_PROGRESS' => 'Result Progress',
+	'LBL_START_DATE' => 'Start Date',
+	'LBL_END_DATE' => 'End Date',
+	'LBL_EXPECTED' => 'Expected',
+	'LBL_ACTUAL' => 'Actual',
 
 	//Field Labels
 	'Campaign Name' => 'Campaign Name',

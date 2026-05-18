@@ -12,9 +12,32 @@
 class Accounts_Detail_View extends Vtiger_Detail_View {
 
 	/**
+	 * Sales + Marketing use the same modern Organizations detail shell.
+	 */
+	protected function isModernAccountsDetailUi(Vtiger_Request $request) {
+		$app = strtoupper((string)$request->get('app'));
+		if ($app === '') {
+			$app = strtoupper((string)$request->get('SELECTED_MENU_CATEGORY'));
+		}
+		return $app === 'SALES' || $app === 'MARKETING';
+	}
+
+	protected function assignModernAccountsDetailUi(Vtiger_Request $request) {
+		if ($this->isModernAccountsDetailUi($request)) {
+			$this->getViewer($request)->assign('MK_ACCOUNTS_MODERN_UI', true);
+		}
+	}
+
+	public function preProcess(Vtiger_Request $request, $display = true) {
+		$this->assignModernAccountsDetailUi($request);
+		return parent::preProcess($request, $display);
+	}
+
+	/**
 	 * Enforce record-level Tag ACL on DetailView for non-privileged users.
 	 */
 	public function process(Vtiger_Request $request) {
+		$this->assignModernAccountsDetailUi($request);
 		$currentUser = Users_Record_Model::getCurrentUserModel();
 		require_once 'modules/Contacts/models/TagAccessHelper.php';
 
@@ -120,7 +143,18 @@ class Accounts_Detail_View extends Vtiger_Detail_View {
 		}
 	}
 
+	public function showModuleBasicView(Vtiger_Request $request) {
+		$this->assignModernAccountsDetailUi($request);
+		return parent::showModuleBasicView($request);
+	}
+
+	public function showModuleSummaryView($request) {
+		$this->assignModernAccountsDetailUi($request);
+		return parent::showModuleSummaryView($request);
+	}
+
 	public function showModuleDetailView(Vtiger_Request $request) {
+		$this->assignModernAccountsDetailUi($request);
 		$recordId = $request->get('record');
 		$moduleName = $request->getModule();
 

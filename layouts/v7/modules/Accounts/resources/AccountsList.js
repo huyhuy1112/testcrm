@@ -12,7 +12,13 @@
 			return false;
 		}
 		var appName = (b.getAttribute('data-app') || '').toUpperCase();
-		return appName === 'SALES';
+		if (appName === 'SALES' || appName === 'MARKETING') {
+			return true;
+		}
+		var params = new URLSearchParams(window.location.search || '');
+		var app = params.get('app');
+		return params.get('module') === 'Accounts' && params.get('view') === 'List' &&
+			(app === 'SALES' || app === 'MARKETING');
 	}
 
 	function destroyPerfectScrollbar($tc) {
@@ -121,7 +127,7 @@
 			return;
 		}
 
-		$(document).on('click.mkOrgList', '.mk-org-trigger-columns', function (e) {
+		$(document).on('click.mkOrgList', '.mk-so-trigger-columns, .mk-org-trigger-columns', function (e) {
 			e.preventDefault();
 			var col = root.find('.listColumnFilter').first();
 			if (col.length) {
@@ -129,9 +135,9 @@
 			}
 		});
 
-		$(document).on('click.mkOrgList', '.mk-org-filter-trigger-search', function (e) {
+		$(document).on('click.mkOrgList', '.mk-so-filter-trigger-search, .mk-org-filter-trigger-search', function (e) {
 			e.preventDefault();
-			root.toggleClass('mk-org-search-open');
+			root.toggleClass('mk-so-search-open mk-org-search-open');
 		});
 
 		if (typeof app !== 'undefined' && app.event && app.event.on) {

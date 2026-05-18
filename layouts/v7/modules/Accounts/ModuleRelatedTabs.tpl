@@ -3,7 +3,7 @@
 *************************************************************************************}
 
 {strip}
-	<div class='related-tabs row {if (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}mk-acc-detail-related-tabs{/if}'>
+	<div class='related-tabs row {if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}mk-acc-detail-related-tabs{/if}'>
 		<nav class="navbar margin0" role="navigation">
 			<div class="navbar-header">
 				<button type="button" class="navbar-toggle btn-group-justified collapsed border0" data-toggle="collapse" data-target="#nav-tabs" aria-expanded="false">
@@ -24,7 +24,7 @@
 						</li>
 					{/foreach}
 
-{if (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}
+{if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
 					<li class="mk-acc-detail-tabs-spacer" role="presentation" aria-hidden="true"></li>
 {/if}
 
@@ -49,6 +49,11 @@
                                                     <li class="tab-item {if (trim($RELATED_LINK->getLabel())== trim($SELECTED_TAB_LABEL)) && ($RELATED_LINK->getId() == $SELECTED_RELATION_ID)}active{/if}" data-url="{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" data-label-key="{$RELATED_LINK->getLabel()}"
                                                             data-module="{$RELATEDMODULENAME}" data-relation-id="{$RELATED_LINK->getId()}" {if $RELATEDMODULENAME eq "ModComments"} title {else} title="{$DETAILVIEWRELATEDLINKLBL}"{/if} {if $RELATEDFIELDNAME}data-relatedfield ="{$RELATEDFIELDNAME}"{/if}>
                                                             <a href="index.php?{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" class="textOverflowEllipsis" displaylabel="{$DETAILVIEWRELATEDLINKLBL}" recordsCount="" >
+                                                                    {if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
+                                                                    <span class="tab-icon mk-acc-tab-icon">
+                                                                            {include file="partials/AccountsDetailTabSvgIcon.tpl"|@vtemplate_path:$MODULE MODULE=$RELATEDMODULENAME}
+                                                                    </span>
+                                                                    {else}
                                                                     {if $RELATEDMODULENAME eq "ModComments"}
                                                                             <span class="tab-icon"><i class="fa fa-comment" style="font-size: 24px"></i></span>
                                                                     {else}
@@ -56,6 +61,7 @@
                                                                                     {assign var=RELATED_MODULE_MODEL value=Vtiger_Module_Model::getInstance($RELATEDMODULENAME)}
                                                                                     {$RELATED_MODULE_MODEL->getModuleIcon()}
                                                                             </span>
+                                                                    {/if}
                                                                     {/if}
                                                                     &nbsp;<span class="numberCircle hide">0</span>
                                                             </a>
@@ -105,6 +111,12 @@
                                                                             <li class="more-tab {if (trim($RELATED_LINK->getLabel())== trim($SELECTED_TAB_LABEL)) && ($RELATED_LINK->getId() == $SELECTED_RELATION_ID)}active{/if}" data-url="{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" data-label-key="{$RELATED_LINK->getLabel()}"
                                                                                     data-module="{$RELATEDMODULENAME}" title="" data-relation-id="{$RELATED_LINK->getId()}" {if $RELATEDFIELDNAME}data-relatedfield ="{$RELATEDFIELDNAME}"{/if}>
                                                                                     <a href="index.php?{$RELATED_LINK->getUrl()}&tab_label={$RELATED_LINK->getLabel()}&app={$SELECTED_MENU_CATEGORY}" displaylabel="{$DETAILVIEWRELATEDLINKLBL}" recordsCount="">
+                                                                                            {if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
+                                                                                            <span class="tab-icon textOverflowEllipsis mk-acc-tab-icon">
+                                                                                                    {include file="partials/AccountsDetailTabSvgIcon.tpl"|@vtemplate_path:$MODULE MODULE=$RELATEDMODULENAME}
+                                                                                                    <span class="content"> &nbsp;{$DETAILVIEWRELATEDLINKLBL}</span>
+                                                                                            </span>
+                                                                                            {else}
                                                                                             {if $RELATEDMODULENAME eq "ModComments"}
                                                                                                 <span class="tab-icon textOverflowEllipsis">
                                                                                                     <i class="fa fa-comment"></i> &nbsp;<span class="content">{$DETAILVIEWRELATEDLINKLBL}</span>
@@ -115,6 +127,7 @@
                                                                                                             {$RELATED_MODULE_MODEL->getModuleIcon()}
                                                                                                             <span class="content"> &nbsp;{$DETAILVIEWRELATEDLINKLBL}</span>
                                                                                                     </span>
+                                                                                            {/if}
                                                                                             {/if}
                                                                                             &nbsp;<span class="numberCircle hide">0</span>
                                                                                     </a>

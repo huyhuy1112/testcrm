@@ -1,9 +1,10 @@
 {strip}
+{assign var=MK_LIST_APP value=$SELECTED_MENU_CATEGORY|default:$smarty.get.app|default:'SALES'}
 <div class="mk-contact-header">
 	<nav class="mk-contact-breadcrumb" aria-label="Breadcrumb">
 		<ol class="mk-contact-breadcrumb__list">
 			<li class="mk-contact-breadcrumb__item">
-				<a href="index.php?module=Contacts&amp;view=List&amp;app=SALES">{vtranslate($MODULE_NAME, $MODULE_NAME)}</a>
+				<a href="index.php?module=Contacts&amp;view=List&amp;app={$MK_LIST_APP}">{vtranslate($MODULE_NAME, $MODULE_NAME)}</a>
 			</li>
 			<li class="mk-contact-breadcrumb__sep" aria-hidden="true">/</li>
 			<li class="mk-contact-breadcrumb__item mk-contact-breadcrumb__item--current">
@@ -35,13 +36,16 @@
 						{else}
 					onclick="Vtiger_Import_Js.triggerImportAction('{$IMPORT_ACTION->getUrl()}')"
 						{/if}>
+					<span class="mk-contact-btn__ic" aria-hidden="true">{include file="partials/DashboardTopbarSvgIcon.tpl"|@vtemplate_path:'Vtiger' ICON='IMPORT'}</span>
 					<span class="mk-contact-btn__txt">{vtranslate($IMPORT_ACTION->getLabel(), $MODULE)}</span>
 				</button>
 			{/if}
 			{if $MODULE_SETTING_ACTIONS|@count gt 0}
 				<div class="mk-contact-settings-wrap">
 					<button type="button" class="mk-contact-btn mk-contact-btn--outline dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-						{vtranslate('LBL_CUSTOMIZE', 'Reports')} <span class="caret"></span>
+						<span class="mk-contact-btn__ic" aria-hidden="true"><span class="fa fa-wrench"></span></span>
+						<span class="mk-contact-btn__txt">{vtranslate('LBL_CUSTOMIZE', 'Reports')}</span>
+						<span class="caret"></span>
 					</button>
 					<ul class="dropdown-menu detailViewSetting mk-contact-settings-menu dropdown-menu-right">
 						{foreach item=SETTING from=$MODULE_SETTING_ACTIONS}
@@ -57,6 +61,7 @@
 						{else}
 					onclick='window.location.href = "{$ADD_ACTION->getUrl()}&app={$SELECTED_MENU_CATEGORY}"'
 						{/if}>
+					<span class="mk-contact-btn__ic" aria-hidden="true">{include file="partials/DashboardTopbarSvgIcon.tpl"|@vtemplate_path:'Vtiger' ICON='PLUS'}</span>
 					<span class="mk-contact-btn__txt">{vtranslate('LBL_ADD_RECORD', $MODULE)}</span>
 				</button>
 			{/if}

@@ -1,7 +1,7 @@
 {*+**********************************************************************************
 * The contents of this file are subject to the vtiger CRM Public License Version 1.1
 * ("License"); You may not use this file except in compliance with the License.
-* Dashboard-only sidebar (Figma-aligned). Icons: DashboardSidebarSvgIcon.tpl (stroke SVG).
+* Dashboard-only sidebar (Figma-aligned). Icons: DashboardSidebarSvgIcon.tpl (designer SVG).
 ************************************************************************************}
 
 {strip}
@@ -44,7 +44,7 @@
 			</a>
 		</div>
 	</div>
-	<div class="mk-dash-sidebar-inner">
+	<div class="mk-dash-sidebar-scroll">
 		<nav class="mk-dash-sidebar-nav mk-dash-sidebar-nav--accordion" aria-label="Primary navigation" data-mk-dash-accordion="1">
 			<div class="mk-dash-sidebar-nav-track">
 			{if $USER_PRIVILEGES_MODEL->hasModulePermission($DASHBOARD_MODULE_MODEL->getId())}
@@ -85,8 +85,9 @@
 			</a>
 			</div>
 		</nav>
+	</div>
 
-		<div class="mk-dash-sidebar-footer">
+	<div class="mk-dash-sidebar-footer">
 			<div class="mk-dash-sidebar-user">
 				{if $_userPhoto neq ''}
 					<img class="mk-dash-user-avatar mk-dash-user-avatar--img" src="{$_userPhoto|@escape:'html'}" width="40" height="40" alt="" />
@@ -101,6 +102,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
 </aside>
 {/strip}

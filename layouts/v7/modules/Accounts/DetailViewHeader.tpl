@@ -1,6 +1,6 @@
 {* Accounts Detail header: Sales gets hero shell + same includes as Vtiger for Detail.js compatibility. *}
 {strip}
-{if (isset($SELECTED_MENU_CATEGORY) && $SELECTED_MENU_CATEGORY eq 'SALES') || (isset($smarty.get.app) && $smarty.get.app eq 'SALES')}
+{if !empty($MK_ACCOUNTS_MODERN_UI) || (isset($SELECTED_MENU_CATEGORY) && ($SELECTED_MENU_CATEGORY eq 'SALES' || $SELECTED_MENU_CATEGORY eq 'MARKETING')) || (isset($smarty.get.app) && ($smarty.get.app eq 'SALES' || $smarty.get.app eq 'MARKETING'))}
 <div class="detailview-header-block mk-acc-detail-hero-strip">
 	<div class="detailview-header mk-acc-detail-hero">
 		<div class="mk-acc-detail-hero__row">
