@@ -2,7 +2,7 @@
 
 
 //This is the sharing access privilege file
-$defaultOrgSharingPermission=array('2'=>2,'4'=>2,'6'=>2,'7'=>2,'9'=>3,'13'=>2,'16'=>3,'20'=>2,'21'=>2,'22'=>2,'23'=>2,'26'=>2,'8'=>2,'14'=>2,'34'=>3,'35'=>2,'36'=>2,'38'=>2,'42'=>2,'43'=>2,'44'=>2,'45'=>2,'47'=>2,'18'=>2,'10'=>2,'55'=>2,);
+$defaultOrgSharingPermission=array('2'=>2,'4'=>2,'6'=>2,'7'=>2,'9'=>3,'13'=>2,'16'=>3,'20'=>2,'21'=>2,'22'=>2,'23'=>2,'26'=>2,'8'=>2,'14'=>2,'34'=>3,'35'=>2,'36'=>2,'38'=>2,'42'=>2,'43'=>2,'44'=>2,'45'=>2,'47'=>2,'18'=>2,'10'=>2,'55'=>2,'59'=>2,);
 
 $related_module_share=array(2=>array(6,),13=>array(6,),20=>array(6,2,),22=>array(6,2,20,),23=>array(6,22,),);
 
@@ -142,8 +142,28 @@ $SMSNotifier_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
 
 $SMSNotifier_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
 
+$Plans_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$Plans_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
+
 $Teams_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
 
 $Teams_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$Activities_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$Activities_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$Faq_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$Faq_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$SupportFAQ_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$SupportFAQ_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$ProductsServices_share_read_permission=array('ROLE'=>array(),'GROUP'=>array());
+
+$ProductsServices_share_write_permission=array('ROLE'=>array(),'GROUP'=>array());
 
 ?>
