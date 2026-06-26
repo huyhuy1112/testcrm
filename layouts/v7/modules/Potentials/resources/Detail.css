@@ -133,7 +133,6 @@ body[data-module="Potentials"][data-view="Detail"][data-app="SALES"] .app-footer
 	letter-spacing: 0.04em;
 	color: #a89882 !important;
 }
-
 @media (max-width: 1199px) {
 	body[data-module="Potentials"][data-view="Detail"][data-app="SALES"] .main-container.mk-opportunity-detail-page {
 		padding-left: 32px !important;
