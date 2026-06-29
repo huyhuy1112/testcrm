@@ -18,7 +18,8 @@
 		body {
 			margin: 0;
 			min-height: 100vh;
-			background: url(layouts/v7/resources/Images/login-bace-tech-bg.png) center/cover no-repeat fixed;
+			/* mk_login_v=20260629a (cache-bust + verify deployed template) */
+			background: url(layouts/v7/resources/Images/login-bace-tech-bg.png?v=20260629a) center/cover no-repeat fixed;
 		}
 		body::before {
 			content: "";
