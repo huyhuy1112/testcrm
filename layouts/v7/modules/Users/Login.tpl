@@ -110,7 +110,7 @@
 			align-items: start;
 			justify-content: start;
 			max-height: calc(100vh - 3.5rem);
-			transform: translate(19rem, -10rem);
+			transform: translate(34rem, -4.5rem);
 		}
 		@media (max-width: 1100px) {
 			.loginPageContainer {
