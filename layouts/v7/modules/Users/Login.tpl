@@ -15,11 +15,50 @@
 			height: 100%;
 			overflow: hidden; /* fixed-screen: no page scroll */
 		}
+		html:has(body[data-view="Login"]) {
+			background-color: #061220;
+		}
+		body[data-view="Login"] {
+			margin: 0 !important;
+			padding-top: 0 !important;
+			min-height: 100vh;
+			background-color: #061220 !important;
+			background-image: url(layouts/v7/resources/Images/login-bace-tech-bg.png?v=20260630b) !important;
+			background-position: center center !important;
+			background-size: cover !important;
+			background-repeat: no-repeat !important;
+			background-attachment: fixed !important;
+		}
+		html[data-theme="dark"] body[data-view="Login"] {
+			background-color: #061220 !important;
+			background-image: url(layouts/v7/resources/Images/login-bace-tech-bg.png?v=20260630b) !important;
+			background-position: center center !important;
+			background-size: cover !important;
+			background-repeat: no-repeat !important;
+			background-attachment: fixed !important;
+		}
+		body[data-view="Login"] #page {
+			margin: 0 !important;
+			padding-top: 0 !important;
+			background: transparent !important;
+			min-height: 100vh !important;
+			height: auto !important;
+		}
+		body[data-view="Login"] .app-nav,
+		body[data-view="Login"] nav.navbar,
+		body[data-view="Login"] .app-fixed-navbar {
+			display: none !important;
+			height: 0 !important;
+			min-height: 0 !important;
+			padding: 0 !important;
+			margin: 0 !important;
+			border: 0 !important;
+		}
 		body {
 			margin: 0;
 			min-height: 100vh;
-			/* mk_login_v=20260629a (cache-bust + verify deployed template) */
-			background: url(layouts/v7/resources/Images/login-bace-tech-bg.png?v=20260629a) center/cover no-repeat fixed;
+			/* mk_login_v=20260630b — full login layout fix (no white bar, shell position) */
+			background: url(layouts/v7/resources/Images/login-bace-tech-bg.png?v=20260630b) center/cover no-repeat fixed;
 		}
 		body::before {
 			content: "";
@@ -42,6 +81,9 @@
 			position: relative;
 			z-index: 1;
 			height: 100vh;
+			min-height: 100vh !important;
+			margin-top: 0 !important;
+			padding-top: 0 !important;
 			display: flex;
 			align-items: center;
 			justify-content: flex-start;
@@ -51,7 +93,7 @@
 		}
 
 		/* Hide footer on login only to prevent scroll */
-		.app-footer, .footer { display: none !important; }
+		.app-footer, .footer, .mk-app-footer { display: none !important; }
 
 		/* Subtle aurora glow behind cards */
 		.loginPageContainer::before,
