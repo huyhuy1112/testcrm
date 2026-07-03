@@ -21,9 +21,9 @@
 			})();
 		</script>
 		<title>B-ACE</title>
-        <link rel="icon" type="image/png" sizes="32x32" href="layouts/v7/skins/images/nguyenkhoa-logo.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="layouts/v7/skins/images/nguyenkhoa-logo.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="layouts/v7/skins/images/nguyenkhoa-logo.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="layouts/v7/skins/images/favicon-32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="layouts/v7/skins/images/favicon-16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="layouts/v7/skins/images/bace-icon-180.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 

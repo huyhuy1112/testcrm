@@ -22,9 +22,14 @@ class Project_Save_Action extends Vtiger_Save_Action {
 			return $recordModel;
 		}
 
-		$db = PearDatabase::getInstance();
 		if (class_exists('Teams_Module_Model')) {
 			Teams_Module_Model::ensureProjectAssignSchema();
+		}
+
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_team_groups'));
+		if (!$res || $db->num_rows($res) === 0) {
+			return $recordModel;
 		}
 
 		$teamGroupId = $this->resolveTeamGroupIdFromRequest($request);

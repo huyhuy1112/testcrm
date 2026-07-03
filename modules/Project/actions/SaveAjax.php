@@ -31,15 +31,13 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			$request->set('_team_group_id', 0);
 		}
 
-		// Khi assign team group (assigned_user_id < 0): giữ nguyên -groupid để cột Assigned To hiển thị tên nhóm
 		parent::process($request);
 
 		// Safety net: sau khi save inline owner về user/group thường, xóa mapping team group còn sót.
 		if ($isInlineOwnerUpdate && $inlineOwnerValue !== null && $inlineOwnerValue >= 0) {
 			$projectId = (int)$request->get('record');
 			if ($projectId > 0) {
-				$db = PearDatabase::getInstance();
-				$db->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
+				$this->clearProjectTeamGroupMapping($projectId);
 			}
 		}
 	}
@@ -50,24 +48,30 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 	public function saveRecord(Vtiger_Request $request) {
 		$recordModel = parent::saveRecord($request);
 		$projectId = (int) $recordModel->getId();
-		if ($projectId <= 0) return $recordModel;
-
-		$db = PearDatabase::getInstance();
-		if (class_exists('Teams_Module_Model')) {
-			Teams_Module_Model::ensureProjectAssignSchema();
+		if ($projectId <= 0) {
+			return $recordModel;
 		}
 
-		// Team group: chỉ nhận khi owner hiện tại là negative id (team group).
-		// Nếu owner là user/group thường (>=0) thì bắt buộc clear team group mapping.
+		if (!$this->shouldSyncTeamGroupFromRequest($request)) {
+			return $recordModel;
+		}
+
+		$this->ensureProjectAssignTables();
+		if (!$this->projectTeamGroupTableExists()) {
+			return $recordModel;
+		}
+
+		$db = PearDatabase::getInstance();
 		$teamGroupId = $this->resolveTeamGroupIdFromRequest($request);
 		$db->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
 		if ($teamGroupId > 0) {
-			$db->pquery("INSERT INTO vtiger_project_team_groups (projectid, team_groupid) VALUES (?, ?)",
-				array($projectId, $teamGroupId));
+			$db->pquery(
+				"INSERT INTO vtiger_project_team_groups (projectid, team_groupid) VALUES (?, ?)",
+				array($projectId, $teamGroupId)
+			);
 		}
 
-		// Additional assignees: chỉ đồng bộ khi form gửi _additional_assignees (tránh xóa khi inline edit field khác).
-		if ($request->has('_additional_assignees')) {
+		if ($request->has('_additional_assignees') && $this->projectAssigneesTableExists()) {
 			$assignees = $request->get('_additional_assignees');
 			if (!is_array($assignees)) {
 				$assignees = array();
@@ -76,8 +80,10 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			foreach ($assignees as $uid) {
 				$uid = (int) $uid;
 				if ($uid > 0) {
-					$db->pquery("INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
-						array($projectId, $uid));
+					$db->pquery(
+						"INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
+						array($projectId, $uid)
+					);
 				}
 			}
 		}
@@ -85,12 +91,53 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 		return $recordModel;
 	}
 
+	protected function shouldSyncTeamGroupFromRequest(Vtiger_Request $request) {
+		$field = (string)$request->get('field');
+		if ($field === 'assigned_user_id' || $request->has('assigned_user_id')) {
+			return true;
+		}
+		if ($request->has('_team_group_id') && (int)$request->get('_team_group_id') > 0) {
+			return true;
+		}
+		if ($request->has('_additional_assignees')) {
+			return true;
+		}
+		return false;
+	}
+
+	protected function ensureProjectAssignTables() {
+		if (class_exists('Teams_Module_Model')) {
+			Teams_Module_Model::ensureProjectAssignSchema();
+		}
+	}
+
+	protected function projectTeamGroupTableExists() {
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_team_groups'));
+		return $res && $db->num_rows($res) > 0;
+	}
+
+	protected function projectAssigneesTableExists() {
+		$db = PearDatabase::getInstance();
+		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_assignees'));
+		return $res && $db->num_rows($res) > 0;
+	}
+
+	protected function clearProjectTeamGroupMapping($projectId) {
+		$projectId = (int)$projectId;
+		if ($projectId <= 0) {
+			return;
+		}
+		$this->ensureProjectAssignTables();
+		if (!$this->projectTeamGroupTableExists()) {
+			return;
+		}
+		$db = PearDatabase::getInstance();
+		$db->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
+	}
+
 	/**
 	 * Resolve team group id safely from request.
-	 * Priority:
-	 * 1) If assigned_user_id (or inline value) is negative => use abs(value) as team group id.
-	 * 2) If assigned_user_id is non-negative => force no team group (return 0).
-	 * 3) Fallback to _team_group_id only when owner is not explicitly provided.
 	 */
 	protected function resolveTeamGroupIdFromRequest(Vtiger_Request $request) {
 		$rawOwner = $request->get('assigned_user_id');

@@ -571,6 +571,7 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 				return;
 			}
 			e.preventDefault();
+			e.stopPropagation();
 			e.stopImmediatePropagation();
 			thisInstance.handleMkProjectKeyFieldInlineSave(jQuery(btn));
 		}, true);
