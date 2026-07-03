@@ -21,50 +21,89 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			echo $this->invokeExposedMethod($mode, $request);
 			return;
 		}
-		$field = (string)$request->get('field');
-		$value = $request->get('value');
-		$isInlineOwnerUpdate = ($field === 'assigned_user_id' && $request->get('record'));
-		$inlineOwnerValue = ($isInlineOwnerUpdate && $value !== null && $value !== '') ? (int)$value : null;
 
-		// Inline edit owner -> user/group thường: đảm bảo không còn _team_group_id cũ đi kèm.
-		if ($isInlineOwnerUpdate && $inlineOwnerValue !== null && $inlineOwnerValue >= 0) {
-			$request->set('_team_group_id', 0);
-		}
-
-		if ($isInlineOwnerUpdate) {
-			$this->ensureProjectAssignTables();
-		}
+		$fieldToBeSaved = (string)$request->get('field');
+		$response = new Vtiger_Response();
+		$response->setEmitType(Vtiger_Response::$EMIT_JSON);
 
 		try {
-			parent::process($request);
+			vglobal('MK_PROJECT_SAVEAJAX_INLINE', 1);
+			vglobal('VTIGER_TIMESTAMP_NO_CHANGE_MODE', $request->get('_timeStampNoChangeMode', false));
+			$recordModel = $this->saveRecord($request);
+			vglobal('VTIGER_TIMESTAMP_NO_CHANGE_MODE', false);
+			vglobal('MK_PROJECT_SAVEAJAX_INLINE', 0);
+
+			$result = $this->buildInlineSaveResult($recordModel, $fieldToBeSaved);
+			$response->setResult($result);
+		} catch (DuplicateException $e) {
+			$response->setError($e->getMessage(), $e->getDuplicationMessage(), $e->getMessage());
 		} catch (\Throwable $e) {
-			$response = new Vtiger_Response();
-			$response->setEmitType(Vtiger_Response::$EMIT_JSON);
 			$response->setError($e->getMessage());
-			$response->emit();
-			return;
 		}
 
-		// Safety net: sau khi save inline owner về user/group thường, xóa mapping team group còn sót.
-		if ($isInlineOwnerUpdate && $inlineOwnerValue !== null && $inlineOwnerValue >= 0) {
-			$projectId = (int)$request->get('record');
-			if ($projectId > 0) {
-				$this->clearProjectTeamGroupMapping($projectId);
-			}
-		}
+		$response->emit();
 	}
 
 	/**
-	 * Sau khi save, ghi vtiger_project_team_groups và vtiger_project_assignees.
+	 * Return only the inline-edited field (+ record meta) to avoid 500s from getDisplayValue on unrelated fields.
 	 */
-	public function saveRecord(Vtiger_Request $request) {
-		$recordModel = parent::saveRecord($request);
-		$projectId = (int) $recordModel->getId();
-		if ($projectId <= 0) {
-			return $recordModel;
+	protected function buildInlineSaveResult($recordModel, $fieldToBeSaved) {
+		$result = array(
+			'_recordLabel' => decode_html($recordModel->getName()),
+			'_recordId' => $recordModel->getId(),
+		);
+
+		if ($fieldToBeSaved === '') {
+			return $result;
 		}
 
-		if (!$this->shouldSyncTeamGroupFromRequest($request)) {
+		$fieldModel = $recordModel->getModule()->getField($fieldToBeSaved);
+		if (!$fieldModel || !$fieldModel->isViewable()) {
+			return $result;
+		}
+
+		$picklistColorMap = array();
+		$recordFieldValue = $recordModel->get($fieldToBeSaved);
+		$fieldDataType = $fieldModel->getFieldDataType();
+
+		if (is_array($recordFieldValue) && $fieldDataType == 'multipicklist') {
+			foreach ($recordFieldValue as $picklistValue) {
+				$picklistColorMap[$picklistValue] = Settings_Picklist_Module_Model::getPicklistColorByValue($fieldToBeSaved, $picklistValue);
+			}
+			$recordFieldValue = implode(' |##| ', $recordFieldValue);
+		}
+		if ($fieldDataType == 'picklist' && $recordFieldValue !== '' && $recordFieldValue !== null) {
+			$picklistColorMap[$recordFieldValue] = Settings_Picklist_Module_Model::getPicklistColorByValue($fieldToBeSaved, $recordFieldValue);
+		}
+
+		$fieldValue = $displayValue = Vtiger_Util_Helper::toSafeHTML($recordFieldValue);
+		if ($fieldDataType !== 'currency' && $fieldDataType !== 'datetime' && $fieldDataType !== 'date' && $fieldDataType !== 'double') {
+			$displayValue = $fieldModel->getDisplayValue($fieldValue, $recordModel->getId());
+		}
+		if ($fieldDataType == 'currency') {
+			$displayValue = Vtiger_Currency_UIType::transformDisplayValue(Vtiger_Currency_UIType::convertToDBFormat($fieldValue));
+		}
+
+		if (!empty($picklistColorMap) && ($fieldDataType == 'picklist' || $fieldDataType == 'multipicklist')) {
+			$result[$fieldToBeSaved] = array(
+				'value' => $fieldValue,
+				'display_value' => $displayValue,
+				'colormap' => $picklistColorMap,
+			);
+		} else {
+			$result[$fieldToBeSaved] = array(
+				'value' => $fieldValue,
+				'display_value' => $displayValue,
+			);
+		}
+
+		return $result;
+	}
+
+	public function saveRecord(Vtiger_Request $request) {
+		$recordModel = parent::saveRecord($request);
+		$projectId = (int)$recordModel->getId();
+		if ($projectId <= 0 || !$this->shouldSyncTeamGroupFromRequest($request)) {
 			return $recordModel;
 		}
 
@@ -90,7 +129,7 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			}
 			$db->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
 			foreach ($assignees as $uid) {
-				$uid = (int) $uid;
+				$uid = (int)$uid;
 				if ($uid > 0) {
 					$db->pquery(
 						"INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
@@ -135,22 +174,6 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 		return $res && $db->num_rows($res) > 0;
 	}
 
-	protected function clearProjectTeamGroupMapping($projectId) {
-		$projectId = (int)$projectId;
-		if ($projectId <= 0) {
-			return;
-		}
-		$this->ensureProjectAssignTables();
-		if (!$this->projectTeamGroupTableExists()) {
-			return;
-		}
-		$db = PearDatabase::getInstance();
-		$db->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
-	}
-
-	/**
-	 * Resolve team group id safely from request.
-	 */
 	protected function resolveTeamGroupIdFromRequest(Vtiger_Request $request) {
 		$rawOwner = $request->get('assigned_user_id');
 		$field = (string)$request->get('field');

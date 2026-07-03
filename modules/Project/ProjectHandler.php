@@ -20,6 +20,12 @@ class ProjectHandler extends VTEventHandler {
 			if ($log) {
 				$log->debug("[ProjectHandler] Event received: $eventName");
 			}
+
+			// Inline SaveAjax: handler side-effects caused HTTP 500 on production KEY FIELDS edits.
+			if (!empty($GLOBALS['MK_PROJECT_SAVEAJAX_INLINE'])
+				|| (isset($_REQUEST['action']) && $_REQUEST['action'] === 'SaveAjax' && isset($_REQUEST['module']) && $_REQUEST['module'] === 'Project')) {
+				return;
+			}
 			
 			// STRICT: Handle ONLY vtiger.entity.aftersave.final (after commit)
 			if ($eventName !== 'vtiger.entity.aftersave.final') {
