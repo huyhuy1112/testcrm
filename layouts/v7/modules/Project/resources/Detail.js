@@ -533,11 +533,123 @@ Vtiger_Detail_Js("Project_Detail_Js",{
         );
         return aDeferred.promise();
     },
+
+	isManagementProjectDetailUi : function() {
+		var body = document.body;
+		return !!(
+			body
+			&& body.getAttribute('data-module') === 'Project'
+			&& body.getAttribute('data-view') === 'Detail'
+			&& body.getAttribute('data-app') === 'MANAGEMENT'
+		);
+	},
+
+	/**
+	 * KEY FIELDS on MANAGEMENT summary: stock validateAndSubmitForm() on #detailView
+	 * validates the whole summary form (comments/widgets) and SaveAjax fails — save inline directly.
+	 */
+	registerMkProjectSummaryInlineSave : function() {
+		if (!this.isManagementProjectDetailUi()) {
+			return;
+		}
+		var thisInstance = this;
+		var holder = this.getContentHolder();
+		holder.off('click.mkProjectKvInlineSave', '.mk-project-detail-keyfields-body .inlineAjaxSave');
+		holder.on('click.mkProjectKvInlineSave', '.mk-project-detail-keyfields-body .inlineAjaxSave', function(e) {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+
+			var $td = jQuery(e.currentTarget).closest('td.fieldValue');
+			if (!$td.length) {
+				return;
+			}
+			var $edit = $td.find('.edit');
+			var $fieldBasicData = $edit.find('.fieldBasicData');
+			var fieldName = $fieldBasicData.data('name');
+			var fieldType = $fieldBasicData.data('type');
+			var previousValue = jQuery.trim($fieldBasicData.data('displayvalue'));
+			var $fieldEl = $edit.find('[name="' + fieldName + '"]');
+			var newValue = $fieldEl.val();
+
+			if ($fieldEl.is('input:checkbox')) {
+				newValue = $fieldEl.is(':checked') ? '1' : '0';
+			} else if (fieldType === 'reference') {
+				newValue = $fieldEl.data('value');
+			}
+
+			var customHandlingFields = ['owner', 'ownergroup', 'picklist', 'multipicklist', 'reference', 'boolean'];
+			if (jQuery.inArray(fieldType, customHandlingFields) !== -1) {
+				previousValue = $fieldBasicData.data('value');
+			}
+			if (fieldType === 'multipicklist') {
+				fieldName = fieldName.split('[]')[0];
+			}
+
+			if (previousValue == newValue) {
+				$td.find('.value').css('display', '');
+				$edit.addClass('hide').removeClass('ajaxEdited');
+				$td.find('.editAction').removeClass('hide').show();
+				return;
+			}
+
+			var payload = {field: fieldName, value: newValue};
+			$td.find('.input-group-addon').addClass('disabled');
+			app.helper.showProgress();
+			thisInstance.saveFieldValues(payload).then(function(err, response) {
+				app.helper.hideProgress();
+				$td.find('.input-group-addon').removeClass('disabled');
+				if (err !== null) {
+					app.event.trigger('post.save.failed', err);
+					return;
+				}
+				if (!response || !response[fieldName] || response[fieldName].display_value === undefined) {
+					window.location.reload();
+					return;
+				}
+
+				var $detailViewValue = $td.find('.value');
+				var displayValue = response[fieldName].display_value;
+				if (fieldType === 'picklist') {
+					var color = response[fieldName].colormap && response[fieldName].colormap[response[fieldName].value];
+					if (color) {
+						var contrast = app.helper.getColorContrast(color);
+						var textColor = (contrast === 'dark') ? 'white' : 'black';
+						$detailViewValue.html(
+							'<span class="picklist-color" style="background-color: ' + color + '; color: ' + textColor + ';">' +
+							displayValue + '</span>'
+						);
+					} else {
+						$detailViewValue.html('<span class="picklist-color">' + displayValue + '</span>');
+					}
+				} else {
+					$detailViewValue.html(displayValue);
+				}
+				$detailViewValue.css('display', '');
+				$fieldBasicData.data('displayvalue', displayValue);
+				$fieldBasicData.data('value', response[fieldName].value);
+				$edit.addClass('hide').removeClass('ajaxEdited');
+				$td.find('.editAction').removeClass('hide').show();
+
+				if (fieldName === 'projectname') {
+					jQuery('.mk-project-detail-hero__title .recordLabel, .detailview-header-block .recordLabel').text(displayValue);
+				}
+
+				app.event.trigger(Vtiger_Detail_Js.PostAjaxSaveEvent, $fieldBasicData, response, holder);
+			});
+		});
+	},
 	
 	registerEvents : function(){
 		var detailContentsHolder = this.getContentHolder();
 		var thisInstance = this;
 		this._super();
+
+		this.registerMkProjectSummaryInlineSave();
+		if (typeof app !== 'undefined' && app && app.event && typeof app.event.on === 'function') {
+			app.event.on('post.summaryview.load', function() {
+				thisInstance.registerMkProjectSummaryInlineSave();
+			});
+		}
 		
 		detailContentsHolder.on('click','.moreRecentMilestones', function(){
 			var recentMilestonesTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentMileStonesLabel);
