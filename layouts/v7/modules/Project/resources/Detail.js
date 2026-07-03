@@ -549,10 +549,46 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 	},
 
 	/**
+	 * Disable inline edit on Project Detail.
+	 * User must use full Edit view to update Project.
+	 */
+	disableInlineEditOnDetail : function() {
+		var holder = this.getContentHolder();
+		if (!holder || !holder.length) {
+			holder = jQuery(document);
+		}
+
+		// Prevent default edit handlers from running by stopping at capture-phase.
+		if (!window._mkProjectDisableInlineCaptureBound) {
+			window._mkProjectDisableInlineCaptureBound = true;
+			document.addEventListener('click', function(e) {
+				var t = e.target;
+				if (!t || !t.closest) {
+					return;
+				}
+				if (t.closest('.editAction') || t.closest('.inlineAjaxSave') || t.closest('.inlineAjaxCancel')) {
+					e.preventDefault();
+					e.stopPropagation();
+					e.stopImmediatePropagation();
+					if (typeof app !== 'undefined' && app.helper) {
+						app.helper.showErrorNotification({message: 'Vui lòng vào nút Sửa (Edit) để cập nhật dự án.'});
+					}
+					return false;
+				}
+			}, true);
+		}
+
+		// Hide inline edit affordances (pencils, save/cancel icons).
+		holder.find('.editAction, .inlineAjaxSave, .inlineAjaxCancel, .action .editAction').addClass('hide').hide();
+	},
+
+	/**
 	 * KEY FIELDS on MANAGEMENT summary: stock validateAndSubmitForm() on #detailView
 	 * validates the whole summary form (comments/widgets) and SaveAjax fails — save inline directly.
 	 */
 	registerMkProjectSummaryInlineSave : function() {
+		// Inline edit disabled: force Edit view.
+		return;
 		if (!this.isManagementProjectDetailUi()) {
 			return;
 		}
@@ -678,7 +714,7 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 	},
 
 	registerBasicEvents : function() {
-		this.registerMkProjectSummaryInlineSave();
+		this.disableInlineEditOnDetail();
 		this._super();
 	},
 	
@@ -686,8 +722,7 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 		var detailContentsHolder = this.getContentHolder();
 		var thisInstance = this;
 		this._super();
-
-		this.registerMkProjectSummaryInlineSave();
+		// no inline edit on Project detail
 		
 		detailContentsHolder.on('click','.moreRecentMilestones', function(){
 			var recentMilestonesTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentMileStonesLabel);
