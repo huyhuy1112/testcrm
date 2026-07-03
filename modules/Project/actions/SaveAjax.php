@@ -66,17 +66,19 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 				array($projectId, $teamGroupId));
 		}
 
-		// Additional assignees: mảng user ids
-		$assignees = $request->get('_additional_assignees');
-		if (!is_array($assignees)) {
-			$assignees = array();
-		}
-		$db->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
-		foreach ($assignees as $uid) {
-			$uid = (int) $uid;
-			if ($uid > 0) {
-				$db->pquery("INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
-					array($projectId, $uid));
+		// Additional assignees: chỉ đồng bộ khi form gửi _additional_assignees (tránh xóa khi inline edit field khác).
+		if ($request->has('_additional_assignees')) {
+			$assignees = $request->get('_additional_assignees');
+			if (!is_array($assignees)) {
+				$assignees = array();
+			}
+			$db->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
+			foreach ($assignees as $uid) {
+				$uid = (int) $uid;
+				if ($uid > 0) {
+					$db->pquery("INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
+						array($projectId, $uid));
+				}
 			}
 		}
 
