@@ -117,7 +117,7 @@ class ProjectHandler extends VTEventHandler {
 			}
 
 			// Send assign notification if owner changed or new record
-			if ($shouldNotify) {
+			if ($shouldNotify && $this->notificationsTableExists($adb)) {
 				$message = "Bạn được assign vào Project: " . $projectName;
 				$insertSql = "INSERT INTO vtiger_notifications (userid, module, recordid, message, created_at) VALUES (?, 'Project', ?, ?, NOW())";
 				$insertResult = $adb->pquery($insertSql, array($newOwnerId, $recordId, $message));
@@ -151,7 +151,7 @@ class ProjectHandler extends VTEventHandler {
 			// Use targetenddate if available, otherwise actualenddate
 			$endDate = !empty($targetEndDate) ? $targetEndDate : $actualEndDate;
 			
-			if (!empty($endDate)) {
+			if (!empty($endDate) && $this->notificationsTableExists($adb)) {
 				$today = date('Y-m-d');
 				$sevenDaysLater = date('Y-m-d', strtotime('+7 days'));
 				
@@ -194,29 +194,77 @@ class ProjectHandler extends VTEventHandler {
 	 * Lưu project assign theo team group và additional assignees (từ _team_group_id, _additional_assignees).
 	 */
 	protected function saveProjectTeamAssignment($adb, $projectId) {
+		$projectId = (int) $projectId;
+		if ($projectId <= 0) {
+			return;
+		}
+
+		if (!$this->shouldSyncTeamAssignmentFromRequest()) {
+			return;
+		}
+
 		if (class_exists('Teams_Module_Model')) {
 			Teams_Module_Model::ensureProjectAssignSchema();
 		}
-		$projectId = (int) $projectId;
-		if ($projectId <= 0) return;
 
 		$teamGroupId = $this->resolveTeamGroupIdFromRequest();
-		$adb->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
-		if ($teamGroupId > 0) {
-			$adb->pquery("INSERT INTO vtiger_project_team_groups (projectid, team_groupid) VALUES (?, ?)",
-				array($projectId, $teamGroupId));
-		}
-
-		$assignees = isset($_REQUEST['_additional_assignees']) ? $_REQUEST['_additional_assignees'] : array();
-		if (!is_array($assignees)) $assignees = array();
-		$adb->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
-		foreach ($assignees as $uid) {
-			$uid = (int) $uid;
-			if ($uid > 0) {
-				$adb->pquery("INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
-					array($projectId, $uid));
+		if ($this->projectTeamGroupTableExists($adb)) {
+			$adb->pquery("DELETE FROM vtiger_project_team_groups WHERE projectid = ?", array($projectId));
+			if ($teamGroupId > 0) {
+				$adb->pquery(
+					"INSERT INTO vtiger_project_team_groups (projectid, team_groupid) VALUES (?, ?)",
+					array($projectId, $teamGroupId)
+				);
 			}
 		}
+
+		if (isset($_REQUEST['_additional_assignees']) && $this->projectAssigneesTableExists($adb)) {
+			$assignees = $_REQUEST['_additional_assignees'];
+			if (!is_array($assignees)) {
+				$assignees = array();
+			}
+			$adb->pquery("DELETE FROM vtiger_project_assignees WHERE projectid = ?", array($projectId));
+			foreach ($assignees as $uid) {
+				$uid = (int) $uid;
+				if ($uid > 0) {
+					$adb->pquery(
+						"INSERT IGNORE INTO vtiger_project_assignees (projectid, userid) VALUES (?, ?)",
+						array($projectId, $uid)
+					);
+				}
+			}
+		}
+	}
+
+	protected function shouldSyncTeamAssignmentFromRequest() {
+		if (isset($_REQUEST['assigned_user_id']) && $_REQUEST['assigned_user_id'] !== '') {
+			return true;
+		}
+		if (isset($_REQUEST['field']) && $_REQUEST['field'] === 'assigned_user_id') {
+			return true;
+		}
+		if (isset($_REQUEST['_team_group_id']) && (int)$_REQUEST['_team_group_id'] > 0) {
+			return true;
+		}
+		if (isset($_REQUEST['_additional_assignees'])) {
+			return true;
+		}
+		return false;
+	}
+
+	protected function projectTeamGroupTableExists($adb) {
+		$res = $adb->pquery("SHOW TABLES LIKE 'vtiger_project_team_groups'", array());
+		return $res && $adb->num_rows($res) > 0;
+	}
+
+	protected function projectAssigneesTableExists($adb) {
+		$res = $adb->pquery("SHOW TABLES LIKE 'vtiger_project_assignees'", array());
+		return $res && $adb->num_rows($res) > 0;
+	}
+
+	protected function notificationsTableExists($adb) {
+		$res = $adb->pquery("SHOW TABLES LIKE 'vtiger_notifications'", array());
+		return $res && $adb->num_rows($res) > 0;
 	}
 
 	/**

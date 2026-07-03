@@ -628,12 +628,6 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 		}
 
 		var payload = {field: fieldName, value: newValue};
-		if (fieldName === 'assigned_user_id') {
-			var ownerInt = parseInt(newValue, 10);
-			if (!isNaN(ownerInt) && ownerInt >= 0) {
-				payload._team_group_id = 0;
-			}
-		}
 
 		$td.data('mkInlineSaving', true);
 		$td.find('.input-group-addon').addClass('disabled');

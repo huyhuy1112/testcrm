@@ -27,7 +27,7 @@ class Project_Save_Action extends Vtiger_Save_Action {
 		}
 
 		$db = PearDatabase::getInstance();
-		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_team_groups'));
+		$res = $db->pquery("SHOW TABLES LIKE 'vtiger_project_team_groups'", array());
 		if (!$res || $db->num_rows($res) === 0) {
 			return $recordModel;
 		}

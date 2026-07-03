@@ -31,7 +31,19 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			$request->set('_team_group_id', 0);
 		}
 
-		parent::process($request);
+		if ($isInlineOwnerUpdate) {
+			$this->ensureProjectAssignTables();
+		}
+
+		try {
+			parent::process($request);
+		} catch (\Throwable $e) {
+			$response = new Vtiger_Response();
+			$response->setEmitType(Vtiger_Response::$EMIT_JSON);
+			$response->setError($e->getMessage());
+			$response->emit();
+			return;
+		}
 
 		// Safety net: sau khi save inline owner về user/group thường, xóa mapping team group còn sót.
 		if ($isInlineOwnerUpdate && $inlineOwnerValue !== null && $inlineOwnerValue >= 0) {
@@ -113,13 +125,13 @@ class Project_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 
 	protected function projectTeamGroupTableExists() {
 		$db = PearDatabase::getInstance();
-		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_team_groups'));
+		$res = $db->pquery("SHOW TABLES LIKE 'vtiger_project_team_groups'", array());
 		return $res && $db->num_rows($res) > 0;
 	}
 
 	protected function projectAssigneesTableExists() {
 		$db = PearDatabase::getInstance();
-		$res = $db->pquery("SHOW TABLES LIKE ?", array('vtiger_project_assignees'));
+		$res = $db->pquery("SHOW TABLES LIKE 'vtiger_project_assignees'", array());
 		return $res && $db->num_rows($res) > 0;
 	}
 
