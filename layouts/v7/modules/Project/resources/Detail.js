@@ -536,12 +536,16 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 
 	isManagementProjectDetailUi : function() {
 		var body = document.body;
-		return !!(
-			body
+		if (body
 			&& body.getAttribute('data-module') === 'Project'
-			&& body.getAttribute('data-view') === 'Detail'
-			&& body.getAttribute('data-app') === 'MANAGEMENT'
-		);
+			&& body.getAttribute('data-view') === 'Detail') {
+			var app = (body.getAttribute('data-app') || '').toUpperCase();
+			if (app === 'MANAGEMENT' || app === '') {
+				return true;
+			}
+		}
+		var href = window.location.href || '';
+		return href.indexOf('module=Project') !== -1 && href.indexOf('app=MANAGEMENT') !== -1;
 	},
 
 	/**
@@ -553,90 +557,134 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 			return;
 		}
 		var thisInstance = this;
-		var holder = this.getContentHolder();
-		holder.off('click.mkProjectKvInlineSave', '.mk-project-detail-keyfields-body .inlineAjaxSave');
-		holder.on('click.mkProjectKvInlineSave', '.mk-project-detail-keyfields-body .inlineAjaxSave', function(e) {
+		if (window._mkProjectKvCaptureBound) {
+			return;
+		}
+		window._mkProjectKvCaptureBound = true;
+		document.addEventListener('click', function(e) {
+			var target = e.target;
+			if (!target || !target.closest) {
+				return;
+			}
+			var btn = target.closest('.mk-project-detail-keyfields-body .inlineAjaxSave');
+			if (!btn) {
+				return;
+			}
 			e.preventDefault();
 			e.stopImmediatePropagation();
+			thisInstance.handleMkProjectKeyFieldInlineSave(jQuery(btn));
+		}, true);
+	},
 
-			var $td = jQuery(e.currentTarget).closest('td.fieldValue');
-			if (!$td.length) {
+	handleMkProjectKeyFieldInlineSave : function($btn) {
+		var $td = $btn.closest('td.fieldValue');
+		if (!$td.length || $td.data('mkInlineSaving')) {
+			return;
+		}
+		var $edit = $td.find('.edit');
+		var $fieldBasicData = $edit.find('.fieldBasicData');
+		var fieldName = $fieldBasicData.data('name');
+		var fieldType = $fieldBasicData.data('type');
+		var previousValue = jQuery.trim($fieldBasicData.data('displayvalue'));
+		var $fieldEl = $edit.find('[name="' + fieldName + '"]');
+		if ($fieldEl.length > 1) {
+			$fieldEl = $fieldEl.filter('select, input, textarea').first();
+		}
+		var newValue = $fieldEl.val();
+		var thisInstance = this;
+
+		if ($fieldEl.is('input:checkbox')) {
+			newValue = $fieldEl.is(':checked') ? '1' : '0';
+		} else if (fieldType === 'reference') {
+			newValue = $fieldEl.data('value');
+		} else if (fieldType === 'owner' || fieldType === 'ownergroup') {
+			newValue = $fieldEl.val();
+			if ((newValue === '' || newValue === null) && $fieldEl.hasClass('select2')) {
+				try {
+					newValue = $fieldEl.select2('val');
+				} catch (ignore) {}
+			}
+		}
+
+		var customHandlingFields = ['owner', 'ownergroup', 'picklist', 'multipicklist', 'reference', 'boolean'];
+		if (jQuery.inArray(fieldType, customHandlingFields) !== -1) {
+			previousValue = $fieldBasicData.data('value');
+		}
+		if (fieldType === 'multipicklist') {
+			fieldName = fieldName.split('[]')[0];
+		}
+
+		if (previousValue == newValue) {
+			$td.find('.value').css('display', '');
+			$edit.addClass('hide').removeClass('ajaxEdited');
+			$td.find('.editAction').removeClass('hide').show();
+			return;
+		}
+
+		if (newValue === '' || newValue === null || typeof newValue === 'undefined') {
+			app.helper.showErrorNotification({message: app.vtranslate('JS_REQUIRED_FIELD')});
+			return;
+		}
+
+		var payload = {field: fieldName, value: newValue};
+		if (fieldName === 'assigned_user_id') {
+			var ownerInt = parseInt(newValue, 10);
+			if (!isNaN(ownerInt) && ownerInt >= 0) {
+				payload._team_group_id = 0;
+			}
+		}
+
+		$td.data('mkInlineSaving', true);
+		$td.find('.input-group-addon').addClass('disabled');
+		app.helper.showProgress();
+		thisInstance.saveFieldValues(payload).then(function(err, response) {
+			app.helper.hideProgress();
+			$td.removeData('mkInlineSaving');
+			$td.find('.input-group-addon').removeClass('disabled');
+			if (err !== null) {
+				app.event.trigger('post.save.failed', err);
 				return;
 			}
-			var $edit = $td.find('.edit');
-			var $fieldBasicData = $edit.find('.fieldBasicData');
-			var fieldName = $fieldBasicData.data('name');
-			var fieldType = $fieldBasicData.data('type');
-			var previousValue = jQuery.trim($fieldBasicData.data('displayvalue'));
-			var $fieldEl = $edit.find('[name="' + fieldName + '"]');
-			var newValue = $fieldEl.val();
-
-			if ($fieldEl.is('input:checkbox')) {
-				newValue = $fieldEl.is(':checked') ? '1' : '0';
-			} else if (fieldType === 'reference') {
-				newValue = $fieldEl.data('value');
-			}
-
-			var customHandlingFields = ['owner', 'ownergroup', 'picklist', 'multipicklist', 'reference', 'boolean'];
-			if (jQuery.inArray(fieldType, customHandlingFields) !== -1) {
-				previousValue = $fieldBasicData.data('value');
-			}
-			if (fieldType === 'multipicklist') {
-				fieldName = fieldName.split('[]')[0];
-			}
-
-			if (previousValue == newValue) {
-				$td.find('.value').css('display', '');
-				$edit.addClass('hide').removeClass('ajaxEdited');
-				$td.find('.editAction').removeClass('hide').show();
+			if (!response || !response[fieldName] || response[fieldName].display_value === undefined) {
+				window.location.reload();
 				return;
 			}
 
-			var payload = {field: fieldName, value: newValue};
-			$td.find('.input-group-addon').addClass('disabled');
-			app.helper.showProgress();
-			thisInstance.saveFieldValues(payload).then(function(err, response) {
-				app.helper.hideProgress();
-				$td.find('.input-group-addon').removeClass('disabled');
-				if (err !== null) {
-					app.event.trigger('post.save.failed', err);
-					return;
-				}
-				if (!response || !response[fieldName] || response[fieldName].display_value === undefined) {
-					window.location.reload();
-					return;
-				}
-
-				var $detailViewValue = $td.find('.value');
-				var displayValue = response[fieldName].display_value;
-				if (fieldType === 'picklist') {
-					var color = response[fieldName].colormap && response[fieldName].colormap[response[fieldName].value];
-					if (color) {
-						var contrast = app.helper.getColorContrast(color);
-						var textColor = (contrast === 'dark') ? 'white' : 'black';
-						$detailViewValue.html(
-							'<span class="picklist-color" style="background-color: ' + color + '; color: ' + textColor + ';">' +
-							displayValue + '</span>'
-						);
-					} else {
-						$detailViewValue.html('<span class="picklist-color">' + displayValue + '</span>');
-					}
+			var $detailViewValue = $td.find('.value');
+			var displayValue = response[fieldName].display_value;
+			if (fieldType === 'picklist') {
+				var color = response[fieldName].colormap && response[fieldName].colormap[response[fieldName].value];
+				if (color) {
+					var contrast = app.helper.getColorContrast(color);
+					var textColor = (contrast === 'dark') ? 'white' : 'black';
+					$detailViewValue.html(
+						'<span class="picklist-color" style="background-color: ' + color + '; color: ' + textColor + ';">' +
+						displayValue + '</span>'
+					);
 				} else {
-					$detailViewValue.html(displayValue);
+					$detailViewValue.html('<span class="picklist-color">' + displayValue + '</span>');
 				}
-				$detailViewValue.css('display', '');
-				$fieldBasicData.data('displayvalue', displayValue);
-				$fieldBasicData.data('value', response[fieldName].value);
-				$edit.addClass('hide').removeClass('ajaxEdited');
-				$td.find('.editAction').removeClass('hide').show();
+			} else {
+				$detailViewValue.html(displayValue);
+			}
+			$detailViewValue.css('display', '');
+			$fieldBasicData.data('displayvalue', displayValue);
+			$fieldBasicData.data('value', response[fieldName].value);
+			$edit.addClass('hide').removeClass('ajaxEdited');
+			$td.find('.editAction').removeClass('hide').show();
 
-				if (fieldName === 'projectname') {
-					jQuery('.mk-project-detail-hero__title .recordLabel, .detailview-header-block .recordLabel').text(displayValue);
-				}
+			if (fieldName === 'projectname') {
+				jQuery('.mk-project-detail-hero__title .recordLabel, .detailview-header-block .recordLabel').text(displayValue);
+			}
 
-				app.event.trigger(Vtiger_Detail_Js.PostAjaxSaveEvent, $fieldBasicData, response, holder);
-			});
+			jQuery('.vt-notification').remove();
+			app.event.trigger(Vtiger_Detail_Js.PostAjaxSaveEvent, $fieldBasicData, response, thisInstance.getContentHolder());
 		});
+	},
+
+	registerBasicEvents : function() {
+		this.registerMkProjectSummaryInlineSave();
+		this._super();
 	},
 	
 	registerEvents : function(){
@@ -645,11 +693,6 @@ Vtiger_Detail_Js("Project_Detail_Js",{
 		this._super();
 
 		this.registerMkProjectSummaryInlineSave();
-		if (typeof app !== 'undefined' && app && app.event && typeof app.event.on === 'function') {
-			app.event.on('post.summaryview.load', function() {
-				thisInstance.registerMkProjectSummaryInlineSave();
-			});
-		}
 		
 		detailContentsHolder.on('click','.moreRecentMilestones', function(){
 			var recentMilestonesTab = thisInstance.getTabByLabel(thisInstance.detailViewRecentMileStonesLabel);
