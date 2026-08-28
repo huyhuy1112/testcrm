@@ -215,12 +215,22 @@ class Calendar_SaveAjax_Action extends Vtiger_SaveAjax_Action {
 			$_REQUEST['set_reminder'] = 'No';
 		}
 
-		// Handle All Day event
+		// All day: re-apply date_start / due_date from request using date-only conversion (same as Events SaveAjax).
+		// Avoids due_date shifting +1 day when the earlier path used getDBDateTimeValue(due_date + time_end).
 		$allday = $request->get('allday');
 		if ($allday == '1' || $allday === true) {
-			// For all-day events, set times to 00:00:00 and ensure same-day or proper date range
 			$recordModel->set('time_start', '00:00:00');
 			$recordModel->set('time_end', '23:59:59');
+			$ds = $request->get('date_start');
+			$dd = $request->get('due_date');
+			if (!empty($ds)) {
+				$recordModel->set('date_start', Vtiger_Date_UIType::getDBInsertedValue($ds));
+			}
+			if (!empty($dd)) {
+				$recordModel->set('due_date', Vtiger_Date_UIType::getDBInsertedValue($dd));
+			} elseif (!empty($ds)) {
+				$recordModel->set('due_date', Vtiger_Date_UIType::getDBInsertedValue($ds));
+			}
 		}
 
 		// Handle optional fields (if custom fields exist, they will be saved automatically)

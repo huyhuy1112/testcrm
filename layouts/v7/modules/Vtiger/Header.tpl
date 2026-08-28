@@ -10,8 +10,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>{vtranslate($PAGETITLE, $QUALIFIED_MODULE)}</title>
-        <link rel="SHORTCUT ICON" href="layouts/v7/skins/images/favicon.ico">
+		<title>B-ACE</title>
+        <link rel="icon" type="image/png" sizes="32x32" href="layouts/v7/skins/images/favicon-32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="layouts/v7/skins/images/favicon-16.png">
+        <link rel="apple-touch-icon" sizes="180x180" href="layouts/v7/skins/images/bace-icon-180.png">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
@@ -31,13 +33,20 @@
         <link type='text/css' rel='stylesheet' href='{vresource_url("layouts/v7/lib/jquery/daterangepicker/daterangepicker.css")}'>
         
         <input type="hidden" id="inventoryModules" value={ZEND_JSON::encode($INVENTORY_MODULES)}>
-        {if isset($SELECTED_MENU_CATEGORY)}
+        {* Dashboard: menu Main Page (MANAGEMENT) nhưng CSS = theme gốc (PAGE_THEME_PATH set từ PHP) *}
+        {if isset($PAGE_THEME_PATH) && $PAGE_THEME_PATH != ''}
+        {assign var=V7_THEME_PATH value=$PAGE_THEME_PATH}
+        {elseif isset($PAGE_THEME_APP) && $PAGE_THEME_APP != ''}
+        {assign var=V7_THEME_PATH value=Vtiger_Theme::getv7AppStylePath($PAGE_THEME_APP)}
+        {elseif isset($SELECTED_MENU_CATEGORY)}
         {assign var=V7_THEME_PATH value=Vtiger_Theme::getv7AppStylePath($SELECTED_MENU_CATEGORY)}
         {/if}
+        {if $V7_THEME_PATH && $V7_THEME_PATH != ''}
         {if strpos($V7_THEME_PATH,".less")!== false}
             <link type="text/css" rel="stylesheet/less" href="{vresource_url($V7_THEME_PATH)}" media="screen" />
         {else}
             <link type="text/css" rel="stylesheet" href="{vresource_url($V7_THEME_PATH)}" media="screen" />
+        {/if}
         {/if}
         
 		{foreach key=index item=cssModel from=$STYLES}
@@ -48,7 +57,8 @@
 		{if $MODULE_NAME eq 'Products'}
 			<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/modules/Products/resources/Products.css')}" media="screen" />
 		{/if}
-		<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/resources/custom.css')}" media="screen" />
+		{* cv = cache-bust: dùng filemtime hoặc thời điểm hiện tại để menu/custom CSS luôn mới sau chuyển trang hoặc refresh *}
+		<link type="text/css" rel="stylesheet" href="{vresource_url('layouts/v7/resources/custom.css')}&amp;cv={$CUSTOM_CSS_VERSION|default:$smarty.now}" media="screen" />
 
 		{* For making pages - print friendly *}
 		<style type="text/css">
@@ -56,6 +66,7 @@
             .noprint { display:none; }
 		}
 		</style>
+		{* App menu CSS: đã chuyển vào layouts/v7/resources/custom.css (#app-menu.app-menu + .app-list.row fallback) *}
 		<script type="text/javascript">var __pageCreationTime = (new Date()).getTime();</script>
 		<script src="{vresource_url('layouts/v7/lib/jquery/jquery.min.js')}"></script>
 		<script src="{vresource_url('layouts/v7/lib/jquery/jquery-migrate-1.4.1.js')}"></script>
@@ -73,7 +84,7 @@
 		</script>
 	</head>
 	 {assign var=CURRENT_USER_MODEL value=Users_Record_Model::getCurrentUserModel()}
-	<body data-skinpath="{Vtiger_Theme::getBaseThemePath()}" data-module="{$MODULE}" data-language="{$LANGUAGE}" data-user-decimalseparator="{$CURRENT_USER_MODEL->get('currency_decimal_separator')}" data-user-dateformat="{$CURRENT_USER_MODEL->get('date_format')}"
+	<body data-skinpath="{Vtiger_Theme::getBaseThemePath()}" data-module="{$MODULE}" data-language="{$LANGUAGE}" data-app="{if isset($SELECTED_MENU_CATEGORY)}{$SELECTED_MENU_CATEGORY}{/if}" data-user-decimalseparator="{$CURRENT_USER_MODEL->get('currency_decimal_separator')}" data-user-dateformat="{$CURRENT_USER_MODEL->get('date_format')}"
           data-user-groupingseparator="{$CURRENT_USER_MODEL->get('currency_grouping_separator')}" data-user-numberofdecimals="{$CURRENT_USER_MODEL->get('no_of_currency_decimals')}" data-user-hourformat="{$CURRENT_USER_MODEL->get('hour_format')}"
           data-user-calendar-reminder-interval="{$CURRENT_USER_MODEL->getCurrentUserActivityReminderInSeconds()}">
             <input type="hidden" id="start_day" value="{$CURRENT_USER_MODEL->get('dayoftheweek')}" /> 

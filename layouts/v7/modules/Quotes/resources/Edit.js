@@ -17,6 +17,187 @@ Inventory_Edit_Js("Quotes_Edit_Js",{},{
       var form = this.getForm();
       this.accountsReferenceField = form.find('[name="account_id"]');
       this.contactsReferenceField = form.find('[name="contact_id"]');
+
+      // Auto Subject from Opportunity (potential_id)
+      this.registerAutoSubjectFromOpportunity();
+
+      // Auto-fill Organization + Contact from Opportunity (potential_id)
+      this.registerAutoOrgContactFromOpportunity();
+    },
+
+    /**
+     * Unified "Add Products & Services" row behavior (match Invoice).
+     * Creates a new line-item row compatible with ProductsServices popup selection.
+     */
+    registerAddProductsServicesButton : function() {
+        var self = this;
+        jQuery('#addProductsServices').on('click', function(e, data){
+            var currentTarget = jQuery(e.currentTarget);
+            var params = {'currentTarget' : currentTarget};
+            var newLineItem = self.getNewLineItem(params);
+            newLineItem = newLineItem.appendTo(self.lineItemsHolder);
+            newLineItem.find('input.productName').addClass('autoComplete');
+            newLineItem.find('.ignore-ui-registration').removeClass('ignore-ui-registration');
+            vtUtils.applyFieldElementsView(newLineItem);
+            app.event.trigger('post.lineItem.New', newLineItem);
+            self.checkLineItemRow();
+            self.registerLineItemAutoComplete(newLineItem);
+
+            // If invoked from multi-select popup flow, map the selected record into the row.
+            if(typeof data !== "undefined") {
+                var recordData;
+                for(var id in data) {
+                    recordData = data[id];
+                    break;
+                }
+                var itemType = recordData ? recordData.item_type : null;
+                var underlyingType = 'Products';
+                if(itemType) {
+                    var itemTypeLower = itemType.toLowerCase();
+                    if(itemTypeLower === 'product' || itemTypeLower === 'products') {
+                        underlyingType = 'Products';
+                    } else if(itemTypeLower === 'service' || itemTypeLower === 'services') {
+                        underlyingType = 'Services';
+                    }
+                }
+                newLineItem.find('.lineItemType').val(underlyingType);
+                self.mapResultsToFields(newLineItem, data);
+            }
+        });
+    },
+
+    /**
+     * Subject is auto-filled from Opportunity name (potential_id) and is not required.
+     */
+    registerAutoSubjectFromOpportunity : function() {
+        var form = this.getForm();
+        if (!form || !form.length) return;
+
+        var normalizeOppName = function(name) {
+            var s = (name || '').toString().trim();
+            // remove leading YYMMDD- (e.g. 260313-)
+            s = s.replace(/^\d{6}-/, '');
+            if (!s.length) return '';
+            if (!/^TDB Quo-/i.test(s)) {
+                s = 'TDB Quo-' + s;
+            }
+            return s;
+        };
+
+        var subjectEl = form.find('[name="subject"]');
+        if (subjectEl && subjectEl.length) {
+            // Remove required validation (UI only). Backend will still set if empty.
+            subjectEl.removeAttr('data-rule-required');
+            subjectEl.removeClass('required');
+            // Lock subject: keep it submitted (readonly), but prevent user edits.
+            subjectEl.prop('readonly', true);
+        }
+
+        var potentialNameEl = form.find('[name="potential_id_display"]');
+        var apply = function() {
+            if (!subjectEl || !subjectEl.length) return;
+            if (potentialNameEl && potentialNameEl.length) {
+                var oppName = potentialNameEl.val();
+                if (oppName && oppName.trim().length) {
+                    subjectEl.val(normalizeOppName(oppName));
+                }
+            }
+        };
+
+        // Apply on load (e.g. preselected opportunity)
+        apply();
+
+        // Apply whenever opportunity changes (via popup selection or manual clear/reselect)
+        form.on('change', '[name="potential_id"], [name="potential_id_display"]', function() {
+            apply();
+        });
+
+        // Also hook vtiger reference selection event
+        form.on(Vtiger_Edit_Js.referenceSelectionEvent, '[name="potential_id"]', function() {
+            apply();
+        });
+    },
+
+    /**
+     * When selecting Opportunity (potential_id), auto-fill Organization (account_id)
+     * and Contact (contact_id) from Opportunity fields (related_to/contact_id) if present.
+     *
+     * If Opportunity doesn't have these values, we do not overwrite existing selections.
+     */
+    registerAutoOrgContactFromOpportunity : function() {
+        var self = this;
+        var form = this.getForm();
+        if (!form || !form.length) return;
+
+        var accountIdEl = form.find('[name="account_id"]');
+        var accountDisplayEl = form.find('[name="account_id_display"]');
+        var contactIdEl = form.find('[name="contact_id"]');
+        var contactDisplayEl = form.find('[name="contact_id_display"]');
+
+        var setAccount = function(accountId) {
+            accountId = parseInt(accountId, 10) || 0;
+            if (!accountId) return;
+            if (accountIdEl && accountIdEl.length && parseInt(accountIdEl.val(), 10)) return; // don't overwrite
+
+            self.getRecordDetails({record: accountId, source_module: 'Accounts'}).then(function(data) {
+                var row = data && data.data ? data.data : null;
+                if (!row) return;
+                var name = row.accountname || '';
+                if (accountIdEl && accountIdEl.length) accountIdEl.val(accountId);
+                if (accountDisplayEl && accountDisplayEl.length) accountDisplayEl.val(name);
+                if (accountDisplayEl && accountDisplayEl.length) {
+                    accountDisplayEl.trigger('change');
+                    accountDisplayEl.trigger(Vtiger_Edit_Js.postReferenceSelectionEvent);
+                }
+            });
+        };
+
+        var setContact = function(contactId) {
+            contactId = parseInt(contactId, 10) || 0;
+            if (!contactId) return;
+            if (contactIdEl && contactIdEl.length && parseInt(contactIdEl.val(), 10)) return; // don't overwrite
+
+            self.getRecordDetails({record: contactId, source_module: 'Contacts'}).then(function(data) {
+                var row = data && data.data ? data.data : null;
+                if (!row) return;
+                var name = ((row.firstname || '') + ' ' + (row.lastname || '')).trim();
+                if (!name) name = row.label || '';
+                if (contactIdEl && contactIdEl.length) contactIdEl.val(contactId);
+                if (contactDisplayEl && contactDisplayEl.length) contactDisplayEl.val(name);
+                if (contactDisplayEl && contactDisplayEl.length) {
+                    contactDisplayEl.trigger('change');
+                    contactDisplayEl.trigger(Vtiger_Edit_Js.postReferenceSelectionEvent);
+                }
+            });
+        };
+
+        var applyFromPotentialId = function(potentialId) {
+            potentialId = parseInt(potentialId, 10) || 0;
+            if (!potentialId) return;
+
+            self.getRecordDetails({record: potentialId, source_module: 'Potentials'}).then(function(data) {
+                var row = data && data.data ? data.data : null;
+                if (!row) return;
+
+                // Potentials: related_to => Account, contact_id => Contact
+                if (row.related_to) {
+                    setAccount(row.related_to);
+                }
+                if (row.contact_id) {
+                    setContact(row.contact_id);
+                }
+            });
+        };
+
+        // On reference selection event (popup selection)
+        form.on(Vtiger_Edit_Js.referenceSelectionEvent, '[name="potential_id"]', function() {
+            applyFromPotentialId(form.find('[name="potential_id"]').val());
+        });
+
+        // Also on change (in case of programmatic updates)
+        form.on('change', '[name="potential_id"]', function() {
+            applyFromPotentialId(jQuery(this).val());
+        });
     },
     
     /**
@@ -107,7 +288,7 @@ Inventory_Edit_Js("Quotes_Edit_Js",{},{
 		}
         
         // Added for overlay edit as the module is different
-        if(params.search_module == 'Products' || params.search_module == 'Services') {
+        if(params.search_module == 'Products' || params.search_module == 'Services' || params.search_module == 'ProductsServices') {
             params.module = 'Quotes';
         }
 
@@ -127,5 +308,6 @@ Inventory_Edit_Js("Quotes_Edit_Js",{},{
             this._super(container);
             this.registerForTogglingBillingandShippingAddress();
             this.registerEventForCopyAddress();
+            this.registerAddProductsServicesButton();
         },
 });

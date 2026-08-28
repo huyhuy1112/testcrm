@@ -61,6 +61,15 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$userid = $request['userid'];
 			$color = $request['color'];
 			$textColor = $request['textColor'];
+			// Màu mặc định để calendar luôn hiện khung màu khi feed không cấu hình màu
+			if (empty($color) && $type === 'Calendar') {
+				$color = '#2e7d32';
+				if (empty($textColor)) { $textColor = '#ffffff'; }
+			}
+			if (empty($color) && $type === 'Events') {
+				$color = '#3f51b5';
+				if (empty($textColor)) { $textColor = '#ffffff'; }
+			}
 			$targetModule = $request['targetModule'];
 			$fieldName = $request['fieldname'];
 			$isGroupId = $request['group'];
@@ -68,18 +77,20 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$conditions = $request['conditions'];
 			$result = array();
 			switch ($type) {
-				case 'Events'			:	if($fieldName == 'date_start,due_date' || $userid) {
+				// Empty fieldname happens for some feed checkboxes (e.g. shared "Mine"); must still use activity SQL feeds.
+				case 'Events'			:	if($fieldName == 'date_start,due_date' || $userid || $fieldName === '' || $fieldName === null) {
 												$this->pullEvents($start, $end, $result,$userid,$color,$textColor,$isGroupId,$conditions);
 											} else {
 												$this->pullDetails($start, $end, $result, $type, $fieldName, $color, $textColor, $conditions);
 											}
+											$this->pullAnniversaryActivities($start, $end, $result);
 											break;
-				case 'Calendar'			:	if($fieldName == 'date_start,due_date') {
+				case 'Calendar'			:	if($fieldName == 'date_start,due_date' || $fieldName === '' || $fieldName === null) {
 												$this->pullTasks($start, $end, $result,$color,$textColor);
 											} else {
 												$this->pullDetails($start, $end, $result, $type, $fieldName, $color, $textColor);
 											}
-											break;
+												break;
 				case 'MultipleEvents'	:	$this->pullMultipleEvents($start,$end, $result,$mapping);break;
 				case $type				:	$this->pullDetails($start, $end, $result, $type, $fieldName, $color, $textColor);break;
 			}
@@ -98,6 +109,35 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 		$start = DateTimeField::convertToDBFormat($start);
 		$end = DateTimeField::convertToDBFormat($end);
 		//-angelo
+		// Custom tickets feed: hook into HelpDesk feed and read from custom `tickets` table.
+		// Keep this isolated and return early to avoid affecting generic providers.
+		if ($type === 'HelpDesk') {
+			$db = PearDatabase::getInstance();
+			$startDateTime = $start . ' 00:00:00';
+			$endDateTime = $end . ' 23:59:59';
+			$query = "SELECT id, ticket_code, subject, created_at,
+							 COALESCE(sla_due_at, DATE_ADD(created_at, INTERVAL 1 DAY)) AS event_end
+					  FROM tickets
+					  WHERE created_at <= ? AND COALESCE(sla_due_at, DATE_ADD(created_at, INTERVAL 1 DAY)) >= ?
+					  ORDER BY created_at ASC";
+			$queryResult = $db->pquery($query, array($endDateTime, $startDateTime));
+			while ($queryResult && ($row = $db->fetchByAssoc($queryResult))) {
+				$item = array();
+				$item['id'] = $row['id'];
+				$item['title'] = decode_html(trim($row['ticket_code'] . ' - ' . $row['subject']));
+				$item['start'] = $row['created_at'];
+				$item['end'] = $row['event_end'];
+				$item['allDay'] = true;
+				$item['color'] = '#D35400';
+				$item['textColor'] = '#ffffff';
+				$item['module'] = 'Tickets';
+				$item['sourceModule'] = 'Tickets';
+				$item['fieldName'] = $fieldName;
+				$item['conditions'] = '';
+				$result[] = $item;
+			}
+			return;
+		}
 		$moduleModel = Vtiger_Module_Model::getInstance($type);
 		$nameFields = $moduleModel->getNameFields();
 		foreach($nameFields as $i => $nameField) {
@@ -214,6 +254,24 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$item['sourceModule'] = $moduleModel->getName();
 			$item['fieldName'] = $fieldName;
 			$item['conditions'] = '';
+			if ($type === 'ProjectTask') {
+				$projectTaskInfo = $this->getProjectTaskCalendarInfo($crmid);
+				if (!empty($projectTaskInfo)) {
+					$item['projectTaskInfo'] = $projectTaskInfo;
+					$item['extendedProps'] = array(
+						'projectTaskInfo' => $projectTaskInfo,
+						'tooltip' => $projectTaskInfo['tooltip']
+					);
+					$item['tooltip'] = $projectTaskInfo['tooltip'];
+				}
+			}
+			if (php7_count($fieldsList) == 2 && $fieldName != 'birthday') {
+				$startRaw = isset($item['start']) ? trim((string)$item['start']) : '';
+				$endRaw = isset($item['end']) ? trim((string)$item['end']) : '';
+				if ($startRaw !== '' && $endRaw === '') {
+					$item['end'] = $startRaw;
+				}
+			}
 			$item['end'] = date('Y-m-d', strtotime((isset($item['end']) ? $item['end']: $item['start']).' +1day'));
                         if(!empty($conditions)) {
                             $item['conditions'] = Zend_Json::encode(Zend_Json::encode($conditions));
@@ -287,7 +345,23 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$queryGenerator = new QueryGenerator($moduleModel->get('name'), $currentUser);
 		}
 
-		$queryGenerator->setFields(array('subject', 'eventstatus', 'visibility','date_start','time_start','due_date','time_end','assigned_user_id','id','activitytype','recurringtype'));
+		$queryGenerator->setFields(array(
+			'subject',
+			'eventstatus',
+			'visibility',
+			'date_start',
+			'time_start',
+			'due_date',
+			'time_end',
+			'assigned_user_id',
+			'parent_id',
+			'contact_id',
+			'priority',
+			'location',
+			'id',
+			'activitytype',
+			'recurringtype'
+		));
 		$query = $queryGenerator->getQuery();
 
 		$query.= " AND vtiger_activity.activitytype NOT IN ('Emails','Task') AND ";
@@ -323,6 +397,11 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 			$item['visibility'] = $visibility;
 			$item['activitytype'] = $activitytype;
 			$item['status'] = $status;
+			$item['assigned_user_id'] = $record['assigned_user_id'];
+			$item['parent_id'] = $record['parent_id'];
+			$item['contact_id'] = $record['contact_id'];
+			$item['priority'] = $record['priority'];
+			$item['location'] = $record['location'];
 			$recordBusy = true;
 			if(in_array($ownerId, $groupsIds)) {
 				$recordBusy = false;
@@ -342,39 +421,45 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 				$item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($record['eventstatus'],'Calendar')).')';
 				$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
 			}
+			// Rich popover rows (compact, only key fields; rendered by Calendar.js if present)
+			$item['extendedProps'] = isset($item['extendedProps']) && is_array($item['extendedProps']) ? $item['extendedProps'] : array();
+			$item['extendedProps']['detailRows'] = $this->buildCalendarActivityDetailRows($crmid, 'Events', $item);
 
 			// All-day: giống Task — time_start 00:00, time_end 23:59 → allDay true, start/end date-only
 			$timeStart = isset($record['time_start']) ? trim($record['time_start']) : '';
 			$timeEnd = isset($record['time_end']) ? trim($record['time_end']) : '';
 			$isAllDay = (empty($timeStart) || $timeStart === '00:00:00' || $timeStart === '00:00') && (empty($timeEnd) || $timeEnd === '23:59:59' || $timeEnd === '23:59:00' || $timeEnd === '23:59');
 
-			$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
-			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
-			$dateTimeComponents = explode(' ',$userDateTimeString);
-			$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
-			$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
+			// Timed events need timezone conversion; all-day must stay date-only (avoid shifting 23:59 into next day in user TZ).
+			if (!$isAllDay) {
+				$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
+				$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
+				$dateTimeComponents = explode(' ',$userDateTimeString);
+				$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
+				$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
+				$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
 
-			$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
-			$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
-			$dateTimeComponentsEnd = explode(' ',$userDateTimeStringEnd);
-			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
-			$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
-			$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
+				$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
+				$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
+				$dateTimeComponentsEnd = explode(' ',$userDateTimeStringEnd);
+				$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
+				$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
+				$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
 
-			if (!$isAllDay && $startTimePart !== '' && $endTimePart !== '') {
 				$item['start'] = $startDateYmd . ' ' . $startTimePart;
 				$item['end'] = $endDateYmd . ' ' . $endTimePart;
 				$item['allDay'] = false;
 			} else {
+				$startDateYmd = $record['date_start'];
+				$endDateYmd = $record['due_date'];
 				$item['start'] = $startDateYmd;
 				$item['end'] = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
 				$item['allDay'] = true;
 			}
 
 			$item['className'] = $cssClass;
-			$item['color'] = $color;
-			$item['textColor'] = $textColor;
+			$item['color'] = !empty($color) ? $color : '#3f51b5';
+			$item['textColor'] = !empty($textColor) ? $textColor : '#ffffff';
 			$item['module'] = $moduleModel->getName();
 			$recurringCheck = false;
 			if($record['recurringtype'] != '' && $record['recurringtype'] != '--None--') {
@@ -409,15 +494,31 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 		$userAndGroupIds = array_merge(array($user->getId()),$this->getGroupsIdsForUsers($user->getId()));
 		$queryGenerator = new QueryGenerator($moduleModel->get('name'), $user);
 
-		$queryGenerator->setFields(array('activityid','subject', 'taskstatus','activitytype', 'date_start','time_start','due_date','time_end','id'));
+		$queryGenerator->setFields(array(
+			'activityid',
+			'subject',
+			'taskstatus',
+			'status',
+			'activitytype',
+			'date_start',
+			'time_start',
+			'due_date',
+			'time_end',
+			'assigned_user_id',
+			'parent_id',
+			'contact_id',
+			'taskpriority',
+			'id'
+		));
 		$query = $queryGenerator->getQuery();
 
-		$query.= " AND vtiger_activity.activitytype = 'Task' AND ";
 		$currentUser = Users_Record_Model::getCurrentUserModel();
+		$query.= " AND vtiger_activity.activitytype = 'Task' AND ";
 		$hideCompleted = $currentUser->get('hidecompletedevents');
 		if($hideCompleted)
-			$query.= "vtiger_activity.status != 'Completed' AND ";
-		$query.= " ((date_start >= ? AND due_date < ? ) OR ( due_date >= ? ))";
+			$query.= "(vtiger_activity.status IS NULL OR vtiger_activity.status != 'Completed') AND ";
+		// Bao gồm task có due_date NULL (chỉ có date_start) hoặc trong khoảng ngày
+		$query.= " ((date_start >= ? AND (due_date IS NULL OR due_date < ?)) OR (due_date IS NOT NULL AND due_date >= ?))";
 
 		//+angelo
 		$start = DateTimeField::__convertToDBFormat($start, $user->get('date_format'));
@@ -432,49 +533,224 @@ class Calendar_Feed_Action extends Vtiger_BasicAjax_Action {
 		while($record = $db->fetchByAssoc($queryResult)){
 			$item = array();
 			$crmid = $record['activityid'];
-			$item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($record['status'],'Calendar')).')';
-			$item['status'] = $record['status'];
+			// DB có thể trả về 'status' hoặc 'taskstatus' tùy QueryGenerator
+			$taskStatus = isset($record['status']) ? $record['status'] : (isset($record['taskstatus']) ? $record['taskstatus'] : '');
+			$item['title'] = decode_html($record['subject']).' - ('.decode_html(vtranslate($taskStatus,'Calendar')).')';
+			$item['status'] = $taskStatus;
 			$item['activitytype'] = $record['activitytype'];
 			$item['id'] = $crmid;
+			$item['assigned_user_id'] = $record['assigned_user_id'];
+			$item['parent_id'] = $record['parent_id'];
+			$item['contact_id'] = $record['contact_id'];
+			$item['taskpriority'] = isset($record['taskpriority']) ? $record['taskpriority'] : '';
 			// Dùng currentUser để timezone/giờ hiển thị khớp form và màu vẽ trên lịch
 			$timeStart = isset($record['time_start']) ? trim($record['time_start']) : '';
 			$timeEnd = isset($record['time_end']) ? trim($record['time_end']) : '';
 			$isAllDay = (empty($timeStart) || $timeStart === '00:00:00' || $timeStart === '00:00') && (empty($timeEnd) || $timeEnd === '23:59:59' || $timeEnd === '23:59:00' || $timeEnd === '23:59');
 
-			$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
-			$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
-			$dateTimeComponents = explode(' ', $userDateTimeString);
-			$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
-			$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
-			$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
+			$dueDate = isset($record['due_date']) ? $record['due_date'] : $record['date_start'];
+			$timeEndVal = isset($record['time_end']) ? $record['time_end'] : $record['time_start'];
 
-			$dateTimeFieldInstanceEnd = new DateTimeField($record['due_date'].' '.$record['time_end']);
-			$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
-			$dateTimeComponentsEnd = explode(' ', $userDateTimeStringEnd);
-			$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $record['due_date'];
-			$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
-			$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
+			// Timed tasks need timezone conversion; all-day must stay date-only (avoid shifting 23:59 into next day in user TZ).
+			if (!$isAllDay) {
+				$dateTimeFieldInstance = new DateTimeField($record['date_start'].' '.$record['time_start']);
+				$userDateTimeString = $dateTimeFieldInstance->getDisplayDateTimeValue($currentUser);
+				$dateTimeComponents = explode(' ', $userDateTimeString);
+				$dateComponent = isset($dateTimeComponents[0]) ? $dateTimeComponents[0] : '';
+				$startDateYmd = DateTimeField::__convertToDBFormat($dateComponent, $currentUser->get('date_format'));
+				$startTimePart = isset($dateTimeComponents[1]) ? $dateTimeComponents[1] : '';
 
-			if (!$isAllDay && $startTimePart !== '' && $endTimePart !== '') {
-				// Task có giờ bắt đầu/kết thúc → hiển thị trên lưới giờ (allDay: false)
+				$dateTimeFieldInstanceEnd = new DateTimeField($dueDate.' '.$timeEndVal);
+				$userDateTimeStringEnd = $dateTimeFieldInstanceEnd->getDisplayDateTimeValue($currentUser);
+				$dateTimeComponentsEnd = explode(' ', $userDateTimeStringEnd);
+				$dateComponentEnd = isset($dateTimeComponentsEnd[0]) ? $dateTimeComponentsEnd[0] : $dueDate;
+				$endDateYmd = DateTimeField::__convertToDBFormat($dateComponentEnd, $currentUser->get('date_format'));
+				$endTimePart = isset($dateTimeComponentsEnd[1]) ? $dateTimeComponentsEnd[1] : '';
+
 				$item['start'] = $startDateYmd . ' ' . $startTimePart;
 				$item['end'] = $endDateYmd . ' ' . $endTimePart;
 				$item['allDay'] = false;
 			} else {
-				// Task all-day: start = ngày bắt đầu, end = ngày sau deadline (exclusive) → client parse YYYY-MM-DD local để không lệch timezone
+				$startDateYmd = $record['date_start'];
+				$endDateYmd = $dueDate;
 				$item['start'] = $startDateYmd;
-				$endExclusive = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
-				$item['end'] = $endExclusive;
+				$item['end'] = date('Y-m-d', strtotime($endDateYmd . ' +1 day'));
 				$item['allDay'] = true;
 			}
 
 			$item['url']   = sprintf('index.php?module=Calendar&view=Detail&record=%s', $crmid);
-			$item['color'] = $color;
-			$item['textColor'] = $textColor;
+			$item['color'] = !empty($color) ? $color : '#2e7d32';
+			$item['textColor'] = !empty($textColor) ? $textColor : '#ffffff';
 			$item['module'] = $moduleModel->getName();
 			$item['fieldName'] = 'date_start,due_date';
 			$item['conditions'] = '';
+			$item['extendedProps'] = isset($item['extendedProps']) && is_array($item['extendedProps']) ? $item['extendedProps'] : array();
+			$item['extendedProps']['detailRows'] = $this->buildCalendarActivityDetailRows($crmid, 'Calendar', $item);
 			$result[] = $item;
+		}
+	}
+
+	/**
+	 * Pull Anniversary activities from custom vtiger_activities table and append
+	 * as native FullCalendar events.
+	 */
+	protected function pullAnniversaryActivities($start, $end, &$result) {
+		$db = PearDatabase::getInstance();
+		$startDate = DateTimeField::convertToDBFormat($start) . ' 00:00:00';
+		$endDate = DateTimeField::convertToDBFormat($end) . ' 23:59:59';
+		$query = "SELECT activityid, title, activity_date
+		          FROM vtiger_activities
+		          WHERE activity_type = 'Anniversary'
+		            AND activity_date BETWEEN ? AND ?
+		          ORDER BY activity_date ASC";
+		$queryResult = $db->pquery($query, array($startDate, $endDate));
+		while ($queryResult && ($row = $db->fetchByAssoc($queryResult))) {
+			$title = trim((string)$row['title']);
+			$item = array(
+				'id' => 'anniversary_' . $row['activityid'],
+				'title' => '🎂 ' . decode_html($title),
+				'start' => $row['activity_date'],
+				'allDay' => true,
+				'url' => 'index.php?module=Activities&view=Detail&record=' . $row['activityid'],
+				'className' => 'fc-event-anniversary',
+				'backgroundColor' => '#f1c40f',
+				'borderColor' => '#f1c40f',
+				'textColor' => '#000000',
+				'module' => 'Activities',
+				'sourceModule' => 'Activities',
+				'extendedProps' => array(
+					'type' => 'anniversary',
+					'tooltip' => decode_html($title),
+				),
+				'tooltip' => decode_html($title),
+			);
+			$result[] = $item;
+		}
+	}
+
+	/**
+	 * Build rich ProjectTask popup info for Calendar entry.
+	 * Returns labels only for non-empty values to keep popup compact.
+	 */
+	protected function getProjectTaskCalendarInfo($recordId) {
+		$infoRows = array();
+		$tooltipParts = array();
+		try {
+			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, 'ProjectTask');
+			$fieldOrder = array(
+				'projecttaskname' => 'LBL_PROJECT_TASK_NAME',
+				'opportunity_id' => 'Opportunity',
+				'projecttaskstatus' => 'Status',
+				'projecttaskpriority' => 'Priority',
+				'assigned_user_id' => 'Assigned To',
+				'startdate' => 'Start Date',
+				'enddate' => 'End Date',
+				'projecttaskprogress' => 'Progress',
+				'projectid' => 'Related to',
+			);
+
+			foreach ($fieldOrder as $fieldName => $label) {
+				$rawValue = $recordModel->get($fieldName);
+				if ($rawValue === null || $rawValue === '') {
+					continue;
+				}
+				$displayValue = $recordModel->getDisplayValue($fieldName);
+				if ($displayValue === null || trim((string)$displayValue) === '') {
+					continue;
+				}
+				$labelText = vtranslate($label, 'ProjectTask');
+				$isHtml = (strpos((string)$displayValue, '<a ') !== false);
+				$infoRows[] = array('label' => $labelText, 'value' => $displayValue, 'isHtml' => $isHtml);
+				$tooltipParts[] = $labelText . ': ' . trim(strip_tags(decode_html((string)$displayValue)));
+			}
+
+			$detailUrl = 'index.php?module=ProjectTask&view=Detail&record=' . $recordId;
+			return array(
+				'rows' => $infoRows,
+				'detailUrl' => $detailUrl,
+				'detailLabel' => vtranslate('SINGLE_ProjectTask', 'ProjectTask'),
+				'tooltip' => implode("\n", $tooltipParts),
+			);
+		} catch (Exception $e) {
+			return array();
+		}
+	}
+
+	/**
+	 * Build compact detail rows for Calendar/Events popover.
+	 * Uses only fields that are already available (and safe) for the record.
+	 */
+	protected function buildCalendarActivityDetailRows($recordId, $moduleName, $seedItem = array()) {
+		$rows = array();
+		try {
+			$currentUser = Users_Record_Model::getCurrentUserModel();
+			$moduleModel = Vtiger_Module_Model::getInstance($moduleName);
+			$recordModel = Vtiger_Record_Model::getInstanceById($recordId, $moduleName);
+
+			$pushRow = function ($label, $value, $isHtml = false) use (&$rows) {
+				$value = (string)$value;
+				if (trim($value) === '') return;
+				$rows[] = array('label' => (string)$label, 'value' => $value, 'isHtml' => (bool)$isHtml);
+			};
+
+			// Assigned To
+			$assignedId = $recordModel->get('assigned_user_id');
+			if ($assignedId) {
+				$pushRow(vtranslate('Assigned To'), getUserFullName($assignedId));
+			}
+
+			// Dates
+			$dateStart = $recordModel->get('date_start');
+			$timeStart = $recordModel->get('time_start');
+			if ($dateStart) {
+				$dt = trim($dateStart . ' ' . $timeStart);
+				$pushRow(vtranslate('Start Date', $moduleName), DateTimeField::convertToUserFormat($dateStart) . ($timeStart ? (' ' . Vtiger_Time_UIType::getDisplayTimeValue($timeStart)) : ''));
+			}
+			$dueDate = $recordModel->get('due_date');
+			$timeEnd = $recordModel->get('time_end');
+			if ($dueDate) {
+				$pushRow(vtranslate('Due Date', $moduleName), DateTimeField::convertToUserFormat($dueDate) . ($timeEnd ? (' ' . Vtiger_Time_UIType::getDisplayTimeValue($timeEnd)) : ''));
+			}
+
+			// Status
+			$status = $recordModel->get('taskstatus');
+			if (!$status) $status = $recordModel->get('eventstatus');
+			if (!$status) $status = $recordModel->get('status');
+			if ($status) {
+				$pushRow(vtranslate('Status', $moduleName), vtranslate($status, 'Calendar'));
+			}
+
+			// Priority / Location
+			if ($moduleName === 'Events' && $recordModel->get('priority')) {
+				$pushRow(vtranslate('Priority', $moduleName), $recordModel->get('priority'));
+			}
+			if ($moduleName === 'Events' && $recordModel->get('location')) {
+				$pushRow(vtranslate('Location', $moduleName), $recordModel->get('location'));
+			}
+			if ($moduleName === 'Calendar' && $recordModel->get('taskpriority')) {
+				$pushRow(vtranslate('Priority', $moduleName), vtranslate($recordModel->get('taskpriority'), $moduleName));
+			}
+
+			// Contact / Related To (Opportunity if Potentials)
+			$contactId = $recordModel->get('contact_id');
+			if ($contactId) {
+				$field = Vtiger_Field_Model::getInstance('contact_id', $moduleModel);
+				if ($field) {
+					$pushRow(vtranslate($field->get('label'), $moduleName), $field->getDisplayValue($contactId), (strpos((string)$field->getDisplayValue($contactId), '<a ') !== false));
+				}
+			}
+			$parentId = $recordModel->get('parent_id');
+			if ($parentId) {
+				$parentType = Vtiger_Functions::getCRMRecordType($parentId);
+				$label = ($parentType === 'Potentials') ? 'Opportunity' : 'Related To';
+				$field = Vtiger_Field_Model::getInstance('parent_id', $moduleModel);
+				$display = $field ? $field->getDisplayValue($parentId) : Vtiger_Functions::getCRMRecordLabel($parentId);
+				$pushRow(vtranslate($label, $moduleName), $display, (strpos((string)$display, '<a ') !== false));
+			}
+
+			return $rows;
+		} catch (Exception $e) {
+			return array();
 		}
 	}
 
